@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 64" width="1280" height="64" role="img" aria-label="Stack: Python, Flask, Telegram Bot API, Binance, Yahoo Finance, Stripe, Fly.io">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#060b14" stop-opacity="1"/>
+      <stop offset="8%" stop-color="#060b14" stop-opacity="0"/>
+      <stop offset="92%" stop-color="#060b14" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#060b14" stop-opacity="1"/>
+    </linearGradient>
+    <g id="run" font-family="Verdana,DejaVu Sans,sans-serif" font-size="15" letter-spacing="2">
+      <text x="0"   y="38" fill="#f0b429">PYTHON 3.12</text>
+      <text x="150" y="38" fill="#5b6b88">/</text>
+      <text x="175" y="38" fill="#00e5ff">FLASK</text>
+      <text x="255" y="38" fill="#5b6b88">/</text>
+      <text x="280" y="38" fill="#e8f0ff">TELEGRAM BOT API</text>
+      <text x="500" y="38" fill="#5b6b88">/</text>
+      <text x="525" y="38" fill="#f0b429">BINANCE</text>
+      <text x="640" y="38" fill="#5b6b88">/</text>
+      <text x="665" y="38" fill="#00e5ff">YAHOO FINANCE</text>
+      <text x="855" y="38" fill="#5b6b88">/</text>
+      <text x="880" y="38" fill="#ff4d6d">STRIPE</text>
+      <text x="975" y="38" fill="#5b6b88">/</text>
+      <text x="1000" y="38" fill="#a78bfa">FLY.IO</text>
+      <text x="1095" y="38" fill="#5b6b88">/</text>
+      <text x="1120" y="38" fill="#34d399">USDT</text>
+    </g>
+  </defs>
+  <rect width="1280" height="64" fill="#08101e"/>
+  <rect y="0" width="1280" height="1" fill="#1b2b4a"/>
+  <rect y="63" width="1280" height="1" fill="#1b2b4a"/>
+  <g>
+    <animateTransform attributeName="transform" type="translate" from="0 0" to="-1220 0" dur="22s" repeatCount="indefinite"/>
+    <use href="#run" x="0"/>
+    <use href="#run" x="1220"/>
+    <use href="#run" x="2440"/>
+  </g>
+  <rect width="1280" height="64" fill="url(#fade)"/>
+</svg>

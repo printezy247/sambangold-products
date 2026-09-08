@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="88" height="88" role="img" aria-label="Product 17 icon">
+  <defs>
+    <linearGradient id="f17" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16203a"/><stop offset="100%" stop-color="#0a1120"/>
+    </linearGradient>
+    <linearGradient id="e17" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.55"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="s17" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.9"/><stop offset="100%" stop-color="#c9b8ff" stop-opacity="0.35"/>
+    </linearGradient>
+    <radialGradient id="g17" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.35"/><stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="44" cy="80" rx="24" ry="5" fill="#a78bfa" opacity="0.10">
+    <animate attributeName="rx" values="24;20;24" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.10;0.05;0.10" dur="5s" repeatCount="indefinite"/>
+  </ellipse>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -4; 0 0" dur="5s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+    <path d="M22 22h44a10 10 0 0 1 10 10v34a10 10 0 0 1-10 10H22z" fill="url(#e17)"/>
+    <rect x="10" y="10" width="56" height="56" rx="14" fill="url(#f17)" stroke="url(#s17)" stroke-width="1.6"/>
+    <rect x="10" y="10" width="56" height="56" rx="14" fill="url(#g17)"/>
+    <g transform="translate(-2,-2) scale(0.86) translate(6,6)" fill="none" stroke="#c9b8ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="40" cy="38" r="15"/><path d="M40 29v18"/><path d="M35 33h8a3 3 0 0 1 0 6h-6a3 3 0 0 0 0 6h8"/>
+    </g>
+    <path d="M14 20a8 8 0 0 1 8-8h20" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.4" stroke-linecap="round"/>
+  </g>
+</svg>

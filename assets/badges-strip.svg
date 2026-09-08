@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1048 30" width="1048" height="30" role="img" aria-label="9 shipped, 9 proposed, Telegram and Web, free tier on all 18, Python 3.12 Flask, MIT">
+  <g transform="translate(0,0)">
+    <rect width="272" height="30" rx="15" fill="#0d1626" stroke="#f0b429" stroke-opacity="0.45"/>
+    <rect width="83" height="30" rx="15" fill="#f0b429" fill-opacity="0.14"/>
+    <text x="41" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#f0b429" letter-spacing="1">PRODUCTS</text>
+    <text x="177" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#c8d6ee">9 shipped / 9 proposed</text>
+    <animate attributeName="opacity" from="0" to="1" begin="0.00s" dur="0.6s" fill="freeze"/>
+  </g>
+  <g transform="translate(284,0)">
+    <rect width="211" height="30" rx="15" fill="#0d1626" stroke="#00e5ff" stroke-opacity="0.45"/>
+    <rect width="83" height="30" rx="15" fill="#00e5ff" fill-opacity="0.14"/>
+    <text x="41" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#00e5ff" letter-spacing="1">PLATFORM</text>
+    <text x="147" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#c8d6ee">Telegram + Web</text>
+    <animate attributeName="opacity" from="0" to="1" begin="0.32s" dur="0.6s" fill="freeze"/>
+  </g>
+  <g transform="translate(507,0)">
+    <rect width="158" height="30" rx="15" fill="#0d1626" stroke="#34d399" stroke-opacity="0.45"/>
+    <rect width="90" height="30" rx="15" fill="#34d399" fill-opacity="0.14"/>
+    <text x="45" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#34d399" letter-spacing="1">FREE TIER</text>
+    <text x="124" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#c8d6ee">all 18</text>
+    <animate attributeName="opacity" from="0" to="1" begin="0.56s" dur="0.6s" fill="freeze"/>
+  </g>
+  <g transform="translate(677,0)">
+    <rect width="226" height="30" rx="15" fill="#0d1626" stroke="#a78bfa" stroke-opacity="0.45"/>
+    <rect width="60" height="30" rx="15" fill="#a78bfa" fill-opacity="0.14"/>
+    <text x="30" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#a78bfa" letter-spacing="1">STACK</text>
+    <text x="143" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#c8d6ee">Python 3.12 / Flask</text>
+    <animate attributeName="opacity" from="0" to="1" begin="0.75s" dur="0.6s" fill="freeze"/>
+  </g>
+  <g transform="translate(916,0)">
+    <rect width="120" height="30" rx="15" fill="#0d1626" stroke="#ff4d6d" stroke-opacity="0.45"/>
+    <rect width="75" height="30" rx="15" fill="#ff4d6d" fill-opacity="0.14"/>
+    <text x="38" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#ff4d6d" letter-spacing="1">LICENSE</text>
+    <text x="98" y="20" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#c8d6ee">MIT</text>
+    <animate attributeName="opacity" from="0" to="1" begin="1.02s" dur="0.6s" fill="freeze"/>
+  </g>
+</svg>

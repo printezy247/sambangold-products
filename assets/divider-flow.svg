@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 24" width="1280" height="24" role="img" aria-label="divider">
+  <defs>
+    <linearGradient id="d" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f0b429" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#f0b429" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#00e5ff" stop-opacity="0.95"/>
+      <stop offset="70%" stop-color="#ff4d6d" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ff4d6d" stop-opacity="0"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="-1 0;1 0;-1 0" dur="8s" repeatCount="indefinite"/>
+    </linearGradient>
+  </defs>
+  <rect y="11" width="1280" height="2" fill="#2a3a5c" opacity="0.45"/>
+  <rect y="10" width="1280" height="4" fill="url(#d)"/>
+  <circle cy="12" r="4" fill="#f0b429">
+    <animate attributeName="cx" values="0;1280;0" dur="8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="8s" repeatCount="indefinite"/>
+  </circle>
+</svg>
