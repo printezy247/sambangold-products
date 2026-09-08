@@ -19,17 +19,26 @@ say so rather than adding it quietly.
 
 ## 2. Auto git ops on every successful build
 
-When a change builds and its checks pass, commit and push without waiting to be
-asked. Do not leave verified work sitting uncommitted in the working tree.
+When a change passes its checks, commit and push without waiting to be asked.
+Do not leave verified work sitting uncommitted in the working tree.
 
+- Run `scripts/check-readme.sh` first. It is the gate, and CI runs the same
+  script — if it fails, fix the change rather than pushing it.
 - Commit with a descriptive conventional-commit message (`feat:`, `fix:`,
   `docs:`, `chore:`).
-- Push to the working branch, then open a pull request if none is open.
-- `scripts/auto-commit.sh` and `scripts/auto-deploy.sh` exist for this.
+- `scripts/auto-commit.sh "<message>"` runs the check, commits, and pushes the
+  current branch with retries. It refuses to run on `master` or `main`.
+- Opening the pull request is a separate step — the script does not do it.
+  Open one from the session or the GitHub UI after the push, if none is open.
+- `scripts/auto-deploy.sh` runs the checks and deploys; it skips deploy cleanly
+  when `fly.toml` or the CLI is absent.
 - Never commit `.env` or any real key. `.env.example` carries the key names only.
 
-A build is "successful" when the repo's own checks pass — not merely when the
-files were written.
+A change is "successful" when `scripts/check-readme.sh` passes, plus any tests
+that exist — not merely when the files were written. Application code, tests,
+and `requirements.txt` do not exist yet; the CI jobs skip those steps until
+they do, so a green run today means the docs and assets are sound, nothing
+more.
 
 ## 3. Theme: modern, futuristic, premium
 
@@ -89,18 +98,25 @@ Say briefly what was checked and what was taken from it.
 
 ## Verification before any README change
 
+Run the checked-in script — it is the same one CI runs:
+
 ```bash
-# 1. no constructs GitHub strips
-grep -nE '<style|<script|class=|style=|<!DOCTYPE|<iframe' README.md   # must be empty
-
-# 2. every referenced asset exists
-for p in $(grep -oE '(src|srcset)="[^"]+"' README.md | sed -E 's/.*="([^"]+)"/\1/' | sort -u); do
-  case "$p" in http*) continue;; esac; [ -f "$p" ] || echo "MISSING: $p"
-done
-
-# 3. all SVGs are well-formed
-python3 -c "import xml.dom.minidom,glob;[xml.dom.minidom.parse(f) for f in glob.glob('assets/**/*.svg',recursive=True)]"
+bash scripts/check-readme.sh
 ```
+
+It verifies four things and exits non-zero on any failure:
+
+1. **No stripped HTML** — `<style>`, `<script>`, `class=`, `style=`, `<!DOCTYPE>`,
+   `<iframe>` anywhere in `README.md`.
+2. **Every referenced file resolves** — HTML `src=` and `srcset=` (including each
+   candidate of a multi-candidate `srcset`), plus markdown `![img](path)` and
+   `[link](path)` targets. External URLs and anchors are skipped.
+3. **Every SVG under `assets/` parses** as well-formed XML.
+4. **Every product spec** in `products/product-1*.md` carries its required
+   headings.
+
+Do not hand-roll these checks inline; extend the script instead, so the local
+run and the CI run never drift apart.
 
 ## Repo layout
 

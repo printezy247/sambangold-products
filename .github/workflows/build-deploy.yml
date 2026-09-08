@@ -1,38 +1,82 @@
-name: Build & Deploy — 9 Products
+name: Build & Deploy
 
 on:
   push:
     branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
-  test:
+  docs:
+    name: README & assets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest flask
-      - name: Run tests
-        run: pytest -q
-      - name: Syntax check
-        run: python -m py_compile app/*.py
+      - name: Verify README renders on GitHub
+        run: bash scripts/check-readme.sh
 
-  deploy:
-    needs: test
-    if: github.ref == 'refs/heads/main'
+  app:
+    name: Python app
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy to Fly.io
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The application code does not exist yet. Each step below runs only
+      # once its inputs are present, so this job passes on a docs-only repo
+      # and starts doing real work the moment the code lands.
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt yet — skipping install."
+          fi
+
+      - name: Syntax check
+        run: |
+          if compgen -G "app/*.py" > /dev/null; then
+            python -m py_compile app/*.py
+          else
+            echo "No app/*.py yet — skipping syntax check."
+          fi
+
+      - name: Tests
+        run: |
+          if compgen -G "tests/test_*.py" > /dev/null || compgen -G "test_*.py" > /dev/null; then
+            pip install pytest
+            pytest -q
+          else
+            echo "No tests yet — skipping pytest."
+          fi
+
+  deploy:
+    name: Deploy to Fly.io
+    needs: [docs, app]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
+          if [ -z "$FLY_API_TOKEN" ]; then
+            echo "FLY_API_TOKEN not set — skipping deploy."
+            exit 0
+          fi
+          if [ ! -f fly.toml ]; then
+            echo "No fly.toml yet — nothing to deploy."
+            exit 0
+          fi
           curl -L https://fly.io/install.sh | sh
+          export PATH="$HOME/.fly/bin:$PATH"
           fly deploy --remote-only --yes
