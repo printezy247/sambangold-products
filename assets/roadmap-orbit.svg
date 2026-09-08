@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="440" height="440" role="img" aria-label="Roadmap: now Vault I live, next IB ops suite, then prop and forex, later crypto and stocks">
+  <defs><radialGradient id="c" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#f0b429" stop-opacity="0.30"/><stop offset="100%" stop-color="#f0b429" stop-opacity="0"/>
+  </radialGradient></defs>
+  <circle cx="300" cy="300" r="182" fill="none" stroke="#22344f" stroke-width="1.5" stroke-dasharray="4 9"/>
+  <circle cx="300" cy="300" r="182" fill="none" stroke="#f0b429" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="60 1085">
+    <animateTransform attributeName="transform" type="rotate" from="0 300 300" to="360 300 300" dur="14s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="300" r="96" fill="url(#c)"/>
+  <circle cx="300" cy="300" r="74" fill="#0b1424" stroke="#f0b429" stroke-opacity="0.5" stroke-width="2"/>
+  <text x="300" y="294" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="26" font-weight="bold" fill="#f0b429">18</text>
+  <text x="300" y="316" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" fill="#8fa3c0" letter-spacing="2">PRODUCTS</text>
+  <g transform="rotate(0 300 300)">
+    <circle cx="300" cy="118" r="13" fill="#34d399" fill-opacity="0.25" stroke="#34d399" stroke-width="2">
+      <animate attributeName="r" values="13;17;13" dur="3s" begin="0.0s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="118" r="5" fill="#34d399"/>
+  </g>
+  <g transform="rotate(0 300 300)"><g transform="rotate(0 300 118)">
+    <text x="300" y="86" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="13" font-weight="bold" fill="#34d399" letter-spacing="2">NOW</text>
+    <text x="300" y="150" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11.5" fill="#9db0cc">Vault I live</text>
+  </g></g>
+  <g transform="rotate(90 300 300)">
+    <circle cx="300" cy="118" r="13" fill="#f0b429" fill-opacity="0.25" stroke="#f0b429" stroke-width="2">
+      <animate attributeName="r" values="13;17;13" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="118" r="5" fill="#f0b429"/>
+  </g>
+  <g transform="rotate(90 300 300)"><g transform="rotate(-90 300 118)">
+    <text x="300" y="86" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="13" font-weight="bold" fill="#f0b429" letter-spacing="2">NEXT</text>
+    <text x="300" y="150" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11.5" fill="#9db0cc">IB ops suite ·10-13</text>
+  </g></g>
+  <g transform="rotate(180 300 300)">
+    <circle cx="300" cy="118" r="13" fill="#00e5ff" fill-opacity="0.25" stroke="#00e5ff" stroke-width="2">
+      <animate attributeName="r" values="13;17;13" dur="3s" begin="1.0s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="118" r="5" fill="#00e5ff"/>
+  </g>
+  <g transform="rotate(180 300 300)"><g transform="rotate(-180 300 118)">
+    <text x="300" y="86" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="13" font-weight="bold" fill="#00e5ff" letter-spacing="2">THEN</text>
+    <text x="300" y="150" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11.5" fill="#9db0cc">Prop + forex ·14-16</text>
+  </g></g>
+  <g transform="rotate(270 300 300)">
+    <circle cx="300" cy="118" r="13" fill="#a78bfa" fill-opacity="0.25" stroke="#a78bfa" stroke-width="2">
+      <animate attributeName="r" values="13;17;13" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="118" r="5" fill="#a78bfa"/>
+  </g>
+  <g transform="rotate(270 300 300)"><g transform="rotate(-270 300 118)">
+    <text x="300" y="86" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="13" font-weight="bold" fill="#a78bfa" letter-spacing="2">LATER</text>
+    <text x="300" y="150" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11.5" fill="#9db0cc">Crypto + stocks ·17-18</text>
+  </g></g>
+</svg>

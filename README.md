@@ -1,177 +1,581 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>9 Products — Trading Intelligence Platform</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
-  :root{--bg:#060b14;--surface:#0b1120;--text:#e8f0ff;--accent:#f0b429;--cyan:#00e5ff;--rose:#ff4d6d;--glass:rgba(255,255,255,0.03);}
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter',system-ui,sans-serif;background:radial-gradient(circle at 30% 20%,#0b1a30 0%,#060b14 70%);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
-  header{position:relative;overflow:hidden;padding:120px 24px 80px;text-align:center}
-  header::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,rgba(240,180,41,0.08) 0%,rgba(0,229,255,0.06) 50%,rgba(255,77,109,0.08) 100%);animation:gradientShift 12s ease infinite;z-index:0}
-  @keyframes gradientShift{0%,100%{transform:translateX(0)}50%{transform:translateX(-20px)}}
-  .glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(240,180,41,0.25),transparent 70%);border-radius:50%;filter:blur(80px);animation:pulse 6s ease-in-out infinite;z-index:1}
-  @keyframes pulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
-  .content{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:0 24px}
-  h1{font-family:'Orbitron',system-ui;font-weight:900;font-size:clamp(2.8rem,8vw,6rem);letter-spacing:-0.04em;line-height:1.05;background:linear-gradient(135deg,var(--accent),var(--cyan),var(--rose),var(--accent));background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:textShine 8s ease infinite}
-  @keyframes textShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-  .subtitle{font-size:1.15rem;color:#8fa3c0;margin-top:16px;font-weight:300;letter-spacing:0.01em}
-  .badge-row{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap}
-  .badge{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:var(--glass);border:1px solid rgba(255,255,255,0.06);font-size:0.82rem;color:#b8c6e0;backdrop-filter:blur(12px);transition:all .2s ease}
-  .badge:hover{border-color:rgba(240,180,41,0.35);transform:translateY(-2px)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-top:80px}
-  .card{position:relative;background:linear-gradient(170deg,rgba(255,255,255,0.025) 0%,rgba(255,255,255,0.01) 100%);border:1px solid rgba(255,255,255,0.06);border-radius:24px;padding:32px 28px;overflow:hidden;transition:all .3s ease;backdrop-filter:blur(10px)}
-  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--cyan),var(--rose));opacity:0.8;transition:opacity .3s}
-  .card:hover{border-color:rgba(240,180,41,0.25);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.4),0 0 0 1px rgba(240,180,41,0.1)}
-  .card:hover::before{opacity:1}
-  .card h2{font-family:'Orbitron',system-ui;font-size:1.25rem;margin-bottom:8px;color:var(--text)}
-  .card .meta{font-size:0.78rem;color:#6b7a94;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;font-weight:600}
-  .card p{color:#b0bdd6;font-size:0.92rem;line-height:1.65;margin-bottom:14px}
-  .card .tag{display:inline-block;padding:4px 10px;border-radius:6px;background:rgba(240,180,41,0.1);color:var(--accent);font-size:0.75rem;font-weight:700;margin-right:6px;margin-bottom:4px;letter-spacing:0.02em}
-  footer{margin-top:120px;padding:60px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,transparent 0%,rgba(6,11,20,0.8) 100%);position:relative;overflow:hidden}
-  footer .logo-text{font-family:'Orbitron',system-ui;font-weight:900;font-size:2rem;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.03em}
-  footer .copy{font-size:0.8rem;color:#55607a;margin-top:8px}
-  /* Animated SVG background shapes */
-  .float-shape{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.15;animation:float 20s ease-in-out infinite;pointer-events:none;z-index:0}
-  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-40px) scale(1.1)}50%{transform:translate(-20px,20px) scale(0.95)}75%{transform:translate(40px,10px) scale(1.05)}}
-  .shape1{width:400px;height:400px;background:var(--accent);top:10%;left:-5%}
-  .shape2{width:350px;height:350px;background:var(--cyan);top:50%;right:-5%;animation-delay:-7s;animation-duration:25s}
-  .shape3{width:300px;height:300px;background:var(--rose);top:80%;left:20%;animation-delay:-14s;animation-duration:22s}
-  /* Interactive hover micro-interaction on badges */
-  .badge::after{content:'';position:absolute;inset:-2px;border-radius:inherit;background:linear-gradient(135deg,var(--accent),var(--cyan));opacity:0;z-index:-1;transition:opacity .3s}
-  .badge:hover::after{opacity:0.2}
-  /* Responsive */
-  @media(max-width:600px){.grid{grid-template-columns:1fr}header{padding:80px 20px 60px}}
-</style>
-</head>
-<body>
-<header>
-  <div class="glow" style="top:-100px;left:50%;transform:translateX(-50%)"></div>
-  <div class="float-shape shape1"></div>
-  <div class="float-shape shape2"></div>
-  <div class="float-shape shape3"></div>
-  <div class="content" style="position:relative;z-index:2">
-    <h1>9 Buildable Products</h1>
-    <p class="subtitle">Trading Intelligence · Gold · Prop Firms · Crypto Security · Fintech Bots</p>
-    <div class="badge-row">
-      <span class="badge">⚡ Telegram Bot</span>
-      <span class="badge">🌐 Flask Web</span>
-      <span class="badge">📊 Data Analytics</span>
-      <span class="badge">💰 Monetization</span>
-      <span class="badge">🔒 Security</span>
-    </div>
-  </div>
-</header>
+<div align="center">
 
-<main class="content">
-  <div class="grid">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/hero-banner-light.svg">
+  <img src="assets/hero-banner-dark.svg" alt="Sambangold — trading intelligence stack: 9 shipped, 9 proposed" width="100%">
+</picture>
 
-    <!-- Product 1 -->
-    <article class="card">
-      <div class="meta">#1 · Gold · Free Tier Extension</div>
-      <h2>Gold Watch Alert Bot</h2>
-      <span class="tag">Bot</span><span class="tag">Free Tier</span><span class="tag">XAUUSD</span>
-      <p><b>Problem:</b> Traders miss gold entries due to spread/slippage. Most Telegram gold channels are scams.</p>
-      <p><b>Solution:</b> <code>/watch XAUUSD style mode</code> made <b>free</b> in EzyAi (previously PRO-only). Uses Binance PAXGUSDT + Yahoo GC=F fallback. Spread-aware stops via existing constants.</p>
-      <p><b>Monetize:</b> Free <code>/watch</code> for gold only → upsell <code>/autopilot</code> + fundamentals (DCF/COT) as PRO.</p>
-    </article>
+<br><br>
 
-    <!-- Product 2 -->
-    <article class="card">
-      <div class="meta">#2 · Gold · Verification</div>
-      <h2>XAUUSD Signal Verifier</h2>
-      <span class="tag">Bot</span><span class="tag">Anti-Scam</span>
-      <p><b>Problem:</b> Gold Telegram providers post fake MT4 screenshots with cherry-picked entries.</p>
-      <p><b>Solution:</b> <code>/verify GOLD PRICE</code> pulls Binance PAXGUSDT tick history and compares claimed entry. Returns <b>VERDICT: REAL / IMPOSSIBLE</b> with gap % and explanation.</p>
-      <p><b>Monetize:</b> Free single verify → PRO batch CSV upload + weekly audit reports.</p>
-    </article>
+<img src="assets/badges-strip.svg" alt="9 shipped / 9 proposed · Telegram + Web · free tier on all 18 · Python 3.12 / Flask · MIT">
 
-    <!-- Product 3 -->
-    <article class="card">
-      <div class="meta">#3 · Prop Firms · ROI</div>
-      <h2>Prop Firm Challenge Calculator</h2>
-      <span class="tag">Web</span><span class="tag">Bot</span><span class="tag">EV</span>
-      <p><b>Problem:</b> Traders pay $500–$5,000 challenge fees without knowing expected value (~90% fail). Hidden rules (overnight, news bans) buried in T&Cs.</p>
-      <p><b>Solution:</b> Flask calculator + <code>/propcalc FEE SIZE PASS%</code> bot command. Calculates EV, scans pasted T&Cs for hidden rules (red/yellow scoring).</p>
-      <p><b>Monetize:</b> Free calculator → premium PDF audit + automated forecast.</p>
-    </article>
+<br><br>
 
-    <!-- Product 4 -->
-    <article class="card">
-      <div class="meta">#4 · Crypto · Security</div>
-      <h2>Telegram Bot Scam Detector</h2>
-      <span class="tag">Bot</span><span class="tag">Anti-Malware</span>
-      <p><b>Problem:</b> Fake verification bots, malware links, and fake airdrops surged <b>2,000%</b> (OKX Learn 2025).</p>
-      <p><b>Solution:</b> <code>/audit @bot_username</code> checks for private-key requests, unregulated broker pushes, missing audit links. Returns <b>SCAM SCORE</b> + checklist.</p>
-      <p><b>Monetize:</b> Free scan → PRO daily auto-scan of subscribed channels + malware database.</p>
-    </article>
+<a href="#-the-vault--9-shipped"><img src="assets/nav/vault.svg" alt="The Vault — 9 shipped" height="38"></a>
+<a href="#-vault-ii--9-proposed"><img src="assets/nav/vault2.svg" alt="Vault II — 9 proposed" height="38"></a>
+<a href="#-platforms--free-tiers"><img src="assets/nav/platforms.svg" alt="Platforms" height="38"></a>
+<a href="#-roadmap"><img src="assets/nav/roadmap.svg" alt="Roadmap" height="38"></a>
+<a href="#-quickstart"><img src="assets/nav/quickstart.svg" alt="Quickstart" height="38"></a>
 
-    <!-- Product 5 -->
-    <article class="card">
-      <div class="meta">#5 · Gold · Calendar</div>
-      <h2>Gold Seasonality Calendar</h2>
-      <span class="tag">Web</span><span class="tag">Bot Alert</span>
-      <p><b>Problem:</b> Traders ignore gold seasonality (Fed windows, CME holidays, jewelry cycles) and spread-widening events.</p>
-      <p><b>Solution:</b> Web calendar (<code>/gold-calendar</code>) shows monthly volatility patterns + Fed release windows. Downloadable PDF. Bot pushes <code>/calendar_alert</code> 30 min before events.</p>
-      <p><b>Monetize:</b> Free calendar → PRO real-time alert bot.</p>
-    </article>
+<br><br>
 
-    <!-- Product 6 -->
-    <article class="card">
-      <div class="meta">#6 · Copy-Trade · Audit</div>
-      <h2>Copy-Trade Safety Audit</h2>
-      <span class="tag">Bot</span><span class="tag">Fintech</span>
-      <p><b>Problem:</b> Influencers push unregulated broker copy-trading; users lose capital through hidden spreads and blowouts.</p>
-      <p><b>Solution:</b> <code>/copyaudit BROKER</code> checks regulation (SEC/FCA/ASIC links), negative balance protection, calculates hidden spread cost. Returns <b>SAFE / HIGH RISK</b> + checklist.</p>
-      <p><b>Monetize:</b> Free 5 audits → PRO unlimited + weekly portfolio risk report.</p>
-    </article>
+<img src="assets/stack-ticker.svg" alt="Python 3.12 · Flask · Telegram Bot API · Binance · Yahoo Finance · Stripe · Fly.io · USDT" width="100%">
 
-    <!-- Product 7 -->
-    <article class="card">
-      <div class="meta">#7 · Forex · Scanner</div>
-      <h2>Forex Signal Red-Flag Scanner</h2>
-      <span class="tag">Web</span><span class="tag">NLP</span>
-      <p><b>Problem:</b> Signal providers claim "100% accuracy", delete losing trades, flood fake reviews, and trap subscribers ($30–$300/mo).</p>
-      <p><b>Solution:</b> Web scanner + <code>/scan TEXT</code> bot. NLP flags: "guaranteed", "no risk", "VIP spots left". Checks for verified audit links (MyFXBook/FX Blue).</p>
-      <p><b>Monetize:</b> Free text scan → PRO full Telegram group auto-scan + weekly scorecard.</p>
-    </article>
+</div>
 
-    <!-- Product 8 -->
-    <article class="card">
-      <div class="meta">#8 · IBKR · Affiliate</div>
-      <h2>IB Affiliate Revenue Calculator</h2>
-      <span class="tag">Web</span><span class="tag">B2B</span>
-      <p><b>Problem:</b> IB affiliates face opaque payout rules, compliance overhead, and referred clients complain of buggy platforms / slow withdrawals (BBB ~1.2/5).</p>
-      <p><b>Solution:</b> Web calculator (<code>/ib-calc</code>) estimates net revenue after compliance cost + payout timeline. Includes compliance checklist download.</p>
-      <p><b>Monetize:</b> Free calculator → PRO automated monthly forecast + audit template.</p>
-    </article>
+<br>
 
-    <!-- Product 9 -->
-    <article class="card">
-      <div class="meta">#9 · Influencer · Audit</div>
-      <h2>Influencer Trading Scam Audit</h2>
-      <span class="tag">Bot</span><span class="tag">Viral</span>
-      <p><b>Problem:</b> FTC reports <b>$2.1B</b> lost to social-media scams in 2025; ~80% of TikTok financial advice is misleading (Forbes May 2025).</p>
-      <p><b>Solution:</b> <code>/audit @influencer_handle</code> audits profile: demands audited trading history (not screenshots), flags luxury props, checks unregulated broker promotions. Free <b>LOSS REPORT TEMPLATE</b> for FTC/CFTC/IC3.</p>
-      <p><b>Monetize:</b> Free audit + template → PRO batch audit + automated scam-alert channel.</p>
-    </article>
+> [!IMPORTANT]
+> **Educational research only. Not financial advice.** Every price, spread, and payout figure is indicative — verify with your broker before acting. Nothing here is a solicitation to trade, and no product guarantees a result.
 
-  </div>
-</main>
+<img src="assets/divider-flow.svg" alt="" width="100%">
 
-<footer>
-  <div style="position:relative;z-index:2">
-    <div class="logo-text">printezy · 9 Products</div>
-    <p class="copy">Built with Python · Flask · Telegram Bot API · Binance · Yahoo Finance · Stripe · Fly.io</p>
-    <p class="copy">Educational research only. Not financial advice. Verify every price with your broker.</p>
-    <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="#" style="color:#8fa3c0;text-decoration:none;font-size:0.85rem;padding:6px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:999px;transition:all .2s;display:inline-block">📚 Docs</a>
-      <a href="#" style="color:#8fa3c0;text-decoration:none;font-size:0.85rem;padding:6px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:999px;transition:all .2s;display:inline-block">⚡ Deploy</a>
-      <a href="#" style="color:#8fa3c0;text-decoration:none;font-size:0.85rem;padding:6px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:999px;transition:all .2s;display:inline-block">🔒 Security</a>
-    </div>
-  </div>
-</footer>
-</body>
-</html>
+<br>
+
+## ⚡ What This Is
+
+Eighteen small, sharp tools for people who make money **around** trading, not only from it — introducing brokers, prop-challenge traders, signal buyers, and gold watchers.
+
+Every product follows the same shape: **one job, one command or one page, a free tier that needs no card, and a paid tier that only sells time and scale.** Nine are shipped. Nine are proposed, weighted hard toward the gold-IB business, which is where the demand is loudest and the supply is thinnest.
+
+```mermaid
+flowchart LR
+    U([👤 Trader / IB]) --> TG[🤖 Telegram Bot]
+    U --> WEB[🌐 Flask Web]
+    TG --> CORE{{⚙️ Core Engine}}
+    WEB --> CORE
+    CORE --> MD[(📈 Market Data<br/>Binance · Yahoo · Broker feeds)]
+    CORE --> RULES[(📋 Rule Packs<br/>Prop firms · Brokers)]
+    CORE --> LEDGER[(🧾 Rebate + Trade Ledger)]
+    CORE --> OUT[📤 Verdict · Alert · PDF · Card]
+    OUT --> U
+    CORE -.free tier.-> FREE[✅ No card required]
+    CORE -.pro tier.-> PAY[💳 Stripe / USDT]
+```
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<br>
+
+## 🏆 The Vault — 9 Shipped
+
+<div align="center">
+
+| | | |
+|:--:|:--:|:--:|
+| <img src="assets/icons/ic-01.svg" width="72"><br>**Gold Watch Alert**<br>🤖 Telegram | <img src="assets/icons/ic-02.svg" width="72"><br>**XAUUSD Verifier**<br>🤖 Telegram | <img src="assets/icons/ic-03.svg" width="72"><br>**Prop Calculator**<br>🤖🌐 Both |
+| <img src="assets/icons/ic-04.svg" width="72"><br>**Scam Detector**<br>🤖 Telegram | <img src="assets/icons/ic-05.svg" width="72"><br>**Gold Calendar**<br>🤖🌐 Both | <img src="assets/icons/ic-06.svg" width="72"><br>**Copy-Trade Audit**<br>🤖 Telegram |
+| <img src="assets/icons/ic-07.svg" width="72"><br>**Red-Flag Scanner**<br>🤖🌐 Both | <img src="assets/icons/ic-08.svg" width="72"><br>**IB Revenue Calc**<br>🌐 Web | <img src="assets/icons/ic-09.svg" width="72"><br>**Influencer Audit**<br>🤖 Telegram |
+
+</div>
+
+<br>
+
+<details>
+<summary><b>🥇 #1 · Gold Watch Alert Bot</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free, unlimited</i></summary>
+
+<br>
+
+**Problem** — Traders miss gold entries to spread and slippage. Most Telegram gold channels are scams.
+
+**Solution** — `/watch XAUUSD style mode`, moved from PRO to **free**. Binance `PAXGUSDT` primary, Yahoo `GC=F` fallback. Spread-aware stops from existing constants.
+
+**Platform** — 🤖 Telegram. The whole product is one command in, one alert out. No page needed.
+
+**Free tier** — `/watch` on gold, unlimited, no account.
+
+**Upsell** — `/autopilot` plus DCF/COT fundamentals as PRO.
+
+</details>
+
+<details>
+<summary><b>🥇 #2 · XAUUSD Signal Verifier</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free single verify</i></summary>
+
+<br>
+
+**Problem** — Gold signal sellers post fabricated MT4 screenshots with cherry-picked entries.
+
+**Solution** — `/verify GOLD PRICE` pulls Binance `PAXGUSDT` tick history and tests the claimed fill. Returns **VERDICT: REAL / IMPOSSIBLE** with the gap percentage and a plain-language reason.
+
+**Platform** — 🤖 Telegram. Verification happens inside the group where the fake was posted — that is the point.
+
+**Free tier** — one verify per request, unlimited requests.
+
+**Upsell** — PRO batch CSV upload and weekly audit reports.
+
+</details>
+
+<details>
+<summary><b>🏛 #3 · Prop Firm Challenge Calculator</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>full calculator free</i></summary>
+
+<br>
+
+**Problem** — Traders pay $500–$5,000 in challenge fees with no expected-value estimate, and roughly 90% fail. Hidden rules sit buried in the T&Cs.
+
+**Solution** — Flask calculator plus `/propcalc FEE SIZE PASS%`. Computes EV and scans pasted T&Cs for hidden rules with red/yellow scoring.
+
+**Platform** — 🤖🌐 Both. Web takes the long T&C paste; the bot answers the quick "is this worth it" question.
+
+**Free tier** — full calculator and bot command, no limit.
+
+**Upsell** — premium PDF audit and automated forecast.
+
+</details>
+
+<details>
+<summary><b>🔒 #4 · Telegram Bot Scam Detector</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free scans</i></summary>
+
+<br>
+
+**Problem** — Fake verification bots, malware links, and fake airdrops rose sharply through 2025.
+
+**Solution** — `/audit @bot_username` checks for private-key requests, unregulated broker pushes, and missing audit links. Returns a **SCAM SCORE** and a checklist.
+
+**Platform** — 🤖 Telegram. It audits Telegram bots, so it lives where its targets live.
+
+**Free tier** — unlimited `/audit` scans.
+
+**Upsell** — PRO daily auto-scan of subscribed channels plus a malware database.
+
+</details>
+
+<details>
+<summary><b>🥇 #5 · Gold Seasonality Calendar</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>calendar + PDF free</i></summary>
+
+<br>
+
+**Problem** — Traders ignore gold seasonality — Fed windows, CME holidays, jewelry cycles — and the spread-widening events around them.
+
+**Solution** — Web calendar at `/gold-calendar` showing monthly volatility patterns and Fed release windows, with PDF download. Bot pushes `/calendar_alert` 30 minutes ahead.
+
+**Platform** — 🤖🌐 Both. The calendar is a page you scan; the alert is a push you cannot miss.
+
+**Free tier** — full calendar and PDF, no login.
+
+**Upsell** — PRO real-time alert bot.
+
+</details>
+
+<details>
+<summary><b>🔒 #6 · Copy-Trade Safety Audit</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>5 free audits</i></summary>
+
+<br>
+
+**Problem** — Influencers push unregulated copy-trading; users lose capital to hidden spreads and blowouts.
+
+**Solution** — `/copyaudit BROKER` checks regulation (SEC/FCA/ASIC links) and negative-balance protection, and prices the hidden spread cost. Returns **SAFE / HIGH RISK** with a checklist.
+
+**Platform** — 🤖 Telegram. Runs at the moment someone is being pitched.
+
+**Free tier** — 5 audits.
+
+**Upsell** — PRO unlimited plus a weekly portfolio risk report.
+
+</details>
+
+<details>
+<summary><b>💱 #7 · Forex Signal Red-Flag Scanner</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>free text scan</i></summary>
+
+<br>
+
+**Problem** — Signal sellers claim "100% accuracy", delete losing trades, flood fake reviews, and charge $30–$300 a month.
+
+**Solution** — Web scanner plus `/scan TEXT`. NLP flags "guaranteed", "no risk", "VIP spots left", and checks for verified audit links (MyFXBook / FX Blue).
+
+**Platform** — 🤖🌐 Both. Paste a pitch on the web, or forward a message to the bot.
+
+**Free tier** — unlimited text scans.
+
+**Upsell** — PRO full group auto-scan and a weekly scorecard.
+
+</details>
+
+<details>
+<summary><b>🥇 #8 · IB Affiliate Revenue Calculator</b> &nbsp;—&nbsp; 🌐 Web &nbsp;·&nbsp; <i>free calculator</i></summary>
+
+<br>
+
+**Problem** — IB affiliates face opaque payout rules and compliance overhead, and referred clients complain about buggy platforms and slow withdrawals.
+
+**Solution** — Web calculator at `/ib-calc` estimating net revenue after compliance cost and payout timeline, with a downloadable compliance checklist.
+
+**Platform** — 🌐 Web. Multi-field model plus a document download — a bot would fight the form.
+
+**Free tier** — full calculator and checklist.
+
+**Upsell** — PRO automated monthly forecast and audit template.
+
+</details>
+
+<details>
+<summary><b>🔒 #9 · Influencer Trading Scam Audit</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free audit + template</i></summary>
+
+<br>
+
+**Problem** — Billions are lost to social-media investment scams each year, and a large share of short-form "financial advice" is misleading.
+
+**Solution** — `/audit @influencer_handle` demands audited trading history rather than screenshots, flags rented luxury props, and checks unregulated broker promotions. Ships a free **loss report template** for FTC / CFTC / IC3.
+
+**Platform** — 🤖 Telegram. Viral by construction — the audit gets forwarded into the group that shared the influencer.
+
+**Free tier** — unlimited audits plus the loss-report template.
+
+**Upsell** — PRO batch audit and an automated scam-alert channel.
+
+</details>
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<br>
+
+## 🔮 Vault II — 9 Proposed
+
+The shipped nine are almost all **defensive** — auditors, verifiers, red-flag scanners — plus two static calculators. Nothing yet serves an introducing broker's *actual daily operations*. Vault II fixes that, weighted **4 gold IB / 2 prop / 1 forex / 1 crypto / 1 stocks**.
+
+Scored on what matters: how badly people want it, versus how little exists today.
+
+<div align="center">
+
+| | # | Product | Vertical | Platform | Free tier | Demand | Supply gap | Effort |
+|:--:|:--|:--|:--|:--|:--|:--|:--|:--|
+| <img src="assets/icons/ic-10.svg" width="52"> | **10** | Rebate Reconciliation Auditor | 🥇 Gold IB | 🌐 + 🤖 ping | 1 broker · 1 month | `●●●●●` | `○○○○○` | ●●○ |
+| <img src="assets/icons/ic-11.svg" width="52"> | **11** | IB Client Churn & Blow-Up Radar | 🥇 Gold IB | 🤖🌐 Both | 10 clients | `●●●●○` | `○○○○○` | ●●● |
+| <img src="assets/icons/ic-12.svg" width="52"> | **12** | Live Gold Broker Comparator | 🥇 Gold IB | 🤖🌐 Both | fully open | `●●●●○` | `●●○○○` | ●●○ |
+| <img src="assets/icons/ic-13.svg" width="52"> | **13** | IB Link Attribution Tracker | 🥇 Gold IB | 🌐 + `/newlink` | 3 links | `●●●○○` | `●○○○○` | ●●○ |
+| <img src="assets/icons/ic-14.svg" width="52"> | **14** | Drawdown Sentinel | 🏛 Prop | 🤖 Telegram | 1 account · 1 firm | `●●●●●` | `●○○○○` | ●●● |
+| <img src="assets/icons/ic-15.svg" width="52"> | **15** | Monte Carlo Challenge Sim | 🏛 Prop | 🌐 + `/simulate` | 1,000 sims | `●●●●○` | `●●○○○` | ●○○ |
+| <img src="assets/icons/ic-16.svg" width="52"> | **16** | Correlation & Overexposure | 💱 Forex | 🤖🌐 Both | snapshots | `●●●●○` | `●●○○○` | ●●○ |
+| <img src="assets/icons/ic-17.svg" width="52"> | **17** | Tokenized-Gold Premium Monitor | 🪙 Crypto | 🤖 + web chart | unlimited | `●●●○○` | `○○○○○` | ●○○ |
+| <img src="assets/icons/ic-18.svg" width="52"> | **18** | Miner–Bullion Divergence Screener | 📈 Stocks | 🌐 + digest | weekly screen | `●●●○○` | `●○○○○` | ●●○ |
+
+<sub>`●` demand = how loudly it is asked for &nbsp;·&nbsp; `○` supply gap = how little exists (more `○` = emptier market) &nbsp;·&nbsp; effort = build weeks</sub>
+
+</div>
+
+<br>
+
+<details>
+<summary><b>🥇 #10 · Rebate Reconciliation Auditor</b> &nbsp;—&nbsp; 🌐 Web-first &nbsp;·&nbsp; <b>the biggest gap in the set</b></summary>
+
+<br>
+
+**Problem** — Brokers underpay IB rebates and quietly change per-lot rates. Almost no IB reconciles, because doing it by hand across a few hundred accounts is miserable.
+
+**Solution** — Upload the broker rebate statement CSV and the client trade log. Recompute `lots × rate` per symbol and account tier, diff it against what was actually paid, and flag shortfalls, missing accounts, and silent rate changes.
+
+**Platform** — 🌐 Web-first: CSV upload, a diff table you can sort, PDF export. 🤖 Telegram companion pings when a new statement is reconciled.
+
+**Free tier** — one broker, one month, full shortfall report. No card.
+
+**Upsell** — multi-broker monthly auto-reconciliation and a dispute-letter generator.
+
+**Data** — broker rebate statement, trade log export, IB tier schedule.
+
+📄 [Full spec →](products/product-10.md)
+
+</details>
+
+<details>
+<summary><b>🥇 #11 · IB Client Churn & Blow-Up Radar</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
+
+<br>
+
+**Problem** — IB revenue dies when the client book dies, and it dies quietly. By the time volume shows up flat in the monthly statement, the client is already gone.
+
+**Solution** — Score every referred client on declining lot volume, rising margin utilisation, martingale and revenge-trade patterns, and dormancy drift. Output a 30-day churn or blow-up probability with a suggested intervention.
+
+**Platform** — 🤖🌐 Both: web dashboard for the book, Telegram push the moment a client crosses a risk threshold.
+
+**Free tier** — 10 tracked clients, unlimited alerts.
+
+**Upsell** — unlimited clients and auto-drafted nurture messages.
+
+📄 [Full spec →](products/product-11.md)
+
+</details>
+
+<details>
+<summary><b>🥇 #12 · Live Gold Broker Comparator</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>doubles as the IB's lead magnet</i></summary>
+
+<br>
+
+**Problem** — An IB has to justify which broker they route clients to, and clients have no way to compare the numbers that actually cost them money.
+
+**Solution** — Live XAUUSD spread, swap long and short, commission, and observed slippage across a broker set, rendered as a ranked shareable card carrying the IB's referral link.
+
+**Platform** — 🤖🌐 Both: a public indexable web table (the SEO asset) and `/goldspread`, which returns the card as an image straight into any group.
+
+**Free tier** — public comparison table and bot command, fully open.
+
+**Upsell** — white-label branded embeddable widget.
+
+📄 [Full spec →](products/product-12.md)
+
+</details>
+
+<details>
+<summary><b>🥇 #13 · IB Link Attribution & Funnel Tracker</b> &nbsp;—&nbsp; 🌐 Web</summary>
+
+<br>
+
+**Problem** — Broker portals report signups but never say where they came from, so an IB cannot tell which content earned the client.
+
+**Solution** — Per-channel short links tracking post → click → signup → first deposit → first lot, closing the attribution hole the broker leaves open.
+
+**Platform** — 🌐 Web link manager and funnel dashboard, with 🤖 `/newlink` and a daily conversion digest.
+
+**Free tier** — 3 tracked links, full funnel view.
+
+**Upsell** — unlimited links, cohort LTV, and payback period.
+
+📄 [Full spec →](products/product-13.md)
+
+</details>
+
+<details>
+<summary><b>🏛 #14 · Drawdown Sentinel (Rule Guardian)</b> &nbsp;—&nbsp; 🤖 Telegram-first</summary>
+
+<br>
+
+**Problem** — Most challenge failures are **rule breaches, not bad strategy** — a daily-loss line crossed by one trade, a news-window entry, a lot size over cap.
+
+**Solution** — Real-time monitor of daily loss, trailing drawdown, news blackout windows, max lot, and consistency rules, driven by per-firm rule packs. It alerts *before* the breach, with an optional flatten webhook.
+
+**Platform** — 🤖 Telegram-first. The entire value is a push arriving seconds before the line is crossed; the web side only links accounts and picks rule packs.
+
+**Free tier** — 1 account on 1 firm, unlimited breach alerts.
+
+**Upsell** — multi-account monitoring and auto-flatten.
+
+📄 [Full spec →](products/product-14.md)
+
+</details>
+
+<details>
+<summary><b>🏛 #15 · Monte Carlo Challenge Simulator</b> &nbsp;—&nbsp; 🌐 Web-first</summary>
+
+<br>
+
+**Problem** — Product #3 gives a static EV number, which hides the thing that actually kills accounts: path risk. A profitable edge still breaches a trailing drawdown on a bad sequence.
+
+**Solution** — Simulate N equity paths against the *real* rule set — daily DD, trailing DD, minimum trading days, consistency rule — from the trader's own win rate, RR, and variance. Return a realistic pass probability and the expected total cost-to-funded across retries.
+
+**Platform** — 🌐 Web-first for the equity-path fan chart and PDF, plus `/simulate` returning a summary card.
+
+**Free tier** — 1,000 simulations per run, unlimited runs.
+
+**Upsell** — 100k sims, full rule-pack library, PDF export.
+
+📄 [Full spec →](products/product-15.md)
+
+</details>
+
+<details>
+<summary><b>💱 #16 · Correlation & Overexposure Monitor</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
+
+<br>
+
+**Problem** — "Five open trades" is often one leveraged bet. XAUUSD, silver, DXY, USDJPY, and miners move together, and the account finds out during the drawdown.
+
+**Solution** — Cluster open positions into a single true-risk figure, and surface swap-rollover and session-spread cost alongside it.
+
+**Platform** — 🤖🌐 Both: web heat-map of the cluster, `/exposure` snapshot and overexposure warning in Telegram.
+
+**Free tier** — on-demand snapshots, unlimited.
+
+**Upsell** — live monitoring with prop-rule-aware exposure caps.
+
+📄 [Full spec →](products/product-16.md)
+
+</details>
+
+<details>
+<summary><b>🪙 #17 · Tokenized-Gold Premium & Payout Health Monitor</b> &nbsp;—&nbsp; 🤖 Telegram-first</summary>
+
+<br>
+
+**Problem** — PAXG and XAUT drift from spot XAU, and nobody watches the premium. Separately, traders taking IB and prop payouts in USDT get hit by chain fees, depeg moments, and address-poisoning attacks.
+
+**Solution** — Track tokenized-gold premium and discount against spot, redemption fees, and reserve-attestation freshness. Add a payout-wallet health check: chain fee, depeg watch, address-poisoning detection.
+
+**Platform** — 🤖 Telegram-first (`/paxg`, `/walletcheck`, depeg push) with a public web premium chart.
+
+**Free tier** — live premium readout and wallet safety check, unlimited.
+
+**Upsell** — arbitrage alerts and continuous wallet monitoring.
+
+📄 [Full spec →](products/product-17.md)
+
+</details>
+
+<details>
+<summary><b>📈 #18 · Miner–Bullion Divergence Screener</b> &nbsp;—&nbsp; 🌐 Web-first</summary>
+
+<br>
+
+**Problem** — Gold traders who want equity exposure are badly served. Generic stock screeners know nothing about AISC, and gold sites know nothing about equities.
+
+**Solution** — Screen GDX, GDXJ, and royalty names for beta divergence against spot gold, AISC-versus-price margin compression, and earnings or halt risk.
+
+**Platform** — 🌐 Web-first sortable screener, plus a 🤖 Telegram weekly digest.
+
+**Free tier** — weekly screen, full table, no login.
+
+**Upsell** — daily alerts and backtesting.
+
+📄 [Full spec →](products/product-18.md)
+
+</details>
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<br>
+
+## 📊 Platforms & Free Tiers
+
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/metrics-3d-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/metrics-3d-light.svg">
+  <img src="assets/metrics-3d-dark.svg" alt="18 products by vertical: Gold IB 5, Gold market 3, Prop firm 3, Forex 2, Crypto 2, Stocks 1, Fintech 2" width="100%">
+</picture>
+
+</div>
+
+<br>
+
+Delivery is chosen by shape, never by taste:
+
+| Shape of the job | Platform | Why |
+|:--|:--|:--|
+| Ad-hoc trigger, or an alert that must arrive | 🤖 **Telegram** | Zero install, mobile-native, and it spreads inside the groups these users already live in |
+| CSV upload, dashboard, shareable link, PDF | 🌐 **Web (Flask)** | Forms and tables that a chat window would fight |
+| Heavy view *and* time-critical push | 🤖🌐 **Both** | Web renders it, the bot warns you, one account links them |
+
+<div align="center">
+
+| Platform | Products | Count |
+|:--|:--|:--:|
+| 🤖 Telegram only | 1, 2, 4, 6, 9, 14, 17 | **7** |
+| 🌐 Web only | 8, 10, 13, 15, 18 | **5** |
+| 🤖🌐 Both | 3, 5, 7, 11, 12, 16 | **6** |
+| ✅ **Free tier** | **all of them** | **18** |
+
+</div>
+
+> [!NOTE]
+> **No product is paywalled at the door.** Every one of the eighteen does its core job for free, without a card. Paid tiers sell only *scale* (more clients, more sims, more brokers) and *automation* (continuous monitoring instead of on-demand).
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<br>
+
+## 🗺️ Roadmap
+
+<div align="center">
+
+<img src="assets/roadmap-orbit.svg" alt="Roadmap: now Vault I live, next IB ops suite 10-13, then prop and forex 14-16, later crypto and stocks 17-18" width="420">
+
+</div>
+
+- [x] **Vault I** — 9 products shipped
+- [ ] **Gold IB ops suite** — #10 Rebate Auditor, #11 Churn Radar, #12 Broker Comparator, #13 Attribution
+- [ ] **Prop + forex** — #14 Drawdown Sentinel, #15 Monte Carlo Sim, #16 Overexposure Monitor
+- [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
+- [ ] Shared account linking Telegram identity to web sessions
+- [ ] One billing spine (Stripe + USDT) across all eighteen
+
+```mermaid
+timeline
+    title Build order — gold IB first, because the gap is widest there
+    Now : Vault I live (9 products)
+    Next : #10 Rebate Auditor : #11 Churn Radar : #12 Broker Comparator : #13 Attribution
+    Then : #14 Drawdown Sentinel : #15 Monte Carlo Sim : #16 Overexposure Monitor
+    Later : #17 Tokenized-Gold Monitor : #18 Miner Divergence Screener
+```
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<br>
+
+## 🚀 Quickstart
+
+```bash
+git clone https://github.com/printezy247/sambangold-products.git
+cd sambangold-products
+cp .env.example .env          # fill in your keys
+pip install -r requirements.txt
+python -m app                 # Flask web + Telegram polling
+```
+
+| Variable | Required | Purpose |
+|:--|:--:|:--|
+| `TELEGRAM_BOT_TOKEN` | ✅ | Bot identity for every 🤖 product |
+| `STRIPE_API_KEY` | — | PRO tier checkout |
+| `STRIPE_WEBHOOK_SECRET` | — | Subscription state sync |
+| `USDT_ADDRESS` | — | Crypto payment path |
+| `ADMIN_TELEGRAM_ID` | ✅ | Admin commands and alert routing |
+| `EZYAI_SITE_URL` | — | Web base URL for shareable links |
+| `SENTRY_DSN` | — | Error tracking |
+| `EZYAI_DEMO_DATA` | — | Seed demo data (`true` / `false`) |
+
+<details>
+<summary><b>🛠 Deploy</b></summary>
+
+<br>
+
+CI runs on every push to `main` / `master` — pytest, then a `py_compile` syntax check, then deploy to Fly.io on `main` only. See [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml).
+
+```bash
+fly deploy --remote-only
+```
+
+`FLY_API_TOKEN` must be set as a repository secret. Never commit `.env`.
+
+</details>
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<br>
+
+## 🧱 Repo Map
+
+```
+sambangold-products/
+├── assets/
+│   ├── hero-banner-{dark,light}.svg    animated hero
+│   ├── metrics-3d-{dark,light}.svg     isometric vertical breakdown
+│   ├── divider-flow.svg                animated section rule
+│   ├── stack-ticker.svg                scrolling stack marquee
+│   ├── roadmap-orbit.svg               orbital roadmap
+│   ├── badges-strip.svg                self-hosted badges
+│   ├── nav/                            clickable section chips
+│   └── icons/ic-01..18.svg             3D product icons
+├── products/product-01..18.md          per-product specs
+├── scripts/                            deploy + commit helpers
+└── .github/workflows/build-deploy.yml  CI/CD
+```
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+<div align="center">
+
+<br>
+
+<img src="assets/hero-animated.svg" alt="" width="110">
+
+### printezy · sambangold
+
+<sub>Python · Flask · Telegram Bot API · Binance · Yahoo Finance · Stripe · Fly.io</sub>
+
+<sub>**Educational research only. Not financial advice.** Verify every price with your broker.</sub>
+
+<sub>MIT</sub>
+
+<br>
+
+<img src="assets/divider-flow.svg" alt="" width="100%">
+
+</div>
