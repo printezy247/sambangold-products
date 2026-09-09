@@ -11,7 +11,15 @@
 
 ## Platform
 
-🌐 **Web-first** — sortable screener table. 🤖 Telegram weekly digest.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/miners`, `/miners TICKER` |
+| 🌐 Dashboard | `/p/miner-divergence` |
+
+**Primary — 🌐 dashboard-led.** A sortable screener is a table; the bot carries the weekly digest.
 
 ## Free tier
 
@@ -39,6 +47,12 @@
 | `/miners TICKER` | single-name beta, AISC margin, next earnings |
 
 ---
+
+## Dashboard views
+
+- Sortable screener table across the miner universe
+- Per-name divergence chart against spot gold
+- AISC margin and earnings/halt risk panel
 
 ## Monetization
 

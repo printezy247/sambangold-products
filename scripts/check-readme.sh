@@ -80,10 +80,13 @@ then :; else fail=1; fi
 
 note ""
 note "== 4. every product spec has its required headings =="
+# All eighteen specs, not just Vault II. Every product declares both surfaces,
+# so "## Dashboard views" is required alongside "## Commands".
 specfail=0
-for f in products/product-1[0-8].md; do
+for f in products/product-0[1-9].md products/product-1[0-8].md; do
   [ -f "$f" ] || continue
-  for h in "## Platform" "## Free tier" "## Problem" "## Solution" "## Monetization"; do
+  for h in "## Platform" "## Free tier" "## Problem" "## Solution" \
+            "## Commands" "## Dashboard views" "## Monetization"; do
     grep -q "^$h" "$f" || { printf '%s missing: %s\n' "$f" "$h"; specfail=1; }
   done
 done

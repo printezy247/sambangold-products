@@ -34,11 +34,8 @@ Do not leave verified work sitting uncommitted in the working tree.
   when `fly.toml` or the CLI is absent.
 - Never commit `.env` or any real key. `.env.example` carries the key names only.
 
-A change is "successful" when `scripts/check-readme.sh` passes, plus any tests
-that exist — not merely when the files were written. Application code, tests,
-and `requirements.txt` do not exist yet; the CI jobs skip those steps until
-they do, so a green run today means the docs and assets are sound, nothing
-more.
+A change is "successful" when `scripts/check-readme.sh` passes **and** `pytest`
+passes — not merely when the files were written. Both run in CI.
 
 ## 3. Theme: modern, futuristic, premium
 
@@ -112,8 +109,9 @@ It verifies four things and exits non-zero on any failure:
    candidate of a multi-candidate `srcset`), plus markdown `![img](path)` and
    `[link](path)` targets. External URLs and anchors are skipped.
 3. **Every SVG under `assets/` parses** as well-formed XML.
-4. **Every product spec** in `products/product-1*.md` carries its required
-   headings.
+4. **Every product spec** in `products/product-01..18.md` carries its required
+   headings, including `## Dashboard views` alongside `## Commands` — that pair
+   is what enforces the two-surface rule in the docs.
 
 Do not hand-roll these checks inline; extend the script instead, so the local
 run and the CI run never drift apart.
@@ -121,17 +119,29 @@ run and the CI run never drift apart.
 ## Repo layout
 
 ```
+app/             the Flask app — products.py registry, auth.py, telegram.py, views.py, templates/
+tests/           surface contract (both halves, all 18) + Telegram login verification
 assets/          self-hosted animated SVGs (hero, dividers, icons, nav chips, charts)
 products/        product-01..18.md — one spec per product
-scripts/         auto-commit.sh, auto-deploy.sh
+scripts/         check-readme.sh, auto-commit.sh, auto-deploy.sh
+wsgi.py          gunicorn entry point
 .github/         CI/CD workflow
 ```
 
 ## Product conventions
 
-Every product states its **platform** (🤖 Telegram / 🌐 Web / 🤖🌐 Both) and its
-**free tier**. No product is paywalled at the door — paid tiers sell scale and
-automation only, never basic access.
+**Every product ships both surfaces** — a 🤖 Telegram half and a 🌐 dashboard
+half — on one Telegram account, with the same free tier on each. Shape decides
+only which half is **primary** (where the value lands), never whether a half
+exists.
+
+`app/products.py` is the registry and the single source of truth. Routes, the
+bot command dispatch table, the dashboard index and the tests all read from it,
+so a product cannot exist on one surface only without a test failing. Add a
+product there first, then write its spec.
+
+No product is paywalled at the door — paid tiers sell scale and automation only,
+never basic access.
 
 ## Disclaimer
 

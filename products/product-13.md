@@ -11,7 +11,15 @@
 
 ## Platform
 
-🌐 **Web** — link manager and funnel dashboard. 🤖 Telegram for `/newlink` and a daily conversion digest.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/newlink CHANNEL`, `/funnel` |
+| 🌐 Dashboard | `/p/link-attribution` |
+
+**Primary — 🌐 dashboard-led.** Link management and a funnel need a page; the bot mints links and reports daily.
 
 ## Free tier
 
@@ -40,6 +48,12 @@
 | `/funnel` | today's clicks, signups, deposits, first lots |
 
 ---
+
+## Dashboard views
+
+- Link manager with per-channel tags
+- Funnel dashboard from click through to first lot
+- Channel comparison over a date range
 
 ## Monetization
 

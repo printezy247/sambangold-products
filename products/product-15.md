@@ -11,7 +11,15 @@
 
 ## Platform
 
-🌐 **Web-first** — equity-path fan chart and PDF export. `/simulate` in Telegram returns a summary card.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/simulate WINRATE RR RISK%` |
+| 🌐 Dashboard | `/p/monte-carlo-sim` |
+
+**Primary — 🌐 dashboard-led.** The fan chart and the PDF need a page; the bot returns the summary card.
 
 ## Free tier
 
@@ -39,6 +47,12 @@
 | `/simulate WINRATE RR RISK%` | summary card with pass probability and expected cost |
 
 ---
+
+## Dashboard views
+
+- Equity-path fan chart across the simulated runs
+- Rule-pack picker — daily DD, trailing DD, min days, consistency
+- PDF export of the run
 
 ## Monetization
 

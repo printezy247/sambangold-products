@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sambangold — 18 products, two surfaces each{% endblock %}
+{% block body %}
+  <h1>Eighteen products.<br>A Telegram bot and a dashboard for every one.</h1>
+  <p class="lede">
+    Each product answers a slash command in Telegram and has its own page here.
+    One Telegram account links the two. Every product has a free tier, and none
+    is paywalled at the door.
+  </p>
+
+  <h2>🏆 The Vault — shipped</h2>
+  <div class="grid">
+    {% for p in shipped %}{% include "_card.html" %}{% endfor %}
+  </div>
+
+  <h2>🔮 Vault II — proposed</h2>
+  <div class="grid">
+    {% for p in proposed %}{% include "_card.html" %}{% endfor %}
+  </div>
+{% endblock %}

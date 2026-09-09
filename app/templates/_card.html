@@ -1,0 +1,10 @@
+<a class="card" href="{{ url_for('views.product', slug=p.slug) }}">
+  <img src="{{ url_for('views.assets', filename='icons/ic-%02d.svg'|format(p.number)) }}" alt="">
+  <div class="name">{{ p.emoji }} {{ p.number }} · {{ p.name }}</div>
+  <div class="free">{{ p.free_tier }}</div>
+  <div class="chips">
+    <span class="chip bot">🤖 {{ p.bot_commands[0][0] }}</span>
+    <span class="chip web">🌐 dashboard</span>
+    <span class="chip">{{ p.primary_label }}</span>
+  </div>
+</a>
