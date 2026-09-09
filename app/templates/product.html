@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ p.number }} · {{ p.name }}{% endblock %}
+{% block body %}
+  <h1>{{ p.emoji }} {{ p.number }} · {{ p.name }}</h1>
+  <p class="lede">{{ p.problem }}</p>
+  <p class="lede"><strong>{{ p.solution }}</strong></p>
+
+  <div class="chips">
+    <span class="chip">{{ p.vertical }}</span>
+    <span class="chip">{{ p.primary_label }}</span>
+    <span class="chip web">Free tier — {{ p.free_tier }}</span>
+  </div>
+
+  <div class="halves">
+    <div class="panel">
+      <h3>🤖 Telegram half</h3>
+      <ul class="tight">
+        {% for command, does in p.bot_commands %}
+          <li><code>{{ command }}</code> — {{ does }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>🌐 Dashboard half</h3>
+      <ul class="tight">
+        {% for view in p.dashboard_views %}<li>{{ view }}</li>{% endfor %}
+      </ul>
+      <p class="soon">
+        {% if p.status == 'shipped' %}
+          Panels come online as each view is wired to live data.
+        {% else %}
+          Queued for build — the spec is written, the surface is reserved.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <h3>Upsell</h3>
+  <p class="lede">{{ p.upsell }} Paid tiers sell scale and automation only, never basic access.</p>
+
+  <p style="margin-top:28px"><a href="{{ url_for('views.index') }}">← all eighteen</a></p>
+{% endblock %}

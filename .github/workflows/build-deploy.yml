@@ -52,7 +52,7 @@ jobs:
       - name: Tests
         run: |
           if compgen -G "tests/test_*.py" > /dev/null || compgen -G "test_*.py" > /dev/null; then
-            pip install pytest
+            pip install "pytest>=7"
             pytest -q
           else
             echo "No tests yet — skipping pytest."

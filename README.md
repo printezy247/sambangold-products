@@ -37,21 +37,24 @@
 
 Eighteen small, sharp tools for people who make money **around** trading, not only from it — introducing brokers, prop-challenge traders, signal buyers, and gold watchers.
 
-Every product follows the same shape: **one job, one command or one page, a free tier that needs no card, and a paid tier that only sells time and scale.** Nine are shipped. Nine are proposed, weighted hard toward the gold-IB business, which is where the demand is loudest and the supply is thinnest.
+Every product follows the same shape: **one job, a Telegram command *and* a dashboard page, a free tier that needs no card, and a paid tier that only sells time and scale.** One Telegram account signs you in to both halves. Nine are shipped. Nine are proposed, weighted hard toward the gold-IB business, which is where the demand is loudest and the supply is thinnest.
 
 ```mermaid
 flowchart LR
-    U([👤 Trader / IB]) --> TG[🤖 Telegram Bot]
-    U --> WEB[🌐 Flask Web]
-    TG --> CORE{{⚙️ Core Engine}}
-    WEB --> CORE
+    U([👤 Trader / IB]) -->|slash command| TG[🤖 Telegram Bot]
+    U -->|browser| WEB[🌐 Flask Dashboard]
+    TG --> AUTH{{🔑 One Telegram identity}}
+    WEB --> AUTH
+    AUTH --> REG[[📇 Product Registry<br/>18 products · bot half + dashboard half]]
+    REG --> CORE{{⚙️ Core Engine}}
     CORE --> MD[(📈 Market Data<br/>Binance · Yahoo · Broker feeds)]
     CORE --> RULES[(📋 Rule Packs<br/>Prop firms · Brokers)]
     CORE --> LEDGER[(🧾 Rebate + Trade Ledger)]
     CORE --> OUT[📤 Verdict · Alert · PDF · Card]
-    OUT --> U
-    CORE -.free tier.-> FREE[✅ No card required]
-    CORE -.pro tier.-> PAY[💳 Stripe / USDT]
+    OUT --> TG
+    OUT --> WEB
+    REG -.free tier.-> FREE[✅ No card required]
+    REG -.pro tier.-> PAY[💳 Stripe / USDT]
 ```
 
 <img src="assets/divider-flow.svg" alt="" width="100%">
@@ -64,16 +67,16 @@ flowchart LR
 
 | | | |
 |:--:|:--:|:--:|
-| <img src="assets/icons/ic-01.svg" width="72"><br>**Gold Watch Alert**<br>🤖 Telegram | <img src="assets/icons/ic-02.svg" width="72"><br>**XAUUSD Verifier**<br>🤖 Telegram | <img src="assets/icons/ic-03.svg" width="72"><br>**Prop Calculator**<br>🤖🌐 Both |
-| <img src="assets/icons/ic-04.svg" width="72"><br>**Scam Detector**<br>🤖 Telegram | <img src="assets/icons/ic-05.svg" width="72"><br>**Gold Calendar**<br>🤖🌐 Both | <img src="assets/icons/ic-06.svg" width="72"><br>**Copy-Trade Audit**<br>🤖 Telegram |
-| <img src="assets/icons/ic-07.svg" width="72"><br>**Red-Flag Scanner**<br>🤖🌐 Both | <img src="assets/icons/ic-08.svg" width="72"><br>**IB Revenue Calc**<br>🌐 Web | <img src="assets/icons/ic-09.svg" width="72"><br>**Influencer Audit**<br>🤖 Telegram |
+| <img src="assets/icons/ic-01.svg" width="72"><br>**Gold Watch Alert**<br>🤖🌐 Both | <img src="assets/icons/ic-02.svg" width="72"><br>**XAUUSD Verifier**<br>🤖🌐 Both | <img src="assets/icons/ic-03.svg" width="72"><br>**Prop Calculator**<br>🤖🌐 Both |
+| <img src="assets/icons/ic-04.svg" width="72"><br>**Scam Detector**<br>🤖🌐 Both | <img src="assets/icons/ic-05.svg" width="72"><br>**Gold Calendar**<br>🤖🌐 Both | <img src="assets/icons/ic-06.svg" width="72"><br>**Copy-Trade Audit**<br>🤖🌐 Both |
+| <img src="assets/icons/ic-07.svg" width="72"><br>**Red-Flag Scanner**<br>🤖🌐 Both | <img src="assets/icons/ic-08.svg" width="72"><br>**IB Revenue Calc**<br>🤖🌐 Both | <img src="assets/icons/ic-09.svg" width="72"><br>**Influencer Audit**<br>🤖🌐 Both |
 
 </div>
 
 <br>
 
 <details>
-<summary><b>🥇 #1 · Gold Watch Alert Bot</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free, unlimited</i></summary>
+<summary><b>🥇 #1 · Gold Watch Alert Bot</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>free, unlimited</i></summary>
 
 <br>
 
@@ -81,7 +84,9 @@ flowchart LR
 
 **Solution** — `/watch XAUUSD style mode`, moved from PRO to **free**. Binance `PAXGUSDT` primary, Yahoo `GC=F` fallback. Spread-aware stops from existing constants.
 
-**Platform** — 🤖 Telegram. The whole product is one command in, one alert out. No page needed.
+**Platform** — 🤖🌐 **Both.** 🤖 `/watch XAUUSD`, `/watch list` &nbsp;·&nbsp; 🌐 `/p/gold-watch` — Alert history · Threshold editor for each armed pair · CSV export of triggers for journalling.
+
+**Primary** — 🤖 bot-led. One command in, one alert out — the dashboard keeps the history a chat log cannot.
 
 **Free tier** — `/watch` on gold, unlimited, no account.
 
@@ -90,7 +95,7 @@ flowchart LR
 </details>
 
 <details>
-<summary><b>🥇 #2 · XAUUSD Signal Verifier</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free single verify</i></summary>
+<summary><b>🥇 #2 · XAUUSD Signal Verifier</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>free single verify</i></summary>
 
 <br>
 
@@ -98,7 +103,9 @@ flowchart LR
 
 **Solution** — `/verify GOLD PRICE` pulls Binance `PAXGUSDT` tick history and tests the claimed fill. Returns **VERDICT: REAL / IMPOSSIBLE** with the gap percentage and a plain-language reason.
 
-**Platform** — 🤖 Telegram. Verification happens inside the group where the fake was posted — that is the point.
+**Platform** — 🤖🌐 **Both.** 🤖 `/verify GOLD PRICE` &nbsp;·&nbsp; 🌐 `/p/signal-verifier` — Verdict archive with the tick window that produced each call · Batch verify · Shareable public verdict link for posting back into a group.
+
+**Primary** — 🤖 bot-led. Verification belongs in the group where the fake was posted.
 
 **Free tier** — one verify per request, unlimited requests.
 
@@ -115,7 +122,9 @@ flowchart LR
 
 **Solution** — Flask calculator plus `/propcalc FEE SIZE PASS%`. Computes EV and scans pasted T&Cs for hidden rules with red/yellow scoring.
 
-**Platform** — 🤖🌐 Both. Web takes the long T&C paste; the bot answers the quick "is this worth it" question.
+**Platform** — 🤖🌐 **Both.** 🤖 `/propcalc FEE SIZE PASS%` &nbsp;·&nbsp; 🌐 `/p/prop-calculator` — Full calculator with the long T&C paste box · Rule-scan report, red and yellow flags itemised · Saved comparisons across firms.
+
+**Primary** — 🌐 dashboard-led. The long T&C paste needs a page; the bot answers the quick yes-or-no.
 
 **Free tier** — full calculator and bot command, no limit.
 
@@ -124,7 +133,7 @@ flowchart LR
 </details>
 
 <details>
-<summary><b>🔒 #4 · Telegram Bot Scam Detector</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free scans</i></summary>
+<summary><b>🔒 #4 · Telegram Bot Scam Detector</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>free scans</i></summary>
 
 <br>
 
@@ -132,7 +141,9 @@ flowchart LR
 
 **Solution** — `/audit @bot_username` checks for private-key requests, unregulated broker pushes, and missing audit links. Returns a **SCAM SCORE** and a checklist.
 
-**Platform** — 🤖 Telegram. It audits Telegram bots, so it lives where its targets live.
+**Platform** — 🤖🌐 **Both.** 🤖 `/audit @bot_username` &nbsp;·&nbsp; 🌐 `/p/bot-scam-detector` — Scan history with the score breakdown per signal · Watchlist of bots to re-scan · Public scam-score page per audited bot.
+
+**Primary** — 🤖 bot-led. It audits Telegram bots, so it lives where its targets live.
 
 **Free tier** — unlimited `/audit` scans.
 
@@ -149,7 +160,9 @@ flowchart LR
 
 **Solution** — Web calendar at `/gold-calendar` showing monthly volatility patterns and Fed release windows, with PDF download. Bot pushes `/calendar_alert` 30 minutes ahead.
 
-**Platform** — 🤖🌐 Both. The calendar is a page you scan; the alert is a push you cannot miss.
+**Platform** — 🤖🌐 **Both.** 🤖 `/calendar`, `/calendar_alert` &nbsp;·&nbsp; 🌐 `/p/gold-calendar` — Month grid of volatility patterns and Fed release windows · PDF download of the current quarter · Per-event history.
+
+**Primary** — 🌐 dashboard-led. The calendar is a page you scan; the bot is the push you cannot miss.
 
 **Free tier** — full calendar and PDF, no login.
 
@@ -158,7 +171,7 @@ flowchart LR
 </details>
 
 <details>
-<summary><b>🔒 #6 · Copy-Trade Safety Audit</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>5 free audits</i></summary>
+<summary><b>🔒 #6 · Copy-Trade Safety Audit</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>5 free audits</i></summary>
 
 <br>
 
@@ -166,7 +179,9 @@ flowchart LR
 
 **Solution** — `/copyaudit BROKER` checks regulation (SEC/FCA/ASIC links) and negative-balance protection, and prices the hidden spread cost. Returns **SAFE / HIGH RISK** with a checklist.
 
-**Platform** — 🤖 Telegram. Runs at the moment someone is being pitched.
+**Platform** — 🤖🌐 **Both.** 🤖 `/copyaudit BROKER` &nbsp;·&nbsp; 🌐 `/p/copy-trade-audit` — Audit history with the regulator links that were checked · Side-by-side broker comparison · Hidden-cost model.
+
+**Primary** — 🤖 bot-led. It has to run at the moment someone is being pitched.
 
 **Free tier** — 5 audits.
 
@@ -183,7 +198,9 @@ flowchart LR
 
 **Solution** — Web scanner plus `/scan TEXT`. NLP flags "guaranteed", "no risk", "VIP spots left", and checks for verified audit links (MyFXBook / FX Blue).
 
-**Platform** — 🤖🌐 Both. Paste a pitch on the web, or forward a message to the bot.
+**Platform** — 🤖🌐 **Both.** 🤖 `/scan TEXT` &nbsp;·&nbsp; 🌐 `/p/red-flag-scanner` — Scanner with the full pitch pasted in, flags highlighted inline · Scan history per seller or channel · Weekly scorecard for a channel you follow.
+
+**Primary** — 🤖 bot-led. Pitches arrive in chat, so the scan starts there.
 
 **Free tier** — unlimited text scans.
 
@@ -192,7 +209,7 @@ flowchart LR
 </details>
 
 <details>
-<summary><b>🥇 #8 · IB Affiliate Revenue Calculator</b> &nbsp;—&nbsp; 🌐 Web &nbsp;·&nbsp; <i>free calculator</i></summary>
+<summary><b>🥇 #8 · IB Affiliate Revenue Calculator</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>free calculator</i></summary>
 
 <br>
 
@@ -200,7 +217,9 @@ flowchart LR
 
 **Solution** — Web calculator at `/ib-calc` estimating net revenue after compliance cost and payout timeline, with a downloadable compliance checklist.
 
-**Platform** — 🌐 Web. Multi-field model plus a document download — a bot would fight the form.
+**Platform** — 🤖🌐 **Both.** 🤖 `/ibcalc LOTS RATE` &nbsp;·&nbsp; 🌐 `/p/ib-revenue-calculator` — Multi-field revenue model with the payout timeline · Downloadable compliance checklist · Saved scenarios across brokers.
+
+**Primary** — 🌐 dashboard-led. A multi-field model and a document download; the bot gives the quick estimate.
 
 **Free tier** — full calculator and checklist.
 
@@ -209,7 +228,7 @@ flowchart LR
 </details>
 
 <details>
-<summary><b>🔒 #9 · Influencer Trading Scam Audit</b> &nbsp;—&nbsp; 🤖 Telegram &nbsp;·&nbsp; <i>free audit + template</i></summary>
+<summary><b>🔒 #9 · Influencer Trading Scam Audit</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <i>free audit + template</i></summary>
 
 <br>
 
@@ -217,7 +236,9 @@ flowchart LR
 
 **Solution** — `/audit @influencer_handle` demands audited trading history rather than screenshots, flags rented luxury props, and checks unregulated broker promotions. Ships a free **loss report template** for FTC / CFTC / IC3.
 
-**Platform** — 🤖 Telegram. Viral by construction — the audit gets forwarded into the group that shared the influencer.
+**Platform** — 🤖🌐 **Both.** 🤖 `/influencer @handle` &nbsp;·&nbsp; 🌐 `/p/influencer-audit` — Audit archive, shareable per handle · Loss-report template generator for FTC / CFTC / IC3 · Broker-promotion trail for the accounts you have audited.
+
+**Primary** — 🤖 bot-led. Viral by construction — the audit gets forwarded into the group that shared the influencer.
 
 **Free tier** — unlimited audits plus the loss-report template.
 
@@ -239,15 +260,15 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 | | # | Product | Vertical | Platform | Free tier | Demand | Supply gap | Effort |
 |:--:|:--|:--|:--|:--|:--|:--|:--|:--|
-| <img src="assets/icons/ic-10.svg" width="52"> | **10** | Rebate Reconciliation Auditor | 🥇 Gold IB | 🌐 + 🤖 ping | 1 broker · 1 month | `●●●●●` | `○○○○○` | ●●○ |
+| <img src="assets/icons/ic-10.svg" width="52"> | **10** | Rebate Reconciliation Auditor | 🥇 Gold IB | 🤖🌐 Both | 1 broker · 1 month | `●●●●●` | `○○○○○` | ●●○ |
 | <img src="assets/icons/ic-11.svg" width="52"> | **11** | IB Client Churn & Blow-Up Radar | 🥇 Gold IB | 🤖🌐 Both | 10 clients | `●●●●○` | `○○○○○` | ●●● |
 | <img src="assets/icons/ic-12.svg" width="52"> | **12** | Live Gold Broker Comparator | 🥇 Gold IB | 🤖🌐 Both | fully open | `●●●●○` | `●●○○○` | ●●○ |
-| <img src="assets/icons/ic-13.svg" width="52"> | **13** | IB Link Attribution Tracker | 🥇 Gold IB | 🌐 + `/newlink` | 3 links | `●●●○○` | `●○○○○` | ●●○ |
-| <img src="assets/icons/ic-14.svg" width="52"> | **14** | Drawdown Sentinel | 🏛 Prop | 🤖 Telegram | 1 account · 1 firm | `●●●●●` | `●○○○○` | ●●● |
-| <img src="assets/icons/ic-15.svg" width="52"> | **15** | Monte Carlo Challenge Sim | 🏛 Prop | 🌐 + `/simulate` | 1,000 sims | `●●●●○` | `●●○○○` | ●○○ |
+| <img src="assets/icons/ic-13.svg" width="52"> | **13** | IB Link Attribution Tracker | 🥇 Gold IB | 🤖🌐 Both | 3 links | `●●●○○` | `●○○○○` | ●●○ |
+| <img src="assets/icons/ic-14.svg" width="52"> | **14** | Drawdown Sentinel | 🏛 Prop | 🤖🌐 Both | 1 account · 1 firm | `●●●●●` | `●○○○○` | ●●● |
+| <img src="assets/icons/ic-15.svg" width="52"> | **15** | Monte Carlo Challenge Sim | 🏛 Prop | 🤖🌐 Both | 1,000 sims | `●●●●○` | `●●○○○` | ●○○ |
 | <img src="assets/icons/ic-16.svg" width="52"> | **16** | Correlation & Overexposure | 💱 Forex | 🤖🌐 Both | snapshots | `●●●●○` | `●●○○○` | ●●○ |
-| <img src="assets/icons/ic-17.svg" width="52"> | **17** | Tokenized-Gold Premium Monitor | 🪙 Crypto | 🤖 + web chart | unlimited | `●●●○○` | `○○○○○` | ●○○ |
-| <img src="assets/icons/ic-18.svg" width="52"> | **18** | Miner–Bullion Divergence Screener | 📈 Stocks | 🌐 + digest | weekly screen | `●●●○○` | `●○○○○` | ●●○ |
+| <img src="assets/icons/ic-17.svg" width="52"> | **17** | Tokenized-Gold Premium Monitor | 🪙 Crypto | 🤖🌐 Both | unlimited | `●●●○○` | `○○○○○` | ●○○ |
+| <img src="assets/icons/ic-18.svg" width="52"> | **18** | Miner–Bullion Divergence Screener | 📈 Stocks | 🤖🌐 Both | weekly screen | `●●●○○` | `●○○○○` | ●●○ |
 
 <sub>`●` demand = how loudly it is asked for &nbsp;·&nbsp; `○` supply gap = how little exists (more `○` = emptier market) &nbsp;·&nbsp; effort = build weeks</sub>
 
@@ -256,7 +277,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 <br>
 
 <details>
-<summary><b>🥇 #10 · Rebate Reconciliation Auditor</b> &nbsp;—&nbsp; 🌐 Web-first &nbsp;·&nbsp; <b>the biggest gap in the set</b></summary>
+<summary><b>🥇 #10 · Rebate Reconciliation Auditor</b> &nbsp;—&nbsp; 🤖🌐 Both &nbsp;·&nbsp; <b>the biggest gap in the set</b></summary>
 
 <br>
 
@@ -264,7 +285,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Upload the broker rebate statement CSV and the client trade log. Recompute `lots × rate` per symbol and account tier, diff it against what was actually paid, and flag shortfalls, missing accounts, and silent rate changes.
 
-**Platform** — 🌐 Web-first: CSV upload, a diff table you can sort, PDF export. 🤖 Telegram companion pings when a new statement is reconciled.
+**Platform** — 🤖🌐 **Both.** 🤖 `/rebateaudit`, `/rebatestatus` &nbsp;·&nbsp; 🌐 `/p/rebate-auditor` — CSV upload for the broker statement and the client trade log · Sortable diff table · Dispute PDF with the per-account arithmetic shown.
+
+**Primary** — 🌐 dashboard-led. CSV upload, a sortable diff, a dispute PDF; the bot pings when a run finishes.
 
 **Free tier** — one broker, one month, full shortfall report. No card.
 
@@ -285,7 +308,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Score every referred client on declining lot volume, rising margin utilisation, martingale and revenge-trade patterns, and dormancy drift. Output a 30-day churn or blow-up probability with a suggested intervention.
 
-**Platform** — 🤖🌐 Both: web dashboard for the book, Telegram push the moment a client crosses a risk threshold.
+**Platform** — 🤖🌐 **Both.** 🤖 `/ibchurn`, `/ibchurn @client` &nbsp;·&nbsp; 🌐 `/p/churn-radar` — Book overview ranked by 30-day blow-up probability · Per-client signal breakdown and history · Intervention log.
+
+**Primary** — 🌐 dashboard-led. The book is a table you study; the bot warns the moment a client crosses a line.
 
 **Free tier** — 10 tracked clients, unlimited alerts.
 
@@ -304,7 +329,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Live XAUUSD spread, swap long and short, commission, and observed slippage across a broker set, rendered as a ranked shareable card carrying the IB's referral link.
 
-**Platform** — 🤖🌐 Both: a public indexable web table (the SEO asset) and `/goldspread`, which returns the card as an image straight into any group.
+**Platform** — 🤖🌐 **Both.** 🤖 `/goldspread`, `/goldspread 1.0 overnight` &nbsp;·&nbsp; 🌐 `/p/broker-comparator` — Public indexable comparison table · Cost calculator for a given lot size and holding period · Referral-branded card generator.
+
+**Primary** — 🌐 dashboard-led. The public table is the SEO asset; the bot drops the card straight into a group.
 
 **Free tier** — public comparison table and bot command, fully open.
 
@@ -315,7 +342,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 </details>
 
 <details>
-<summary><b>🥇 #13 · IB Link Attribution & Funnel Tracker</b> &nbsp;—&nbsp; 🌐 Web</summary>
+<summary><b>🥇 #13 · IB Link Attribution & Funnel Tracker</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
 
 <br>
 
@@ -323,7 +350,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Per-channel short links tracking post → click → signup → first deposit → first lot, closing the attribution hole the broker leaves open.
 
-**Platform** — 🌐 Web link manager and funnel dashboard, with 🤖 `/newlink` and a daily conversion digest.
+**Platform** — 🤖🌐 **Both.** 🤖 `/newlink CHANNEL`, `/funnel` &nbsp;·&nbsp; 🌐 `/p/link-attribution` — Link manager with per-channel tags · Funnel dashboard from click through to first lot · Channel comparison over a date range.
+
+**Primary** — 🌐 dashboard-led. Link management and a funnel need a page; the bot mints links and reports daily.
 
 **Free tier** — 3 tracked links, full funnel view.
 
@@ -334,7 +363,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 </details>
 
 <details>
-<summary><b>🏛 #14 · Drawdown Sentinel (Rule Guardian)</b> &nbsp;—&nbsp; 🤖 Telegram-first</summary>
+<summary><b>🏛 #14 · Drawdown Sentinel (Rule Guardian)</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
 
 <br>
 
@@ -342,7 +371,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Real-time monitor of daily loss, trailing drawdown, news blackout windows, max lot, and consistency rules, driven by per-firm rule packs. It alerts *before* the breach, with an optional flatten webhook.
 
-**Platform** — 🤖 Telegram-first. The entire value is a push arriving seconds before the line is crossed; the web side only links accounts and picks rule packs.
+**Platform** — 🤖🌐 **Both.** 🤖 `/sentinel link`, `/sentinel status`, `/sentinel firm NAME` &nbsp;·&nbsp; 🌐 `/p/drawdown-sentinel` — Account linking and rule-pack selection · Live distance-to-breach gauges per rule · Breach history and near-miss log.
+
+**Primary** — 🤖 bot-led. The entire value is a push arriving seconds before the line is crossed.
 
 **Free tier** — 1 account on 1 firm, unlimited breach alerts.
 
@@ -353,7 +384,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 </details>
 
 <details>
-<summary><b>🏛 #15 · Monte Carlo Challenge Simulator</b> &nbsp;—&nbsp; 🌐 Web-first</summary>
+<summary><b>🏛 #15 · Monte Carlo Challenge Simulator</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
 
 <br>
 
@@ -361,7 +392,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Simulate N equity paths against the *real* rule set — daily DD, trailing DD, minimum trading days, consistency rule — from the trader's own win rate, RR, and variance. Return a realistic pass probability and the expected total cost-to-funded across retries.
 
-**Platform** — 🌐 Web-first for the equity-path fan chart and PDF, plus `/simulate` returning a summary card.
+**Platform** — 🤖🌐 **Both.** 🤖 `/simulate WINRATE RR RISK%` &nbsp;·&nbsp; 🌐 `/p/monte-carlo-sim` — Equity-path fan chart across the simulated runs · Rule-pack picker · PDF export of the run.
+
+**Primary** — 🌐 dashboard-led. The fan chart and the PDF need a page; the bot returns the summary card.
 
 **Free tier** — 1,000 simulations per run, unlimited runs.
 
@@ -380,7 +413,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Cluster open positions into a single true-risk figure, and surface swap-rollover and session-spread cost alongside it.
 
-**Platform** — 🤖🌐 Both: web heat-map of the cluster, `/exposure` snapshot and overexposure warning in Telegram.
+**Platform** — 🤖🌐 **Both.** 🤖 `/exposure`, `/exposure warn` &nbsp;·&nbsp; 🌐 `/p/exposure-monitor` — Correlation heat-map of the open book · True-risk figure with the cluster decomposition · Rollover and session-spread cost projection.
+
+**Primary** — 🤖 bot-led. Overexposure is a warning you need immediately; the heat-map explains it afterwards.
 
 **Free tier** — on-demand snapshots, unlimited.
 
@@ -391,7 +426,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 </details>
 
 <details>
-<summary><b>🪙 #17 · Tokenized-Gold Premium & Payout Health Monitor</b> &nbsp;—&nbsp; 🤖 Telegram-first</summary>
+<summary><b>🪙 #17 · Tokenized-Gold Premium & Payout Health Monitor</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
 
 <br>
 
@@ -399,7 +434,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Track tokenized-gold premium and discount against spot, redemption fees, and reserve-attestation freshness. Add a payout-wallet health check: chain fee, depeg watch, address-poisoning detection.
 
-**Platform** — 🤖 Telegram-first (`/paxg`, `/walletcheck`, depeg push) with a public web premium chart.
+**Platform** — 🤖🌐 **Both.** 🤖 `/paxg`, `/walletcheck ADDRESS` &nbsp;·&nbsp; 🌐 `/p/tokenized-gold` — Public premium/discount chart over time · Reserve attestation freshness per token · Payout wallet health report.
+
+**Primary** — 🤖 bot-led. Depeg and poisoning checks are alerts; the premium chart is a page.
 
 **Free tier** — live premium readout and wallet safety check, unlimited.
 
@@ -410,7 +447,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 </details>
 
 <details>
-<summary><b>📈 #18 · Miner–Bullion Divergence Screener</b> &nbsp;—&nbsp; 🌐 Web-first</summary>
+<summary><b>📈 #18 · Miner–Bullion Divergence Screener</b> &nbsp;—&nbsp; 🤖🌐 Both</summary>
 
 <br>
 
@@ -418,7 +455,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Solution** — Screen GDX, GDXJ, and royalty names for beta divergence against spot gold, AISC-versus-price margin compression, and earnings or halt risk.
 
-**Platform** — 🌐 Web-first sortable screener, plus a 🤖 Telegram weekly digest.
+**Platform** — 🤖🌐 **Both.** 🤖 `/miners`, `/miners TICKER` &nbsp;·&nbsp; 🌐 `/p/miner-divergence` — Sortable screener table across the miner universe · Per-name divergence chart against spot gold · AISC margin and earnings/halt risk panel.
+
+**Primary** — 🌐 dashboard-led. A sortable screener is a table; the bot carries the weekly digest.
 
 **Free tier** — weekly screen, full table, no login.
 
@@ -446,22 +485,53 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 <br>
 
-Delivery is chosen by shape, never by taste:
+**Every product ships both surfaces.** One Telegram account signs you in to the
+dashboard, so the bot and the page always agree on who you are and what you are
+entitled to.
 
-| Shape of the job | Platform | Why |
+| Half | Always gives you | Never |
 |:--|:--|:--|
-| Ad-hoc trigger, or an alert that must arrive | 🤖 **Telegram** | Zero install, mobile-native, and it spreads inside the groups these users already live in |
-| CSV upload, dashboard, shareable link, PDF | 🌐 **Web (Flask)** | Forms and tables that a chat window would fight |
-| Heavy view *and* time-critical push | 🤖🌐 **Both** | Web renders it, the bot warns you, one account links them |
+| 🤖 **Telegram** | At least one slash command that returns the product's core answer, plus push alerts wherever the product has a trigger | A paywall at the door |
+| 🌐 **Dashboard** | A page at `/p/<slug>`: run history, configuration, export, a shareable link | A second login |
+
+Shape no longer decides *whether* a surface exists — only which one is **primary**,
+meaning where the value actually lands. That marker is kept on every product below,
+because it is real information: a breach alert is worthless on a page you are not
+looking at, and a sortable diff table is unreadable in a chat window.
 
 <div align="center">
 
-| Platform | Products | Count |
-|:--|:--|:--:|
-| 🤖 Telegram only | 1, 2, 4, 6, 9, 14, 17 | **7** |
-| 🌐 Web only | 8, 10, 13, 15, 18 | **5** |
-| 🤖🌐 Both | 3, 5, 7, 11, 12, 16 | **6** |
-| ✅ **Free tier** | **all of them** | **18** |
+| # | Product | 🤖 Telegram | 🌐 Dashboard | Primary | Free tier |
+|:--|:--|:--|:--|:--:|:--|
+| 🥇 **1** | Gold Watch Alert | `/watch XAUUSD` | `/p/gold-watch` | 🤖 | Unlimited /watch on gold. No account |
+| 🥇 **2** | XAUUSD Signal Verifier | `/verify GOLD PRICE` | `/p/signal-verifier` | 🤖 | One verify per request, unlimited requests |
+| 🏛 **3** | Prop Firm Challenge Calculator | `/propcalc FEE SIZE PASS%` | `/p/prop-calculator` | 🌐 | Full calculator and bot command, no limit |
+| 🔒 **4** | Telegram Bot Scam Detector | `/audit @bot_username` | `/p/bot-scam-detector` | 🤖 | Unlimited /audit scans |
+| 🥇 **5** | Gold Seasonality Calendar | `/calendar` | `/p/gold-calendar` | 🌐 | Full calendar and PDF, no login |
+| 🔒 **6** | Copy-Trade Safety Audit | `/copyaudit BROKER` | `/p/copy-trade-audit` | 🤖 | 5 audits free |
+| 💱 **7** | Forex Signal Red-Flag Scanner | `/scan TEXT` | `/p/red-flag-scanner` | 🤖 | Unlimited text scans |
+| 🥇 **8** | IB Affiliate Revenue Calculator | `/ibcalc LOTS RATE` | `/p/ib-revenue-calculator` | 🌐 | Full calculator and compliance checklist |
+| 🔒 **9** | Influencer Trading Scam Audit | `/influencer @handle` | `/p/influencer-audit` | 🤖 | Unlimited audits plus the loss-report template |
+| 🥇 **10** | Rebate Reconciliation Auditor | `/rebateaudit` | `/p/rebate-auditor` | 🌐 | One broker, one month, full shortfall report. No card |
+| 🥇 **11** | IB Client Churn & Blow-Up Radar | `/ibchurn` | `/p/churn-radar` | 🌐 | 10 tracked clients, unlimited alerts |
+| 🥇 **12** | Live Gold Broker Comparator | `/goldspread` | `/p/broker-comparator` | 🌐 | Public comparison table and bot command, fully open |
+| 🥇 **13** | IB Link Attribution & Funnel Tracker | `/newlink CHANNEL` | `/p/link-attribution` | 🌐 | 3 tracked links, full funnel view |
+| 🏛 **14** | Drawdown Sentinel | `/sentinel link` | `/p/drawdown-sentinel` | 🤖 | 1 account on 1 firm, unlimited breach alerts |
+| 🏛 **15** | Monte Carlo Challenge Simulator | `/simulate WINRATE RR RISK%` | `/p/monte-carlo-sim` | 🌐 | 1,000 simulations per run, unlimited runs |
+| 💱 **16** | Correlation & Overexposure Monitor | `/exposure` | `/p/exposure-monitor` | 🤖 | On-demand snapshot, unlimited |
+| 🪙 **17** | Tokenized-Gold Premium & Payout Health | `/paxg` | `/p/tokenized-gold` | 🤖 | Live premium readout and wallet safety check, unlimited |
+| 📈 **18** | Miner–Bullion Divergence Screener | `/miners` | `/p/miner-divergence` | 🌐 | Weekly screen, full table, no login |
+
+</div>
+
+<div align="center">
+
+| | Count |
+|:--|:--:|
+| 🤖🌐 Both surfaces | **18 / 18** |
+| 🤖 Bot-led | **9** |
+| 🌐 Dashboard-led | **9** |
+| ✅ Free tier, no card | **18 / 18** |
 
 </div>
 
@@ -480,11 +550,11 @@ Delivery is chosen by shape, never by taste:
 
 </div>
 
+- [x] **Phase 0 — the spine** — one Flask app, a page per product, one Telegram identity across bot and dashboard
 - [x] **Vault I** — 9 products shipped
 - [ ] **Gold IB ops suite** — #10 Rebate Auditor, #11 Churn Radar, #12 Broker Comparator, #13 Attribution
 - [ ] **Prop + forex** — #14 Drawdown Sentinel, #15 Monte Carlo Sim, #16 Overexposure Monitor
 - [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
-- [ ] Shared account linking Telegram identity to web sessions
 - [ ] One billing spine (Stripe + USDT) across all eighteen
 
 ```mermaid
@@ -505,14 +575,22 @@ timeline
 ```bash
 git clone https://github.com/printezy247/sambangold-products.git
 cd sambangold-products
-cp .env.example .env          # fill in your keys
+cp .env.example .env               # fill in your keys — never commit this file
 pip install -r requirements.txt
-python -m app                 # Flask web + Telegram polling
+
+flask --app wsgi run               # 🌐 dashboard on http://localhost:5000
+pytest -q                          # the surface contract: both halves, all 18
 ```
+
+The dashboard lists every product at `/`, and each one has its own page at
+`/p/<slug>`. The 🤖 half is the same process — point Telegram at
+`POST /webhook/telegram` once `PUBLIC_BASE_URL` is reachable over HTTPS.
 
 | Variable | Required | Purpose |
 |:--|:--:|:--|
-| `TELEGRAM_BOT_TOKEN` | ✅ | Bot identity for every 🤖 product |
+| `TELEGRAM_BOT_TOKEN` | ✅ | Bot identity, and the key that signs dashboard logins |
+| `FLASK_SECRET_KEY` | ✅ | Session signing for the 🌐 dashboard |
+| `PUBLIC_BASE_URL` | ✅ | Where Telegram sends the webhook, and the base for shareable links |
 | `STRIPE_API_KEY` | — | PRO tier checkout |
 | `STRIPE_WEBHOOK_SECRET` | — | Subscription state sync |
 | `USDT_ADDRESS` | — | Crypto payment path |
@@ -526,7 +604,7 @@ python -m app                 # Flask web + Telegram polling
 
 <br>
 
-CI runs on every push to `main` / `master` — pytest, then a `py_compile` syntax check, then deploy to Fly.io on `main` only. See [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml).
+CI runs on every push and pull request against `master` — the README/asset check, then `py_compile`, then pytest, then deploy to Fly.io on `master` pushes only. See [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml).
 
 ```bash
 fly deploy --remote-only
@@ -553,8 +631,16 @@ sambangold-products/
 │   ├── badges-strip.svg                self-hosted badges
 │   ├── nav/                            clickable section chips
 │   └── icons/ic-01..18.svg             3D product icons
+├── app/
+│   ├── products.py                     the registry — 18 products, both halves
+│   ├── auth.py                         Telegram Login Widget → web session
+│   ├── telegram.py                     webhook + command dispatch
+│   ├── views.py                        / and /p/<slug>
+│   └── templates/                      dashboard pages
+├── tests/                              surface contract + auth verification
 ├── products/product-01..18.md          per-product specs
-├── scripts/                            deploy + commit helpers
+├── scripts/                            check, commit and deploy helpers
+├── wsgi.py                             gunicorn entry point
 └── .github/workflows/build-deploy.yml  CI/CD
 ```
 

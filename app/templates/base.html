@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Sambangold{% endblock %}</title>
+<style>
+  :root {
+    --bg-0: #060b14; --bg-1: #0d1b30; --surface: #0b1424;
+    --gold: #f0b429; --cyan: #00e5ff; --rose: #ff4d6d;
+    --violet: #a78bfa; --green: #34d399;
+    --text: #e8f0ff; --muted: #8fa3c0;
+    --edge: rgba(232, 240, 255, .10);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    background: radial-gradient(1200px 600px at 50% -10%, var(--bg-1), var(--bg-0)) fixed;
+    color: var(--text);
+    font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 72px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .brand { font-size: 22px; font-weight: 700; letter-spacing: .04em; }
+  .brand span { color: var(--gold); }
+  .who { color: var(--muted); font-size: 14px; }
+  h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.15; margin: 32px 0 8px; }
+  h2 { font-size: 20px; margin: 48px 0 16px; letter-spacing: .02em; }
+  h3 { font-size: 15px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 28px 0 10px; }
+  p.lede { color: var(--muted); max-width: 62ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--edge); border-radius: var(--radius);
+    padding: 20px; display: block; color: inherit;
+    transition: transform .18s ease, border-color .18s ease;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--gold); text-decoration: none; }
+  .card img { width: 56px; height: 56px; }
+  .card .name { font-weight: 650; margin: 10px 0 6px; }
+  .card .free { color: var(--green); font-size: 13px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .chip {
+    font-size: 12px; padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--edge); color: var(--muted); background: rgba(255,255,255,.02);
+  }
+  .chip.bot { color: var(--cyan); border-color: rgba(0,229,255,.35); }
+  .chip.web { color: var(--gold); border-color: rgba(240,180,41,.35); }
+  .panel { background: var(--surface); border: 1px solid var(--edge); border-radius: var(--radius); padding: 22px; }
+  .halves { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 18px; }
+  ul.tight { margin: 8px 0 0; padding-left: 20px; }
+  ul.tight li { margin: 6px 0; }
+  code { background: rgba(255,255,255,.06); padding: 2px 7px; border-radius: 6px; font-size: 14px; }
+  .soon { color: var(--muted); font-size: 13px; border-left: 2px solid var(--gold); padding-left: 12px; margin-top: 14px; }
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--edge); color: var(--muted); font-size: 13px; }
+  @media (prefers-color-scheme: light) {
+    html:not([data-theme="dark"]) body { background: #f5f7fb; color: #0b1424; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">SAMBAN<span>GOLD</span></div>
+    <div class="who">
+      {% if user %}
+        {{ user.first_name or user.username }} &middot; <a href="{{ url_for('auth.logout') }}">sign out</a>
+      {% else %}
+        <a href="https://core.telegram.org/widgets/login">Sign in with Telegram</a> — one account, both surfaces
+      {% endif %}
+    </div>
+  </header>
+
+  {% block body %}{% endblock %}
+
+  <footer>
+    Educational research only. Not financial advice. Verify every price with your broker.
+  </footer>
+</div>
+</body>
+</html>
