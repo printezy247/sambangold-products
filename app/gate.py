@@ -18,8 +18,26 @@ from .tiers import at_least, feature_label, tier_for_feature
 
 
 def owner_tier(owner):
-    """The rank an owner key carries — the highest grant standing behind it."""
-    return store.effective_tier(owner) if owner else "public"
+    """The rank an owner key carries — the one resolver both surfaces use.
+
+    The admin is Rambo everywhere. This used to be decided only in
+    `auth.rank_for`, which the bot never calls, so the owner was Rambo on the
+    page and Awam in the chat. One function now answers it for both.
+    """
+    if not owner:
+        return "public"
+    if is_admin_owner(owner):
+        return "elite"
+    return store.effective_tier(owner)
+
+
+def is_admin_owner(owner):
+    """True when this owner key is the configured admin's Telegram id."""
+    from flask import current_app, has_app_context
+    if not has_app_context():
+        return False
+    admin = current_app.config.get("ADMIN_TELEGRAM_ID")
+    return bool(admin and str(owner) == str(admin))
 
 
 def user_tier(user=None):

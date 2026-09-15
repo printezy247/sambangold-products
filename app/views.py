@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make_response, redirect,
                    render_template, request, send_from_directory, session, url_for)
 
-from . import (autopilot, brokertool, caltool, doors, feeds, gate, linktool, mctool, rebatetool, perks, scan, scantool,
+from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
@@ -61,6 +61,7 @@ def dashboard():
     ap = autopilot.dashboard_autopilot(request, user)
     st = seats.dashboard_seats(request, user)
     wl = whitelabel.dashboard_extras(request, user)
+    gr = groups.dashboard_groups(request, user)
     if request.method == "POST":
         return redirect(url_for("views.dashboard") + "#autopilot")
     live, rest = _split()
@@ -72,7 +73,7 @@ def dashboard():
         "saved": sum(len(v) for v in saved.values()),
     }
     since = time.strftime("%Y-%m-%d", time.gmtime(row["created_at"])) if row else "—"
-    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, wl=wl, by_slug=BY_SLUG)
+    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, wl=wl, gr=gr, by_slug=BY_SLUG)
 
 
 @bp.route("/pricing", methods=["GET", "POST"])

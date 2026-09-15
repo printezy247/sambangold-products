@@ -1000,3 +1000,45 @@ def set_broker_claim(claim_id, status=None, deposit=None, note=None, verified_at
         db().execute("UPDATE broker_claims SET %s WHERE id = ?" % ", ".join(sets), args)
         db().commit()
     return broker_claim(claim_id)
+
+
+# --------------------------------------------------------------------------- #
+# Group auto-scan: the rooms a member pointed the bot at.
+# --------------------------------------------------------------------------- #
+
+GROUP_SCHEMA = """
+CREATE TABLE IF NOT EXISTS group_watch (
+    id         INTEGER PRIMARY KEY,
+    group_id   TEXT NOT NULL,
+    title      TEXT,
+    owner      TEXT NOT NULL,
+    created_at REAL NOT NULL,
+    UNIQUE (group_id, owner)
+);
+CREATE INDEX IF NOT EXISTS group_watch_owner ON group_watch(owner);
+"""
+SCHEMA += GROUP_SCHEMA
+
+
+def add_group_watch(group_id, title, owner):
+    db().execute(
+        "INSERT INTO group_watch (group_id, title, owner, created_at) VALUES (?, ?, ?, ?)"
+        " ON CONFLICT(group_id, owner) DO UPDATE SET title = excluded.title",
+        (str(group_id), title, str(owner), time.time()))
+    db().commit()
+    return group_watchers(group_id)
+
+
+def drop_group_watch(group_id, owner):
+    db().execute("DELETE FROM group_watch WHERE group_id = ? AND owner = ?", (str(group_id), str(owner)))
+    db().commit()
+
+
+def group_watchers(group_id):
+    return [dict(r) for r in db().execute(
+        "SELECT * FROM group_watch WHERE group_id = ? ORDER BY created_at", (str(group_id),))]
+
+
+def groups_for(owner):
+    return [dict(r) for r in db().execute(
+        "SELECT * FROM group_watch WHERE owner = ? ORDER BY created_at", (str(owner),))]

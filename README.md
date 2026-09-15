@@ -554,6 +554,36 @@ upgrade.
 > to a Rambo holder. The guard is a test: every line a page can show must resolve
 > from the wiring, and a rank is never offered when it would add nothing.
 
+#### 👁️ Group auto-scan
+
+The last promise on those scanner pages, now built. The scanners answer one
+pasted pitch well, but the scam arrives in a group at 2am while the owner is
+asleep, and by morning three members have sent USDT to a wallet.
+
+Add the bot to the group, **make it an administrator** (a bot only sees ordinary
+messages in a group when it is an admin), and send `/watchgroup` inside that
+room. Every message long enough to be a pitch runs through the same rule engine
+the red-flag scanner uses, and anything carrying a red flag is sent privately to
+the watcher with the verdict and the reasons.
+
+| Guard | Why |
+|:--|:--|
+| 90-character floor | Chat is not a pitch. Short messages are never scanned. |
+| One alert per author per group per day | A spammer posting twenty times costs one message |
+| 12 alerts per group per day | A room that goes bad cannot flood the watcher |
+| Red flags only | A yellow alone is not worth waking someone for |
+
+> [!NOTE]
+> The bot posts the confirmation **in the group** when watching starts, and never
+> posts anything else there. People in a room deserve to know a bot is reading
+> what they write, even though it tips off a scammer who is paying attention.
+> Ordinary conversation is scanned in memory and discarded; only a flagged
+> message is stored, as a scan the watcher can review.
+
+`/groups` lists the watched rooms, `/unwatchgroup` stops one, and the dashboard
+has the same list. A lapsed rank stops the scanning and keeps the row, so it
+resumes when the rank comes back.
+
 > [!IMPORTANT]
 > A rank never unlocks a *product*. It unlocks the **memory, automation and
 > scale** around products whose free tier is already open to everybody. The gate
@@ -854,6 +884,7 @@ sambangold-products/
 │   ├── doors.py                        the two free ways up — broker account, referral
 │   ├── seats.py                        Rambo carrying a team on one rank
 │   ├── whitelabel.py                   the branded card and the signed webhook out
+│   ├── groups.py                       group auto-scan — the bot watches a room
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>
