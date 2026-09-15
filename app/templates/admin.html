@@ -27,6 +27,30 @@
     </table>
   </div>
 
+  <div class="panel" style="margin-top:24px;overflow-x:auto">
+    <h3 style="margin-top:0">{{ t('adm.br_h') }}</h3>
+    <table class="flags">
+      <thead><tr><th>#</th><th>{{ t('price.claim_acc') }}</th><th>{{ t('adm.grant_owner') }}</th><th>{{ t('price.claim_dep') }}</th><th></th></tr></thead>
+      <tbody>
+      {% for c in claims %}
+        <tr><td class="mono">{{ c.id }}</td><td class="mono">{{ c.account }}</td><td class="mono">{{ c.owner }}</td>
+            <td class="mono">{{ '%.0f'|format(c.deposit or 0) }}</td>
+            <td>{% if c.status == 'pending' %}
+              <form method="post" style="display:flex;gap:8px;flex-wrap:wrap">
+                <input type="hidden" name="approve" value="{{ c.id }}">
+                <input name="deposit" value="{{ '%.0f'|format(c.deposit or 0) }}" inputmode="decimal" size="6">
+                <button class="btn small" type="submit">{{ t('adm.br_approve') }}</button>
+              </form>
+              <form method="post"><input type="hidden" name="reject" value="{{ c.id }}">
+                <button class="btn small" type="submit">{{ t('adm.br_reject') }}</button></form>
+            {% else %}<span class="chip">{{ t('br.s_' + c.status) }}</span>{% endif %}</td></tr>
+      {% else %}
+        <tr><td colspan="5" class="text-muted">—</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
   <div class="panel" style="margin-top:24px">
     <h3 style="margin-top:0">{{ t('adm.grant_h') }}</h3>
     <form method="post" style="display:grid;gap:10px;max-width:520px">

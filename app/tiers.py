@@ -89,6 +89,7 @@ class Tier:
     ib_min_deposit_usd: int | None   # None = no broker door; 0 = an account with no deposit
     features: tuple = ()
     popular: bool = False
+    seats: int = 0                   # extra people this rank may carry, beyond the holder
 
     @property
     def label(self):
@@ -106,7 +107,7 @@ TIERS = (
     Tier("public", 0, 0, 0, None, PUBLIC_F),
     Tier("free", 1, 0, 0, 0, FREE_F),
     Tier("pro", 2, 4900, 49000, 100, PRO_F, popular=True),
-    Tier("elite", 3, 12900, 129000, 500, ELITE_F),
+    Tier("elite", 3, 12900, 129000, 500, ELITE_F, seats=10),
 )
 
 BY_KEY = {t.key: t for t in TIERS}
@@ -133,6 +134,13 @@ def higher_tier(a, b):
 def at_least(key, needed):
     """True when `key` sits at or above `needed` on the ladder."""
     return rank_of(key) >= rank_of(needed)
+
+
+def seats_for(key):
+    """How many extra people this rank may seat. Kept off the LIMITS map on
+    purpose: there 0 means unlimited, and here 0 must mean none."""
+    t = BY_KEY.get(key)
+    return t.seats if t else 0
 
 
 def tier_for_deposit(deposit_usd):
