@@ -99,9 +99,13 @@ def client(app):
     return app.test_client()
 
 
-def login(client, user_id="42", email=None, admin=False):
-    """Put a signed-in user in the session the way auth.sign_in would."""
+def login(client, user_id="42", email=None, admin=False, rank=None):
+    """Put a signed-in user in the session the way auth.sign_in would.
+
+    Signing in grants no rank: `public` unless the caller asks for one, which
+    mirrors `auth.rank_for` now that General is paid for or earned at the
+    broker door."""
     with client.session_transaction() as s:
         s["user"] = {"uid": 1, "owner": user_id, "telegram_id": user_id, "email": email,
                      "username": "tester", "name": "Test", "locale": "ms",
-                     "is_admin": admin, "rank": "elite" if admin else "free"}
+                     "is_admin": admin, "rank": rank or ("elite" if admin else "public")}

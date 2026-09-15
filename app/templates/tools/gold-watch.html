@@ -18,6 +18,12 @@
 <p class="lede">{{ t('ui.w_signin') }}</p>
 {% else %}
 {% if tool.notice %}<p class="soon">{{ tool.notice }}</p>{% endif %}
+{% if not tool.may_arm %}
+<div class="panel tool">
+  <p class="lede" style="margin:0 0 12px">{{ tool.upgrade }}</p>
+  <a class="btn btn-gold" href="{{ url_for('views.pricing', want='alerts') }}">{{ t('price.title') }} →</a>
+</div>
+{% else %}
 <form method="post" class="panel tool">
   <input type="hidden" name="action" value="arm">
   <div class="fields">
@@ -31,6 +37,8 @@
   </div>
   <div class="actions"><button type="submit">{{ t('ui.w_arm') }}</button></div>
 </form>
+{% endif %}
+
 {% if tool.alerts %}
 <table class="flags">
   <thead><tr><th>#</th><th>{{ t('ui.w_pair') }}</th><th>{{ t('ui.w_dir') }}</th><th>{{ t('ui.w_level') }}</th><th></th></tr></thead>

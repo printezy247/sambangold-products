@@ -24,13 +24,31 @@ def test_keys_and_labels_match_sams_site():
 
 
 def test_prices_and_the_free_door():
+    assert tiers.tier_by_key("free").price_month_cents == 1900
     assert tiers.tier_by_key("pro").price_month_cents == 4900
     assert tiers.tier_by_key("elite").price_month_cents == 12900
-    assert tiers.tier_by_key("elite").price("year") == 129000
-    # CLAUDE.md: no product is paywalled at the door.
+    # CLAUDE.md: no product is paywalled at the door. Awam still answers in full.
     assert tiers.tier_by_key("public").price_month_cents == 0
-    assert tiers.tier_by_key("free").price_month_cents == 0
+    assert tiers.tier_has("public", "tools_free")
     assert tiers.fmt_usd(12900) == "$129"
+
+
+def test_the_annual_price_is_derived_not_typed():
+    """Twelve months for the price of ten, computed — so it cannot drift."""
+    for tier in tiers.TIERS:
+        assert tier.price_year_cents == tier.price_month_cents * 10
+        assert tier.year_saving_cents == tier.price_month_cents * 2
+        assert tier.price("year") == tier.price_year_cents
+    assert tiers.tier_by_key("free").price_year_cents == 19000        # $190
+    assert tiers.tier_by_key("pro").price_year_cents == 49000         # $490
+    assert tiers.tier_by_key("elite").price_year_cents == 129000      # $1,290
+
+
+def test_every_paid_rank_has_a_free_broker_door():
+    """Nobody has to pay: the deposit band reaches the same rank."""
+    for tier in tiers.TIERS[1:]:
+        assert tier.ib_min_deposit_usd is not None
+    assert tiers.tier_for_deposit(0) == "free"
 
 
 def test_features_accumulate_up_the_ladder():
@@ -92,11 +110,13 @@ def test_revoke_and_expiry_drop_the_rank(app):
         assert store.entitlements_for("88", active_only=False)[0]["status"] == "expired"
 
 
-def test_signing_in_is_general_and_admin_is_rambo(app):
+def test_a_rank_is_a_grant_never_a_side_effect_of_signing_in(app):
     from app.auth import rank_for
     with app.app_context():
-        assert rank_for({"id": 1, "telegram_id": "77"}) == "free"
-        store.grant_entitlement("77", "pro", source="manual")
+        assert rank_for({"id": 1, "telegram_id": "77"}) == "public"   # signing in buys nothing
+        store.grant_entitlement("77", "free", source="ib", external_id="ib:1")
+        assert rank_for({"id": 1, "telegram_id": "77"}) == "free"     # the broker door does
+        store.grant_entitlement("77", "pro", source="stripe", external_id="sub_1")
         assert rank_for({"id": 1, "telegram_id": "77"}) == "pro"
         app.config["ADMIN_TELEGRAM_ID"] = "99"
         assert rank_for({"id": 2, "telegram_id": "99"}) == "elite"
@@ -173,3 +193,49 @@ def test_account_page_names_the_rank_source(client, app):
     login(client, user_id="42")
     body = client.get("/account").get_data(as_text=True)
     assert "Pintu broker" in body
+
+
+# --- General is paid for, or earned at the broker door ---------------------- #
+
+def test_general_costs_nineteen_on_your_own_broker_and_nothing_under_sams(app):
+    assert tiers.tier_by_key("free").price_month_cents == 1900
+    assert tiers.tier_for_deposit(0) == "free"          # any account under Sam, no deposit needed
+    with app.app_context():
+        assert store.effective_tier("77") == "public"
+        store.grant_entitlement("77", "free", source="ib", external_id="ib:1")
+        assert store.effective_tier("77") == "free"
+
+
+def test_arming_an_alert_needs_general_on_both_surfaces(app, client):
+    from app.telegram import reply_for
+    with app.app_context():
+        blocked = reply_for("/watch XAUUSD above 2450", chat_id=7, lang="en")
+        assert "General" in blocked and "armed" not in blocked
+        assert store.alerts_for("7") == []               # nothing was written
+
+        store.grant_entitlement("7", "free", source="ib", external_id="ib:7")
+        assert "armed" in reply_for("/watch XAUUSD above 2450", chat_id=7, lang="en")
+
+
+def test_the_tools_themselves_stay_open_to_everyone(client):
+    """CLAUDE.md's rule: the price gates the memory, never the answer."""
+    body = client.get("/p/gold-watch").get_data(as_text=True)
+    assert "2,399" in body or "2399" in body             # the live quote, with no account at all
+    assert client.get("/p/broker-comparator").status_code == 200
+    assert client.get("/p/prop-calculator").status_code == 200
+
+
+def test_the_export_is_what_general_keeps(client, app):
+    login(client, user_id="42")
+    assert client.get("/p/gold-watch/history.csv").status_code == 302   # sent to the ranks page
+    login(client, user_id="42", rank="free")
+    assert client.get("/p/gold-watch/history.csv").status_code == 200
+
+
+def test_the_ranks_page_states_both_prices_for_general(client):
+    body = client.get("/pricing").get_data(as_text=True)
+    assert "$19" in body and "$190" in body and "$38" in body
+    assert "Broker sendiri" in body and "Broker di bawah Sam" in body
+    client.get("/lang/en")
+    body = client.get("/pricing").get_data(as_text=True)
+    assert "free for anyone trading under Sam" in body

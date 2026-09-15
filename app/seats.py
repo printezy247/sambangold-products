@@ -35,7 +35,7 @@ def occupied(holder):
 
 
 def free_seats(holder, holder_tier=None):
-    holder_tier = holder_tier or owner_tier(str(holder), signed_in=True)
+    holder_tier = holder_tier or owner_tier(str(holder))
     return max(0, capacity(holder_tier) - len(occupied(holder)))
 
 
@@ -54,7 +54,7 @@ def _expiry(holder, holder_tier):
 def add(holder, member, holder_tier=None):
     """(seat_rows, error_key). The member gets the holder's rank and expiry."""
     holder, member = str(holder).strip(), str(member).strip()
-    holder_tier = holder_tier or owner_tier(holder, signed_in=True)
+    holder_tier = holder_tier or owner_tier(holder)
     if not allows(holder_tier, FEATURE):
         return None, "st.need"
     if not member:
@@ -86,7 +86,7 @@ def sync(holder):
     Called after the holder's own rank changes, so a downgrade reaches the
     team instead of leaving the seats above the rank paying for them.
     """
-    tier = owner_tier(str(holder), signed_in=True)
+    tier = owner_tier(str(holder))
     rows = occupied(holder)
     if not allows(tier, FEATURE):
         for row in rows:
@@ -108,7 +108,7 @@ def bot_seats(args, chat_id=None, lang=DEFAULT_LANG, **_):
     """`/seats` lists them, `/seats add <id>` and `/seats remove <id>` move them."""
     if not chat_id:
         return t("st.usage", lang)
-    tier = owner_tier(str(chat_id), signed_in=True)
+    tier = owner_tier(str(chat_id))
     if not allows(tier, FEATURE):
         from .gate import upgrade_line
         return "%s\n\n%s" % (upgrade_line(FEATURE, lang), t("gate.where", lang))

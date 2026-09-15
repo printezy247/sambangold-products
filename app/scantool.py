@@ -136,7 +136,9 @@ def _dashboard(slug):
                 ctx["scan_id"] = store.save_scan(ctx["report"], owner=owner)
                 ctx["public"] = store.public_scans(slug, ctx["report"]["subject"])
         if owner:
-            ctx["history"] = store.scans_for(owner, slug)
+            from .gate import allows, user_tier
+            if allows(user_tier(user), "history"):    # keeping a run is what General buys
+                ctx["history"] = store.scans_for(owner, slug)
             ctx["watch"] = store.watchlist(owner, slug)
         return ctx
     return build

@@ -86,6 +86,10 @@ def bot_watch(args, chat_id=None, lang=DEFAULT_LANG, **_):
     if not chat_id:
         return t("watch.need_chat", lang)
 
+    from .gate import bot_gate
+    blocked = bot_gate("alerts", chat_id=chat_id, lang=lang)
+    if blocked:
+        return blocked                     # the price is still free to read; the memory is not
     alert_id = store.add_alert(chat_id, symbol, direction, level)
     side = "ask" if direction == "above" else "bid"
     return t("watch.ok", lang, id=alert_id, sym=symbol, dir=t("watch." + direction, lang), level=fmt(level),
@@ -138,7 +142,15 @@ def dashboard_watch(request, user=None):
     except feeds.FeedError as exc:
         ctx["feed_error"] = str(exc)
 
-    if owner and request.method == "POST":
+    from .gate import allows, upgrade_line, user_tier
+    tier = user_tier(user)
+    ctx["may_arm"] = allows(tier, "alerts")
+    ctx["may_keep"] = allows(tier, "history")
+    ctx["upgrade"] = upgrade_line("alerts", ui_lang()) if not ctx["may_arm"] else ""
+
+    if owner and request.method == "POST" and not ctx["may_arm"]:
+        ctx["notice"] = ctx["upgrade"]
+    elif owner and request.method == "POST":
         form = request.form
         action = form.get("action")
         if action == "arm":
@@ -157,8 +169,9 @@ def dashboard_watch(request, user=None):
             store.update_alert(owner, form.get("id"), active=False)
             ctx["notice"] = t("watch.d_disarmed", ui_lang())
 
-    if owner:
+    if owner and ctx["may_arm"]:
         ctx["alerts"] = store.alerts_for(owner)
+    if owner and ctx["may_keep"]:
         ctx["history"] = store.triggers_for(owner)
     return ctx
 

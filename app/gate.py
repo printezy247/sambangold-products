@@ -14,13 +14,12 @@ from flask import flash, has_request_context, redirect, request, url_for
 from . import store
 from .auth import current_user, lang as session_lang
 from .brand import t
-from .tiers import at_least, feature_label, higher_tier, tier_for_feature
+from .tiers import at_least, feature_label, tier_for_feature
 
 
-def owner_tier(owner, signed_in=False):
-    """The rank an owner key carries. A signed-in owner is General at worst."""
-    tier = store.effective_tier(owner) if owner else "public"
-    return higher_tier("free", tier) if signed_in else tier
+def owner_tier(owner):
+    """The rank an owner key carries — the highest grant standing behind it."""
+    return store.effective_tier(owner) if owner else "public"
 
 
 def user_tier(user=None):
@@ -66,7 +65,7 @@ def bot_gate(feature, chat_id=None, lang="ms"):
     The handler keeps answering the free part of the question; only the
     automation branch calls this.
     """
-    tier = owner_tier(str(chat_id), signed_in=True) if chat_id else "public"
+    tier = owner_tier(str(chat_id)) if chat_id else "public"
     if allows(tier, feature):
         return None
     return "%s\n\n%s" % (upgrade_line(feature, lang), t("gate.where", lang))
@@ -84,9 +83,9 @@ def limit(key, user=None, owner=None, chat_id=None):
     if user is not None:
         tier = user.get("rank") or "public"
     elif chat_id is not None:
-        tier = owner_tier(str(chat_id), signed_in=True)
+        tier = owner_tier(str(chat_id))
     elif owner is not None:
-        tier = owner_tier(str(owner), signed_in=True)
+        tier = owner_tier(str(owner))
     else:
         tier = user_tier()
     return limit_for(key, tier)

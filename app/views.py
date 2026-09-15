@@ -156,6 +156,7 @@ def product(slug):
 
 @bp.route("/p/gold-watch/history.csv")
 @login_required
+@gate.require_feature("history")
 def gold_watch_csv():
     return Response(watch.history_csv(current_user()["owner"]), mimetype="text/csv",
                     headers={"Content-Disposition": "attachment; filename=gold-watch-history.csv"})
@@ -265,7 +266,7 @@ def widget(token):
     w = whitelabel.widget_of(owner) if owner else None
     if not w or w.get("token") != token:
         abort(404)
-    if not gate.allows(gate.owner_tier(str(owner), signed_in=True), whitelabel.WIDGET_FEATURE):
+    if not gate.allows(gate.owner_tier(str(owner)), whitelabel.WIDGET_FEATURE):
         abort(404)      # the card goes dark with the rank that paid for it
     lang = ui_lang()
     heads, rows = whitelabel.card(w, lang)
