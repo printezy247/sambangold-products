@@ -453,9 +453,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Problem** — Gold traders who want equity exposure are badly served. Generic stock screeners know nothing about AISC, and gold sites know nothing about equities.
 
-**Solution** — Screen GDX, GDXJ, and royalty names for beta divergence against spot gold, AISC-versus-price margin compression, and earnings or halt risk.
+**Solution** — **Live.** Six months of Yahoo closes for GDX, GDXJ, majors, mid-tiers and royalty names, each regressed on GC=F. The screen sorts on the residual: the 20-session move β and gold do not explain. Flags for decoupling, lagging, leading, thin AISC margin (dated, hand-maintained) and earnings within 14 days. Monday digest on the bot.
 
-**Platform** — 🤖🌐 **Both.** 🤖 `/miners`, `/miners TICKER` &nbsp;·&nbsp; 🌐 `/p/miner-divergence` — Sortable screener table across the miner universe · Per-name divergence chart against spot gold · AISC margin and earnings/halt risk panel.
+**Platform** — 🤖🌐 **Both.** 🤖 `/miners`, `/miners TICKER`, `/miners weekly` &nbsp;·&nbsp; 🌐 `/p/miner-divergence` — Sortable screener table, no login · Per-name chart against gold rebased to 100 · AISC margin and earnings panel.
 
 **Primary** — 🌐 dashboard-led. A sortable screener is a table; the bot carries the weekly digest.
 
@@ -554,7 +554,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 - [x] **Vault I** — 9 products shipped
 - [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution ✅
 - [x] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor ✅
-- [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor ✅, #18 Miner Divergence Screener
+- [x] **Crypto + stocks** — #17 Tokenized-Gold Monitor ✅, #18 Miner Divergence Screener ✅
 - [ ] One billing spine (Stripe + USDT) across all eighteen
 
 ```mermaid

@@ -659,6 +659,11 @@ def get_setting(product, owner, key):
     return row["note"] if row else ""
 
 
+def owners_by_setting(product, key, value):
+    rows = db().execute("SELECT DISTINCT owner FROM notes WHERE product = ? AND subject = ? AND note = ?", (product, "setting:" + key, value)).fetchall()
+    return [r["owner"] for r in rows]
+
+
 def owner_by_setting(product, key, value):
     row = _row(db().execute("SELECT owner FROM notes WHERE product = ? AND subject = ? AND note = ? ORDER BY created_at DESC LIMIT 1",
                             (product, "setting:" + key, value)))

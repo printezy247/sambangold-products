@@ -1,0 +1,47 @@
+{% set c = tool %}
+<h2>{{ t('ui.m_h') }}</h2>
+<p class="lede">{{ t('ui.m_lede') }}</p>
+{% if c.error %}<p class="err">{{ c.error }}</p>{% else %}
+{% set s = c.s %}
+<div class="stats">
+  <div class="stat glass"><span>{{ t('ui.m_spot') }}</span><b>{{ '{:,.0f}'.format(s.spot) }}</b><small>GC=F · {{ s.week }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.m_universe') }}</span><b>{{ s.rows|length }}</b><small>{{ t('ui.m_universe_note') }}</small></div>
+  <div class="stat glass {{ 'warn' if s.rows and s.rows[0].flags else '' }}"><span>{{ t('ui.m_top') }}</span><b>{{ s.rows[0].ticker if s.rows else '—' }}</b><small>{{ t('ui.m_residual') }} {{ c.pct(s.rows[0].residual) if s.rows else '' }}</small></div>
+</div>
+{% if s.errors %}<p class="text-muted" style="font-size:12px">{{ t('mn.partial', n=s.errors|length) }}</p>{% endif %}
+
+<form method="post" class="actions" style="margin:8px 0 16px">
+  <input type="hidden" name="action" value="weekly">
+  {% if c.owner %}<button type="submit" class="ghost">{{ t('ui.m_weekly_off' if c.weekly else 'ui.m_weekly_on') }}</button>{% else %}<p class="soon">{{ t('ui.m_signin') }}</p>{% endif %}
+</form>
+
+<h3>{{ t('ui.m_table') }}</h3>
+<p class="text-muted" style="font-size:12px">{{ t('ui.m_sort') }}
+{% for k in ('residual', 'ret', 'beta', 'corr', 'margin', 'earnings', 'ticker') %}<a href="?sort={{ k }}"{% if c.sort == k %} style="color:var(--gold)"{% endif %}>{{ t('ui.m_col_' ~ k) }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+<div style="overflow-x:auto"><table class="flags">
+<thead><tr><th>{{ t('ui.m_col_ticker') }}</th><th>{{ t('ui.m_col_ret') }}</th><th>{{ t('ui.m_col_residual') }}</th><th>{{ t('ui.m_col_beta') }}</th><th>{{ t('ui.m_col_corr') }}</th><th>{{ t('ui.m_col_margin') }}</th><th>{{ t('ui.m_col_earnings') }}</th><th></th></tr></thead>
+<tbody>{% for r in c.rows %}<tr>
+  <td><a href="?ticker={{ r.ticker }}&amp;sort={{ c.sort }}"><b>{{ r.ticker }}</b></a> <span class="text-muted">{{ r.name }}</span></td>
+  <td class="mono">{{ c.pct(r.ret_20) }}</td>
+  <td class="mono" style="color:{{ 'var(--win)' if r.residual > 0 else 'var(--loss)' }}">{{ c.pct(r.residual) }}</td>
+  <td class="mono">{{ c.num(r.beta) }} <span class="text-muted">/ {{ c.num(r.beta_20) }}</span></td>
+  <td class="mono">{{ c.num(r.corr_20) }}</td>
+  <td class="mono">{% if r.margin_pct is not none %}{{ c.pct(r.margin_pct) }} <span class="text-muted">${{ '{:,}'.format(r.aisc) }}</span>{% else %}—{% endif %}</td>
+  <td class="mono">{% if r.earnings %}{{ r.earnings }}{% else %}—{% endif %}</td>
+  <td>{% for f in r.flags %}<span title="{{ t('mn.f_' ~ f, res=c.pct(r.residual), corr=c.num(r.corr_20), pct=c.pct(r.margin_pct), days=r.earnings_in) }}">{{ c.icon[f] }}</span>{% endfor %}</td>
+</tr>{% endfor %}</tbody></table></div>
+<p class="text-muted" style="font-size:12px">{{ t('mn.legend') }} · {{ t('ui.m_table_note', asof=s.aisc_as_of) }}</p>
+
+{% if c.detail %}{% set r = c.detail %}
+<h2 id="detail">{{ r.ticker }} · {{ r.name }}</h2>
+<div class="stats">
+  <div class="stat glass {{ 'warn' if 'lagging' in r.flags or 'leading' in r.flags else '' }}"><span>{{ t('ui.m_residual') }}</span><b>{{ c.pct(r.residual) }}</b><small>{{ t('ui.m_move', ret=c.pct(r.ret_20), gold=c.pct(r.gold_20)) }}</small></div>
+  <div class="stat glass {{ 'warn' if 'decoupled' in r.flags else '' }}"><span>β / ρ (20)</span><b>{{ c.num(r.beta_20) }} / {{ c.num(r.corr_20) }}</b><small>{{ t('ui.m_long', beta=c.num(r.beta), corr=c.num(r.corr), n=r.sessions) }}</small></div>
+  {% if r.aisc %}<div class="stat glass {{ 'negative' if 'squeeze' in r.flags else 'positive' }}"><span>{{ t('ui.m_margin') }}</span><b>${{ '{:,}'.format(r.margin) }}/oz</b><small>AISC ${{ '{:,}'.format(r.aisc) }} ({{ r.aisc_as_of }}) · {{ c.pct(r.margin_pct) }}</small></div>{% endif %}
+  {% if r.earnings %}<div class="stat glass {{ 'warn' if 'earnings' in r.flags else '' }}"><span>{{ t('ui.m_earnings') }}</span><b>{{ r.earnings }}</b><small>{{ t('ui.m_days', days=r.earnings_in) }}</small></div>{% endif %}
+</div>
+{% if c.svg %}<div class="panel" style="padding:12px">{{ c.svg|safe }}</div><p class="text-muted" style="font-size:12px">{{ t('ui.m_chart_note') }}</p>{% endif %}
+<ul class="tight">{% for line in c.lines(r, lang) %}<li>{{ line|safe }}</li>{% endfor %}</ul>
+{% else %}<p class="lede">{{ t('ui.m_pick') }}</p>{% endif %}
+{% endif %}
+<p class="soon">{{ t('mn.caveat') }}</p>
