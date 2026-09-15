@@ -36,7 +36,21 @@
     </div>
   </div>
 
-  {% if tool %}{% include "tools/" ~ p.slug ~ ".html" %}{% endif %}
+  {% if tool %}
+  <div class="lux howto" style="padding:20px;margin:26px 0 8px">
+    <h3 style="margin:0 0 12px">{{ t('how.title') }}</h3>
+    <ol style="margin:0;padding-left:22px">
+      {% for line in howto.steps %}<li style="margin-bottom:6px">{{ line }}</li>{% endfor %}
+    </ol>
+    {% if howto.link %}
+    <p style="margin:14px 0 0"><a class="btn btn-gold" href="{{ howto.link }}">{{ t('how.try') }}</a></p>
+    {% elif howto.example %}
+    <p class="text-muted" style="margin:14px 0 0">{{ t('how.copy') }}</p>
+    <p class="mono" style="margin:4px 0 0;word-break:break-word">{% for k, v in howto.example.items() %}{{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+    {% endif %}
+  </div>
+  {% include "tools/" ~ p.slug ~ ".html" %}
+  {% endif %}
 
   <div class="lux{% if perks.have %} lux-gold{% endif %}" style="padding:22px;margin-top:48px">
     {% if perks.have %}

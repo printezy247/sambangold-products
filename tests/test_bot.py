@@ -58,13 +58,36 @@ def test_menu_edits_in_place_and_every_screen_has_a_way_back(app):
             assert any("Back" in l or "Main Menu" in l for l in labels), data
 
 
-def test_tools_screen_lists_only_live_products(app):
+def test_the_tools_screen_asks_who_you_are_first(app):
+    """Eighteen buttons in one list is a wall. Four rooms is a question."""
     with app.app_context():
         handle_update(tap("lang_en"))
         labels = buttons(handle_update(tap("menu_tools"))[1][4])
+        assert any("I trade on my own" in l for l in labels)
+        assert any("prop firm" in l for l in labels)
+        assert any("IB" in l for l in labels)
+        assert not any("Gold Watch" in l for l in labels)     # not until you pick a room
+
+
+def test_picking_a_room_lists_only_that_audiences_live_tools(app):
+    with app.app_context():
+        handle_update(tap("lang_en"))
+        labels = buttons(handle_update(tap("path_p1"))[1][4])
         assert any("Gold Watch" in l for l in labels)
+        assert not any("Prop Firm" in l for l in labels)      # that is another room
+        assert not any("Churn Radar" in l for l in labels)    # dashboard-led, never listed
+
+        labels = buttons(handle_update(tap("path_p2"))[1][4])
         assert any("Prop Firm" in l for l in labels)
-        assert not any("Churn Radar" in l for l in labels)
+        assert any("Back" in l or "Tools" in l or "Menu" in l for l in labels)
+
+
+def test_every_live_tool_lives_in_exactly_one_room(app):
+    """A tool nobody can reach from the menu may as well not exist."""
+    from app.telegram import PATHS, SAMPLES
+    placed = [slug for _, _, slugs in PATHS for slug in slugs]
+    assert len(placed) == len(set(placed)), "a tool is in two rooms"
+    assert set(SAMPLES) <= set(placed), set(SAMPLES) - set(placed)
 
 
 def test_try_example_runs_the_tool_and_offers_retention_keys(app):
