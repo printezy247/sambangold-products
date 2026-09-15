@@ -8,6 +8,9 @@ class Config:
     TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:5000")
     ADMIN_TELEGRAM_ID = os.environ.get("ADMIN_TELEGRAM_ID", "")
+    DATABASE_PATH = os.environ.get("DATABASE_PATH", "data/sambangold.db")
+    # Shared secret the scheduler sends to POST /tasks/check-alerts.
+    TASK_TOKEN = os.environ.get("TASK_TOKEN", "")
 
     # Telegram login payloads older than this are refused.
     AUTH_MAX_AGE_SECONDS = 86400

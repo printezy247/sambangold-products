@@ -5,6 +5,9 @@ side, a command per product on the bot side, and one Telegram identity linking
 the two.
 """
 
+import time
+
+import click
 from flask import Flask
 
 from .config import Config
@@ -15,9 +18,20 @@ def create_app(config_object=Config):
     app.config.from_object(config_object)
     app.config["MISSING"] = config_object.missing()
 
-    from . import auth, telegram, views
+    from . import auth, store, telegram, views, watch
     app.register_blueprint(views.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(telegram.bp)
+    app.teardown_appcontext(store.close_db)
+
+    @app.template_filter("utc")
+    def utc(ts):
+        return time.strftime("%Y-%m-%d %H:%M", time.gmtime(ts))
+
+    @app.cli.command("check-alerts")
+    def check_alerts_command():
+        """Fire every armed alert that has crossed. Run from cron."""
+        import json
+        click.echo(json.dumps(watch.check_alerts(telegram.send_message)))
 
     return app

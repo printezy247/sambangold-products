@@ -1,0 +1,25 @@
+name: Check alerts
+
+# The free scheduler. Every five minutes it asks the running app to fire any
+# armed alert that has crossed. It does nothing until both secrets exist, so
+# this is safe to merge before the app is deployed.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fire crossed alerts
+        env:
+          PUBLIC_BASE_URL: ${{ secrets.PUBLIC_BASE_URL }}
+          TASK_TOKEN: ${{ secrets.TASK_TOKEN }}
+        run: |
+          if [ -z "$PUBLIC_BASE_URL" ] || [ -z "$TASK_TOKEN" ]; then
+            echo "PUBLIC_BASE_URL or TASK_TOKEN not set — nothing to check yet."
+            exit 0
+          fi
+          curl -fsS -X POST -H "X-Task-Token: $TASK_TOKEN" "$PUBLIC_BASE_URL/tasks/check-alerts"

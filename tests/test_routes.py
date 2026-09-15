@@ -3,16 +3,8 @@
 import pytest
 from markupsafe import escape
 
-from app import create_app
 from app.products import PRODUCTS
 from app.telegram import reply_for
-
-
-@pytest.fixture
-def client():
-    app = create_app()
-    app.config["TESTING"] = True
-    return app.test_client()
 
 
 def test_index_lists_every_product(client):

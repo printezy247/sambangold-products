@@ -47,7 +47,7 @@ def help_text():
     return "\n".join(lines)
 
 
-def reply_for(text, base_url=""):
+def reply_for(text, base_url="", chat_id=None):
     """Answer for one incoming message. Pure, so the tests can call it."""
     parts = text.strip().split()
     word = parts[0].lstrip("/").split("@")[0] if parts else ""
@@ -62,7 +62,7 @@ def reply_for(text, base_url=""):
     handler = BOT.get(word)
     if handler is not None:
         return "%s <b>%s</b>\n%s\n\nDashboard: %s" % (
-            product.emoji, product.name, handler(parts[1:]), page)
+            product.emoji, product.name, handler(parts[1:], chat_id=chat_id), page)
     if product.status == "shipped":
         head = "%s <b>%s</b>\n%s" % (product.emoji, product.name, product.solution)
     else:
@@ -81,5 +81,5 @@ def webhook():
     text = message.get("text", "")
 
     if chat_id and text:
-        send_message(chat_id, reply_for(text, current_app.config["PUBLIC_BASE_URL"]))
+        send_message(chat_id, reply_for(text, current_app.config["PUBLIC_BASE_URL"], chat_id=chat_id))
     return jsonify(ok=True)

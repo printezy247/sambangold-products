@@ -57,11 +57,13 @@
   .tool .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
   .tool label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
   .tool label.wide { margin-top: 4px; }
-  .tool input, .tool textarea {
+  form.inline { display: inline; }
+  button.small { padding: 5px 12px; font-size: 13px; }
+  .tool input, .tool textarea, .tool select {
     background: rgba(255,255,255,.04); border: 1px solid var(--edge); border-radius: 8px;
     color: var(--text); padding: 9px 11px; font: inherit; font-size: 15px;
   }
-  .tool input:focus, .tool textarea:focus { outline: none; border-color: var(--cyan); }
+  .tool input:focus, .tool textarea:focus, .tool select:focus { outline: none; border-color: var(--cyan); }
   .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
   button {
     background: var(--gold); color: #060b14; border: 0; border-radius: 999px;

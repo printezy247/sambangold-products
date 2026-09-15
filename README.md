@@ -82,9 +82,9 @@ flowchart LR
 
 **Problem** — Traders miss gold entries to spread and slippage. Most Telegram gold channels are scams.
 
-**Solution** — `/watch XAUUSD style mode`, moved from PRO to **free**. Binance `PAXGUSDT` primary, Yahoo `GC=F` fallback. Spread-aware stops from existing constants.
+**Solution** — `/watch XAUUSD` returns live bid, ask and spread with spread-widened entry and stop levels; `/watch XAUUSD above 2450` arms an alert that fires on the **ask** (below fires on the **bid**), so it never triggers on a price the market did not offer. Binance `PAXGUSDT` primary, Yahoo `GC=F` fallback, checked every five minutes by a free GitHub Actions cron. **Free, unlimited.**
 
-**Platform** — 🤖🌐 **Both.** 🤖 `/watch XAUUSD`, `/watch list` &nbsp;·&nbsp; 🌐 `/p/gold-watch` — Alert history · Threshold editor for each armed pair · CSV export of triggers for journalling.
+**Platform** — 🤖🌐 **Both.** 🤖 `/watch XAUUSD`, `/watch XAUUSD above 2450`, `/watch list` &nbsp;·&nbsp; 🌐 `/p/gold-watch` — Live bid/ask/spread · Alert history · Threshold editor for each armed alert · CSV export of triggers for journalling. **Live.**
 
 **Primary** — 🤖 bot-led. One command in, one alert out — the dashboard keeps the history a chat log cannot.
 
@@ -595,6 +595,8 @@ The dashboard lists every product at `/`, and each one has its own page at
 | `STRIPE_WEBHOOK_SECRET` | — | Subscription state sync |
 | `USDT_ADDRESS` | — | Crypto payment path |
 | `ADMIN_TELEGRAM_ID` | ✅ | Admin commands and alert routing |
+| `DATABASE_PATH` | — | SQLite file for armed alerts and trigger history (default `data/sambangold.db`) |
+| `TASK_TOKEN` | — | Shared secret the scheduler sends to `POST /tasks/check-alerts` |
 | `EZYAI_SITE_URL` | — | Web base URL for shareable links |
 | `SENTRY_DSN` | — | Error tracking |
 | `EZYAI_DEMO_DATA` | — | Seed demo data (`true` / `false`) |

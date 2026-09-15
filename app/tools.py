@@ -1,7 +1,7 @@
 """Where a product's math meets its two surfaces.
 
-`BOT` maps a command word to a function taking the argument list and returning
-HTML for Telegram. `DASHBOARD` maps a slug to a function taking the Flask
+`BOT` maps a command word to a function taking the argument list (plus
+`chat_id` as a keyword) and returning HTML for Telegram. `DASHBOARD` maps a slug to a function taking the Flask
 request and returning the template context for that product's tool panel. A
 product in neither table still renders its spec; a product in one table only
 fails the surface-contract test.
@@ -10,6 +10,7 @@ fails the surface-contract test.
 from flask import session
 
 from . import calc
+from .watch import bot_watch, dashboard_watch
 
 SAVE_LIMIT = 8
 
@@ -34,7 +35,7 @@ PROPCALC_USAGE = (
 )
 
 
-def bot_propcalc(args):
+def bot_propcalc(args, **_):
     if len(args) < 3:
         return PROPCALC_USAGE
     try:
@@ -54,7 +55,7 @@ def bot_propcalc(args):
     )
 
 
-def dashboard_prop(request):
+def dashboard_prop(request, user=None):
     form = request.values
     ctx = {"form": form, "result": None, "error": None, "scan": None,
            "saved": session.get("saves", {}).get("prop-calculator", [])}
@@ -94,7 +95,7 @@ IBCALC_USAGE = (
 )
 
 
-def bot_ibcalc(args):
+def bot_ibcalc(args, **_):
     if len(args) < 2:
         return IBCALC_USAGE
     try:
@@ -116,7 +117,7 @@ def bot_ibcalc(args):
     )
 
 
-def dashboard_ib(request):
+def dashboard_ib(request, user=None):
     form = request.values
     ctx = {"form": form, "result": None, "error": None,
            "checklist": calc.IB_CHECKLIST,
@@ -151,5 +152,6 @@ def _save(slug, row):
     session.modified = True
 
 
-BOT = {"propcalc": bot_propcalc, "ibcalc": bot_ibcalc}
-DASHBOARD = {"prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib}
+BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc}
+DASHBOARD = {"gold-watch": dashboard_watch, "prop-calculator": dashboard_prop,
+             "ib-revenue-calculator": dashboard_ib}
