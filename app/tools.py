@@ -11,6 +11,8 @@ from flask import session
 
 from . import calc
 from .caltool import bot_calendar, bot_calendar_alert, dashboard_calendar
+from .scantool import (bot_audit, bot_copyaudit, bot_influencer, bot_scan, dashboard_botscam,
+                       dashboard_copyaudit, dashboard_influencer, dashboard_redflag)
 from .watch import bot_watch, dashboard_watch
 
 SAVE_LIMIT = 8
@@ -154,6 +156,9 @@ def _save(slug, row):
 
 
 BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc,
-       "calendar": bot_calendar, "calendar_alert": bot_calendar_alert}
+       "calendar": bot_calendar, "calendar_alert": bot_calendar_alert,
+       "audit": bot_audit, "copyaudit": bot_copyaudit, "scan": bot_scan, "influencer": bot_influencer}
 DASHBOARD = {"gold-watch": dashboard_watch, "gold-calendar": dashboard_calendar,
-             "prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib}
+             "prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib,
+             "bot-scam-detector": dashboard_botscam, "copy-trade-audit": dashboard_copyaudit,
+             "red-flag-scanner": dashboard_redflag, "influencer-audit": dashboard_influencer}

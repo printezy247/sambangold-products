@@ -36,17 +36,20 @@ half, on one Telegram account, with the same free tier on each.
 
 Demand audited history rather than screenshots, and flag unregulated broker promotion.
 
+`/influencer @handle [their post]` runs the shared red-flag rules plus lifestyle-bait and course-selling rules, counts the broker referral links in the text (`refid`, `ref=`, `invitecode`, `affid`), and lists the four things to demand before sending a cent. The dashboard adds the loss-report generator, a plain-text file in the shape the FTC, CFTC, IC3, SC Malaysia and BNM forms ask for. **Live.**
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/influencer @handle` | audit an influencer's trading claims |
+| `/influencer @handle [post or DM]` | score, referral-link count, the four things to demand |
 
 ## Dashboard views
 
-- Audit archive, shareable per handle
-- Loss-report template generator for FTC / CFTC / IC3
-- Broker-promotion trail for the accounts you have audited
+- Audit archive with a public share page per scan at `/p/influencer-audit/s/<id>`
+- Loss-report template generator for FTC / CFTC / IC3 / SC / BNM (`report.txt` download)
+- Broker-promotion trail — every referral link found in the audited text
+- Watchlist of handles to re-audit (signed in)
 
 ## Monetization
 

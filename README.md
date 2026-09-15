@@ -139,7 +139,7 @@ flowchart LR
 
 **Problem** — Fake verification bots, malware links, and fake airdrops rose sharply through 2025.
 
-**Solution** — `/audit @bot_username` checks for private-key requests, unregulated broker pushes, and missing audit links. Returns a **SCAM SCORE** and a checklist.
+**Solution** — `/audit @bot_username` checks for private-key requests, unregulated broker pushes, and missing audit links. Returns a **SCAM SCORE** and a checklist; the dashboard archives every scan, keeps a watchlist and gives each scan a public share page. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/audit @bot_username` &nbsp;·&nbsp; 🌐 `/p/bot-scam-detector` — Scan history with the score breakdown per signal · Watchlist of bots to re-scan · Public scam-score page per audited bot.
 
@@ -177,7 +177,7 @@ flowchart LR
 
 **Problem** — Influencers push unregulated copy-trading; users lose capital to hidden spreads and blowouts.
 
-**Solution** — `/copyaudit BROKER` checks regulation (SEC/FCA/ASIC links) and negative-balance protection, and prices the hidden spread cost. Returns **SAFE / HIGH RISK** with a checklist.
+**Solution** — `/copyaudit BROKER` checks regulation (SEC/FCA/ASIC links) and negative-balance protection, and prices the hidden spread cost. Returns **HIGH RISK / CAUTION / LOW RISK** with the regulator registers to check and the spread cost per year. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/copyaudit BROKER` &nbsp;·&nbsp; 🌐 `/p/copy-trade-audit` — Audit history with the regulator links that were checked · Side-by-side broker comparison · Hidden-cost model.
 
@@ -196,7 +196,7 @@ flowchart LR
 
 **Problem** — Signal sellers claim "100% accuracy", delete losing trades, flood fake reviews, and charge $30–$300 a month.
 
-**Solution** — Web scanner plus `/scan TEXT`. NLP flags "guaranteed", "no risk", "VIP spots left", and checks for verified audit links (MyFXBook / FX Blue).
+**Solution** — Web scanner plus `/scan TEXT`. NLP flags "guaranteed", "no risk", "VIP spots left", and checks for verified audit links (MyFXBook / FX Blue). Every flag carries its reason; the dashboard keeps history per seller. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/scan TEXT` &nbsp;·&nbsp; 🌐 `/p/red-flag-scanner` — Scanner with the full pitch pasted in, flags highlighted inline · Scan history per seller or channel · Weekly scorecard for a channel you follow.
 
@@ -234,7 +234,7 @@ flowchart LR
 
 **Problem** — Billions are lost to social-media investment scams each year, and a large share of short-form "financial advice" is misleading.
 
-**Solution** — `/audit @influencer_handle` demands audited trading history rather than screenshots, flags rented luxury props, and checks unregulated broker promotions. Ships a free **loss report template** for FTC / CFTC / IC3.
+**Solution** — `/influencer @handle` demands audited trading history rather than screenshots, flags rented luxury props, and checks unregulated broker promotions. Ships a free **loss report template** for FTC / CFTC / IC3 / SC Malaysia / BNM, generated on the dashboard. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/influencer @handle` &nbsp;·&nbsp; 🌐 `/p/influencer-audit` — Audit archive, shareable per handle · Loss-report template generator for FTC / CFTC / IC3 · Broker-promotion trail for the accounts you have audited.
 

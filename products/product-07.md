@@ -36,17 +36,20 @@ half, on one Telegram account, with the same free tier on each.
 
 Flag the language that always accompanies a fake, and check for a verified audit link.
 
+Twelve shared rules — guarantees, accuracy claims, fee to withdraw, urgency, screenshots as proof, lifestyle bait, move-to-DM, VIP tiers, doubling claims, referral links — plus two *good* rules that lower the score: a Myfxbook / FX Blue link and an honest risk disclosure. Score 0–100, verdict HIGH RISK / CAUTION / LOW RISK, every flag with its reason and the matching snippet. **Live.**
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/scan TEXT` | red-flag report on a pitch |
+| `/scan TEXT` | 0–100 score, verdict, top flags with the reason for each |
 
 ## Dashboard views
 
-- Scanner with the full pitch pasted in, flags highlighted inline
-- Scan history per seller or channel
-- Weekly scorecard for a channel you follow
+- Scanner with the full pitch pasted in; findings table with flag, reason and snippet
+- Scan history per seller or channel, and a watchlist to re-scan (signed in)
+- Public share page per scan at `/p/red-flag-scanner/s/<id>`
+- Weekly scorecard for a channel you follow (PRO, not built)
 
 ## Monetization
 
