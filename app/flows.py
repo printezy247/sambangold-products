@@ -38,6 +38,11 @@ FLOWS = {
     "gold-calendar": [],
     "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
     "churn-radar": [],
+    "drawdown-sentinel": [
+        S("name", "flow.sn_name"),
+        S("firm", "flow.sn_firm", options=(("FTMO", "ftmo"), ("FundedNext", "fundednext"), ("The5ers", "the5ers"), ("FundingPips", "fundingpips"), ("MyFundedFX", "myfundedfx"), ("E8", "e8"))),
+        S("balance", "flow.sn_balance", number=True, options=(("$10k", "10000"), ("$25k", "25000"), ("$50k", "50000"), ("$100k", "100000"))),
+    ],
     "link-attribution": [
         S("channel", "flow.lk_channel"),
         S("url", "flow.lk_url", optional=True),
@@ -85,6 +90,8 @@ def build(slug, a):
         return "/ibchurn"
     if slug == "broker-comparator":
         return "/goldspread %s %s" % (a["lots"], a["nights"])
+    if slug == "drawdown-sentinel":
+        return "/sentinel link %s %s %s" % (a["name"].replace(" ", "_"), a["firm"], a["balance"])
     if slug == "link-attribution":
         return ("/newlink %s %s" % (a["channel"], a.get("url") or "")).strip()
     if slug == "bot-scam-detector":

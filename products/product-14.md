@@ -40,21 +40,26 @@ half, on one Telegram account, with the same free tier on each.
 3. Alert at a configurable distance *before* the line, not at it. A breach alert is a post-mortem; a proximity alert is a save.
 4. Optional flatten webhook for traders who want the guard automated.
 
+**Live.** There is no free way for a web app to read an MT4/MT5 account, so the account reports to the sentinel: `/sentinel equity 98500` from the bot, the equity form on the dashboard, or a per-account ping URL (`/p/drawdown-sentinel/ping/<token>?equity=…&lots=…`) that an EA or a phone shortcut hits. Each report is scored against the firm's rule pack (FTMO, FundedNext, The5ers, FundingPips, MyFundedFX, E8, or custom): daily loss from the day-start balance, max drawdown static or trailing from the equity peak, lot cap, minimum days. Less than 30% of the room left is a *warn*, pushed to Telegram once; crossing the line is a *breach*. Transitions are logged as the near-miss and breach history. One account on the free tier.
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/sentinel link` | link a trading account |
+| `/sentinel link NAME FIRM BALANCE` | link a trading account and get its ping URL |
 | `/sentinel status` | distance to every active rule line |
-| `/sentinel firm NAME` | load a firm's rule pack |
+| `/sentinel firm NAME` | switch the rule pack |
+| `/sentinel equity 98500 [LOTS]` | report equity now; warnings push on transitions |
+| `/sentinel newday` | reset the day-start balance |
 
 ---
 
 ## Dashboard views
 
-- Account linking and rule-pack selection
-- Live distance-to-breach gauges per rule
-- Breach history and near-miss log
+- Account linking with the published rule packs or a custom pack (daily %, max %, trailing, min days, lot cap)
+- Distance-to-breach gauges per rule with the line, the room and the percentage left
+- Equity report form, new-day reset, and the secret ping URL for an EA or shortcut
+- Breach and near-miss log per account
 
 ## Monetization
 

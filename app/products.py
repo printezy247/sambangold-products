@@ -281,13 +281,13 @@ PRODUCTS = (
     ),
     Product(
         number=14, slug="drawdown-sentinel", name="Drawdown Sentinel",
-        vertical="Prop firm", emoji="🏛", status="proposed", primary="bot",
+        vertical="Prop firm", emoji="🏛", status="shipped", primary="bot",
         primary_why="The entire value is a push arriving seconds before the line is crossed.",
         free_tier="1 account on 1 firm, unlimited breach alerts.",
         problem="Most challenge failures are rule breaches, not bad strategy — the line is crossed before the trader notices it.",
         solution="Watch daily loss, trailing drawdown, news blackouts, max lot and consistency against per-firm rule packs, and warn before the breach.",
         bot_commands=(
-            ("/sentinel link", "link a trading account"),
+            ("/sentinel link NAME FIRM BALANCE", "link a trading account"),
             ("/sentinel status", "distance to every active rule line"),
             ("/sentinel firm NAME", "load a firm's rule pack"),
         ),
