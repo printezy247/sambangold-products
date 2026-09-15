@@ -663,3 +663,68 @@ def owner_by_setting(product, key, value):
     row = _row(db().execute("SELECT owner FROM notes WHERE product = ? AND subject = ? AND note = ? ORDER BY created_at DESC LIMIT 1",
                             (product, "setting:" + key, value)))
     return row["owner"] if row else None
+
+
+# --------------------------------------------------------------------------- #
+# #13 Link attribution: short links and the stage events behind them.
+# --------------------------------------------------------------------------- #
+
+LINKS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS links (
+    id         INTEGER PRIMARY KEY,
+    owner      TEXT NOT NULL,
+    code       TEXT NOT NULL UNIQUE,
+    channel    TEXT NOT NULL,
+    url        TEXT NOT NULL,
+    created_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS link_events (
+    id         INTEGER PRIMARY KEY,
+    link_id    INTEGER NOT NULL,
+    stage      TEXT NOT NULL,
+    count      INTEGER NOT NULL DEFAULT 1,
+    note       TEXT,
+    at         REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS link_events_link ON link_events(link_id, at);
+"""
+SCHEMA += LINKS_SCHEMA
+
+
+def add_link(owner, code, channel, url):
+    cur = db().execute("INSERT INTO links (owner, code, channel, url, created_at) VALUES (?, ?, ?, ?, ?)",
+                       (str(owner), code, channel.strip(), url.strip(), time.time()))
+    db().commit()
+    return cur.lastrowid
+
+
+def links_for(owner):
+    return [dict(r) for r in db().execute("SELECT * FROM links WHERE owner = ? ORDER BY created_at DESC", (str(owner),))]
+
+
+def link_by_code(code):
+    return _row(db().execute("SELECT * FROM links WHERE code = ?", (code,)))
+
+
+def link_by_channel(owner, channel):
+    return _row(db().execute("SELECT * FROM links WHERE owner = ? AND lower(channel) = lower(?) ORDER BY created_at DESC LIMIT 1",
+                             (str(owner), channel.strip())))
+
+
+def delete_link(owner, link_id):
+    db().execute("DELETE FROM link_events WHERE link_id IN (SELECT id FROM links WHERE id = ? AND owner = ?)", (int(link_id), str(owner)))
+    n = db().execute("DELETE FROM links WHERE id = ? AND owner = ?", (int(link_id), str(owner))).rowcount
+    db().commit()
+    return n
+
+
+def add_link_event(link_id, stage, count=1, note=None, at=None):
+    db().execute("INSERT INTO link_events (link_id, stage, count, note, at) VALUES (?, ?, ?, ?, ?)",
+                 (int(link_id), stage, int(count), note, at or time.time()))
+    db().commit()
+
+
+def link_events_for(owner, since_ts=0.0):
+    return [dict(r) for r in db().execute(
+        "SELECT e.link_id, e.stage, e.count, e.at FROM link_events e JOIN links l ON l.id = e.link_id"
+        " WHERE l.owner = ? AND e.at >= ?", (str(owner), since_ts))]

@@ -40,20 +40,23 @@ half, on one Telegram account, with the same free tier on each.
 3. Cohort the results by channel and by content piece, so the IB learns which *kind* of post converts, not just which platform.
 4. Daily digest with the deltas.
 
+**Live.** A tracked link is a short code at `/l/<code>` that redirects to the IB's referral URL and counts the click. Broker portals do not call back, so the later stages — signup, first deposit, first lot — are logged by the IB on the dashboard, one at a time or by pasting the portal report (channel, stage, count). The funnel per channel over 7, 30 or 90 days shows clicks → signups → deposits → first lots with the conversion between each, ranked by first lots. `/newlink` defaults the destination to the IB link saved in Broker Comparator. Three links on the free tier.
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/newlink CHANNEL` | mint a tracked short link |
-| `/funnel` | today's clicks, signups, deposits, first lots |
+| `/newlink CHANNEL [URL]` | mint a tracked short link (URL defaults to the saved IB link) |
+| `/funnel [7\|30\|90]` | clicks, signups, deposits, first lots per channel over the range |
 
 ---
 
 ## Dashboard views
 
-- Link manager with per-channel tags
-- Funnel dashboard from click through to first lot
-- Channel comparison over a date range
+- Link manager: one short link per channel, the destination, delete
+- Funnel tiles and the channel comparison table over 7 / 30 / 90 days, with signup/click, deposit/signup, lot/deposit and click→lot rates
+- Stage logging: a form per channel and stage, or a pasted portal report (CSV)
+- Redirect endpoint `/l/<code>` that counts every click
 
 ## Monetization
 

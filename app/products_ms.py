@@ -166,7 +166,7 @@ MS = {
         "free_tier": "3 pautan dijejak, paparan funnel penuh.",
         "problem": "Portal broker lapor pendaftaran tetapi tak pernah dari mana ia datang, jadi IB tak tahu channel mana yang membayar.",
         "solution": "Pautan pendek setiap channel yang menjejak post, klik, daftar, deposit pertama dan lot pertama.",
-        "bot_commands": (("/newlink CHANNEL", "cipta pautan pendek dijejak"), ("/funnel", "klik, daftar, deposit, lot pertama hari ini")),
+        "bot_commands": (("/newlink CHANNEL [URL]", "cipta pautan pendek dijejak"), ("/funnel", "klik, daftar, deposit, lot pertama hari ini")),
         "dashboard_views": ("Pengurus pautan dengan tag setiap channel", "Dashboard funnel dari klik hingga lot pertama", "Perbandingan channel dalam julat tarikh"),
         "upsell": "Pautan tanpa had serta LTV kohort dan payback.",
         "primary_why": "Pengurusan pautan dan funnel perlukan halaman; bot cipta pautan dan lapor harian.",
