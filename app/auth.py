@@ -94,7 +94,8 @@ def rank_for(user):
     """
     if _is_admin(user):
         return "elite"
-    return store.effective_tier(store.owner_key(user))
+    from .gate import owner_tier      # one resolver, so the bot and the page agree
+    return owner_tier(store.owner_key(user))
 
 
 def sign_in(user):

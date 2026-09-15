@@ -35,6 +35,10 @@ PRODUCT_LIMIT = {
 }
 
 # Products whose saved history is the thing General keeps.
+# The scanners the group watcher covers — the other half of what those pages
+# advertised, now built.
+AUTOSCAN = ("bot-scam-detector", "copy-trade-audit", "red-flag-scanner", "influencer-audit")
+
 KEEPS_HISTORY = ("gold-watch", "signal-verifier", "bot-scam-detector", "copy-trade-audit",
                  "red-flag-scanner", "influencer-audit", "rebate-auditor", "churn-radar",
                  "monte-carlo-sim", "exposure-monitor", "ib-revenue-calculator")
@@ -54,6 +58,8 @@ def perks_at(slug, tier, lang="ms"):
             out.append(t("perk.ap_" + cadence, lang))
     if slug in KEEPS_HISTORY and at_least(tier, tier_for_feature("history")):
         out.append(t("perk.history", lang))
+    if slug in AUTOSCAN and at_least(tier, tier_for_feature("autoscan")):
+        out.append(t("perk.autoscan", lang))
     if slug == "gold-watch" and at_least(tier, tier_for_feature("alerts")):
         out.append(t("perk.alerts", lang))
     if slug == "gold-calendar" and at_least(tier, tier_for_feature("alerts")):

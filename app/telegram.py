@@ -97,11 +97,11 @@ COMMANDS = {
     "ms": [("start", "Menu utama"), ("tools", "Cuba alat percuma"), ("watch", "Harga emas & alert"),
            ("calendar", "Kalendar emas & alert"), ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
            ("verify", "Sahkan harga signal"), ("scan", "Imbas pitch signal"), ("audit", "Semak bot Telegram"), ("copyaudit", "Semak broker copy-trade"),
-           ("influencer", "Audit influencer"), ("rebateaudit", "Audit rebate IB"), ("ibchurn", "Radar churn klien"), ("goldspread", "Banding kos broker emas"), ("funnel", "Funnel pautan IB"), ("sentinel", "Jaga garisan drawdown"), ("simulate", "Simulasi lulus challenge"), ("exposure", "Semak dedahan buku"), ("paxg", "Premium PAXG/XAUT"), ("walletcheck", "Semak wallet payout"), ("miners", "Saringan pelombong vs emas"), ("autopilot", "Autopilot harian (A-Team)"), ("broker", "Naik pangkat percuma — akaun HFM"), ("invite", "Jemput kawan, dapat pangkat"), ("seats", "Kerusi pasukan (Rambo)"), ("widget", "Widget jenama sendiri (Rambo)"), ("webhook", "Webhook keluar (Rambo)"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
+           ("influencer", "Audit influencer"), ("rebateaudit", "Audit rebate IB"), ("ibchurn", "Radar churn klien"), ("goldspread", "Banding kos broker emas"), ("funnel", "Funnel pautan IB"), ("sentinel", "Jaga garisan drawdown"), ("simulate", "Simulasi lulus challenge"), ("exposure", "Semak dedahan buku"), ("paxg", "Premium PAXG/XAUT"), ("walletcheck", "Semak wallet payout"), ("miners", "Saringan pelombong vs emas"), ("autopilot", "Autopilot harian (A-Team)"), ("broker", "Naik pangkat percuma — akaun HFM"), ("invite", "Jemput kawan, dapat pangkat"), ("seats", "Kerusi pasukan (Rambo)"), ("widget", "Widget jenama sendiri (Rambo)"), ("webhook", "Webhook keluar (Rambo)"), ("groups", "Kumpulan diawasi (A-Team)"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
     "en": [("start", "Main menu"), ("tools", "Try a free tool"), ("watch", "Gold price & alerts"),
            ("calendar", "Gold calendar & alerts"), ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
            ("verify", "Verify a signal price"), ("scan", "Scan a signal pitch"), ("audit", "Check a Telegram bot"), ("copyaudit", "Check a copy-trade broker"),
-           ("influencer", "Audit an influencer"), ("rebateaudit", "IB rebate audit"), ("ibchurn", "Client churn radar"), ("goldspread", "Compare gold broker cost"), ("funnel", "IB link funnel"), ("sentinel", "Guard the drawdown lines"), ("simulate", "Simulate the challenge"), ("exposure", "Check book exposure"), ("paxg", "PAXG/XAUT premium"), ("walletcheck", "Check a payout wallet"), ("miners", "Miners vs gold screen"), ("autopilot", "Daily autopilot (A-Team)"), ("broker", "Free rank — HFM account"), ("invite", "Invite a friend, earn rank"), ("seats", "Team seats (Rambo)"), ("widget", "White-label widget (Rambo)"), ("webhook", "Outbound webhook (Rambo)"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
+           ("influencer", "Audit an influencer"), ("rebateaudit", "IB rebate audit"), ("ibchurn", "Client churn radar"), ("goldspread", "Compare gold broker cost"), ("funnel", "IB link funnel"), ("sentinel", "Guard the drawdown lines"), ("simulate", "Simulate the challenge"), ("exposure", "Check book exposure"), ("paxg", "PAXG/XAUT premium"), ("walletcheck", "Check a payout wallet"), ("miners", "Miners vs gold screen"), ("autopilot", "Daily autopilot (A-Team)"), ("broker", "Free rank — HFM account"), ("invite", "Invite a friend, earn rank"), ("seats", "Team seats (Rambo)"), ("widget", "White-label widget (Rambo)"), ("webhook", "Outbound webhook (Rambo)"), ("groups", "Watched groups (A-Team)"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
 }
 
 
@@ -292,12 +292,39 @@ def handle_update(update):
     if "callback_query" in update:
         return _handle_callback(update["callback_query"])
     message = update.get("message") or update.get("edited_message") or {}
-    chat_id = (message.get("chat") or {}).get("id")
+    chat = message.get("chat") or {}
+    chat_id = chat.get("id")
     text = message.get("text", "")
     user = message.get("from") or {}
     if not chat_id or not text:
         return []
+    if chat.get("type") in ("group", "supergroup"):
+        return _handle_group(chat, text, user)
     return _handle_message(chat_id, text, user)
+
+
+def _handle_group(chat, text, user):
+    """A message in a room the bot was pointed at.
+
+    Only two commands answer in a group, and both reply once. Everything else
+    is read, scanned in memory, and never replied to — the bot is a watcher
+    here, not a participant, so it never posts into someone's group.
+    """
+    from . import groups
+    group = {"id": chat.get("id"), "title": chat.get("title", "")}
+    author = user.get("id")
+    word = text.strip().split()[0].lstrip("/").split("@")[0].lower() if text.strip() else ""
+    lang = store.tg_lang(author) or _lang_for({"id": author, "language_code": user.get("language_code")}) or DEFAULT_LANG
+
+    if word in ("watchgroup", "unwatchgroup"):
+        fn = groups.bot_watchgroup if word == "watchgroup" else groups.bot_unwatchgroup
+        return [("send", chat["id"], fn([], chat_id=author, lang=lang, group=group, author=author), None)]
+
+    out = []
+    groups.inspect(group["id"], group["title"], author,
+                   user.get("username") or user.get("first_name", ""), text,
+                   lambda who, body: out.append(("send", who, body, None)))
+    return out
 
 
 def _handle_message(chat_id, text, user):
@@ -334,10 +361,11 @@ def _handle_message(chat_id, text, user):
     if word == "autopilot":
         from .autopilot import bot_autopilot   # a rank feature, not a product command
         return [("send", chat_id, bot_autopilot(parts[1:], chat_id=chat_id, lang=lang), back_keyboard(lang))]
-    if word in ("broker", "invite", "seats", "widget", "webhook"):
-        from . import doors, seats, whitelabel   # the ladder's own commands, not any one product's
+    if word in ("broker", "invite", "seats", "widget", "webhook", "groups", "unwatchgroup"):
+        from . import doors, groups, seats, whitelabel   # the ladder's own commands, not any one product's
         fn = {"broker": doors.bot_broker, "invite": doors.bot_invite, "seats": seats.bot_seats,
-              "widget": whitelabel.bot_widget, "webhook": whitelabel.bot_hook}[word]
+              "widget": whitelabel.bot_widget, "webhook": whitelabel.bot_hook,
+              "groups": groups.bot_groups, "unwatchgroup": groups.bot_unwatchgroup}[word]
         return [("send", chat_id, fn(parts[1:], chat_id=chat_id, lang=lang), back_keyboard(lang))]
 
     product = command_index().get(word)

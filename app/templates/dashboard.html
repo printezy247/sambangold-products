@@ -103,6 +103,27 @@
     {% endif %}
   </div>
 
+  <div id="groups" class="lux{% if gr.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:24px">
+    <h3 style="margin-top:0">👁️ {{ t('ui.gr_h') }}
+      {% if not gr.allowed %}<span class="chip">{{ rank_label('pro') }}</span>{% endif %}</h3>
+    <p class="text-muted" style="margin:0 0 14px">{{ t('ui.gr_sub') }}</p>
+    {% if not gr.allowed %}
+      <p class="text-muted" style="margin:0 0 14px">{{ t('ui.gr_need') }}</p>
+      <a class="btn btn-gold" href="{{ url_for('views.pricing', want='autoscan') }}">{{ t('price.cta_pay', rank=rank_label('pro')) }}</a>
+    {% else %}
+      <p class="notice" style="margin:0 0 14px">{{ t('ui.gr_how', bot=bot_username or 'bot') }}</p>
+      <table class="flags">
+        {% for row in gr.rows %}
+        <tr><td><b>{{ row.title or '—' }}</b></td><td class="mono">{{ row.group_id }}</td>
+            <td><form method="post" action="{{ url_for('views.dashboard') }}#groups">
+              <input type="hidden" name="group_off" value="{{ row.group_id }}">
+              <button class="btn small" type="submit">{{ t('ui.gr_rm') }}</button>
+            </form></td></tr>
+        {% else %}<tr><td class="text-muted" colspan="3">{{ t('gr.none') }}</td></tr>{% endfor %}
+      </table>
+    {% endif %}
+  </div>
+
   <div id="extras" class="lux{% if wl.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:24px">
     <h3 style="margin-top:0">🏷️ {{ t('ui.wl_h') }} · 🔗 {{ t('ui.wh_h') }}
       {% if not wl.allowed %}<span class="chip">{{ rank_label('elite') }}</span>{% endif %}</h3>

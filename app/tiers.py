@@ -28,6 +28,7 @@ FEATURES = {
     "alerts":      {"ms": "Alert tersimpan dan tolakan bot",    "en": "Saved alerts and bot pushes"},
     "autopilot":   {"ms": "Pemantauan berterusan, alert harian", "en": "Continuous monitoring, daily alerts"},
     "batch":       {"ms": "Muat naik CSV pukal",                "en": "Bulk CSV upload"},
+    "autoscan":    {"ms": "Imbasan automatik kumpulan",         "en": "Group auto-scan"},
     "reports":     {"ms": "Laporan PDF berjadual",              "en": "Scheduled PDF reports"},
     "universe":    {"ms": "Universe sendiri, had lebih tinggi", "en": "Your own universe, higher limits"},
     "seats":       {"ms": "Kerusi berbilang untuk kumpulan",    "en": "Multiple seats for a group"},
@@ -38,12 +39,12 @@ FEATURES = {
 }
 
 # The matrix, in display order.
-FEATURE_ROWS = ("tools_free", "history", "alerts", "autopilot", "batch", "reports",
+FEATURE_ROWS = ("tools_free", "history", "alerts", "autopilot", "autoscan", "batch", "reports",
                 "universe", "seats", "clients", "whitelabel", "api", "priority")
 
 PUBLIC_F = ("tools_free",)
 FREE_F = PUBLIC_F + ("history", "alerts")
-PRO_F = FREE_F + ("autopilot", "batch", "reports", "universe")
+PRO_F = FREE_F + ("autopilot", "autoscan", "batch", "reports", "universe")
 ELITE_F = PRO_F + ("seats", "clients", "whitelabel", "api", "priority")
 
 
