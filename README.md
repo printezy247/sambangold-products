@@ -327,7 +327,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Problem** — An IB has to justify which broker they route clients to, and clients have no way to compare the numbers that actually cost them money.
 
-**Solution** — Live XAUUSD spread, swap long and short, commission, and observed slippage across a broker set, rendered as a ranked shareable card carrying the IB's referral link.
+**Solution** — Live XAUUSD spread, swap long and short, commission, and observed slippage across a broker set, rendered as a ranked shareable card carrying the IB's referral link. Published values seed the table; community-measured spreads replace them once three reports are in. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/goldspread`, `/goldspread 1.0 overnight` &nbsp;·&nbsp; 🌐 `/p/broker-comparator` — Public indexable comparison table · Cost calculator for a given lot size and holding period · Referral-branded card generator.
 
@@ -552,7 +552,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 
 - [x] **Phase 0 — the spine** — one Flask app, a page per product, one Telegram identity across bot and dashboard
 - [x] **Vault I** — 9 products shipped
-- [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator, #13 Attribution
+- [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution
 - [ ] **Prop + forex** — #14 Drawdown Sentinel, #15 Monte Carlo Sim, #16 Overexposure Monitor
 - [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
 - [ ] One billing spine (Stripe + USDT) across all eighteen

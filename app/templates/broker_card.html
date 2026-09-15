@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ t('ui.b_card_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="max-width:720px;padding-top:48px">
+  <div class="lux lux-gold" style="padding:26px">
+    <h1 style="margin:0">🥇 {{ t('ui.b_card_title') }}</h1>
+    {% if s.refname %}<p class="text-muted" style="margin:6px 0 0">{{ t('ui.b_card_by', name=s.refname) }}</p>{% endif %}
+    <p class="lede">{{ t('ui.b_spot') }} <b class="mono">{{ s.mid }}</b> · {{ t('ui.b_feed') }} <b class="mono">{{ s.feed_spread }}</b></p>
+    <table class="flags" style="margin-top:8px">
+      <thead><tr><th>#</th><th>{{ t('ui.b_broker') }}</th><th>{{ t('ui.b_spread') }}</th><th>{{ t('ui.b_comm') }}</th><th>{{ t('ui.b_total', lots=s.lots, nights=s.nights) }}</th></tr></thead>
+      <tbody>
+      {% for r in s.rows %}
+        <tr><td class="mono">{{ r.rank }}</td><td><b>{{ r.name }}</b> <span class="text-muted">{{ r.account }}</span></td><td class="mono">{{ '%.2f' % r.spread }}</td><td class="mono">${{ '%g' % r.commission }}</td><td class="mono"><b>${{ '{:,.2f}'.format(r.cost.total) }}</b></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if s.reflink %}<div class="actions" style="margin-top:18px"><a class="btn btn-gold" href="{{ s.reflink }}" rel="nofollow noopener">{{ t('ui.b_card_cta') }} ↗</a></div>{% endif %}
+    <p class="soon">{{ t('ui.b_card_note', lots=s.lots, nights=s.nights, date=s.seed_date) }} {{ t('scan.disclaimer') }}</p>
+  </div>
+  <p style="margin-top:18px"><a class="text-muted" href="{{ url_for('views.product', slug='broker-comparator') }}">← {{ p.name }}</a></p>
+</div>
+{% endblock %}

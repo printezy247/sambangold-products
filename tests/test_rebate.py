@@ -94,6 +94,7 @@ def test_dashboard_sample_run_errors_history_and_pdf(client):
     assert body.index(">1001<") < body.index(">1004<")
 
 
-def test_landing_counts_ten_live(client):
+def test_landing_counts_live_products(client):
+    from app.tools import DASHBOARD
     body = client.get("/").get_data(as_text=True)
-    assert "11 sudah hidup" in body and "7 lagi dalam giliran" in body
+    assert "%d sudah hidup" % len(DASHBOARD) in body and "%d lagi dalam giliran" % (18 - len(DASHBOARD)) in body

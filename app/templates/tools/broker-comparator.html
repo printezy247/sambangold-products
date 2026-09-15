@@ -1,0 +1,71 @@
+{% set c = tool %}
+<h2>{{ t('ui.b_h') }}</h2>
+<p class="lede">{{ t('ui.b_lede', date=c.seed_date) }}</p>
+<form method="get" class="panel tool">
+  <div class="fields">
+    <label>{{ t('ui.b_lots') }} <input name="lots" value="{{ '%g' % c.lots }}" placeholder="1.0"></label>
+    <label>{{ t('ui.b_nights') }} <input name="nights" value="{{ c.nights }}" placeholder="0"></label>
+    <label>{{ t('ui.b_side') }}
+      <select name="side"><option value="long" {{ 'selected' if c.side == 'long' }}>long</option><option value="short" {{ 'selected' if c.side == 'short' }}>short</option></select>
+    </label>
+  </div>
+  <div class="actions"><button type="submit">{{ t('ui.b_calc') }}</button></div>
+</form>
+
+<div class="stats">
+  <div class="stat glass"><span>{{ t('ui.b_spot') }}</span><b>{{ c.mid }}</b><small>{% if c.quote %}{{ c.quote.source }}{% else %}—{% endif %}</small></div>
+  <div class="stat glass"><span>{{ t('ui.b_feed') }}</span><b>{{ c.feed_spread }}</b><small>$/oz</small></div>
+  {% if c.rows %}<div class="stat glass positive"><span>{{ t('ui.b_cheapest') }}</span><b style="font-size:18px">{{ c.rows[0].name }}</b><small>${{ '{:,.2f}'.format(c.rows[0].cost.total) }} · {{ '%g' % c.lots }} lot · {{ c.nights }} {{ t('ui.n_days')|replace('hari','malam') }}</small></div>{% endif %}
+</div>
+
+<table class="flags">
+  <thead><tr><th>{{ t('ui.b_rank') }}</th><th>{{ t('ui.b_broker') }}</th><th>{{ t('ui.b_account') }}</th><th>{{ t('ui.b_spread') }}</th><th>{{ t('ui.b_comm') }}</th><th>{{ t('ui.b_swap') }}</th><th>{{ t('ui.b_slip') }}</th><th>{{ t('ui.b_total', lots=c.lots, nights=c.nights) }}</th><th>{{ t('ui.b_src') }}</th></tr></thead>
+  <tbody>
+  {% for r in c.rows %}
+    <tr>
+      <td class="mono">{{ r.rank }}</td><td><b>{{ r.name }}</b></td><td class="text-muted">{{ r.account }}</td>
+      <td class="mono">{{ '%.2f' % r.spread }}</td><td class="mono">${{ '%g' % r.commission }}</td>
+      <td class="mono">{{ '%g' % (r.swap_long if c.side == 'long' else r.swap_short) }}</td>
+      <td class="mono">{% if r.slippage %}{{ '%.2f' % r.slippage }}{% else %}—{% endif %}</td>
+      <td class="mono"><b>${{ '{:,.2f}'.format(r.cost.total) }}</b></td>
+      <td>{% if r.source == 'observed' %}<span class="chip win">{{ t('ui.b_observed', n=r.n_obs) }}</span>{% else %}<span class="chip">{{ t('ui.b_published') }}</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="halves" style="margin-top:28px">
+  <div class="lux" style="padding:22px">
+    <h3 style="margin-top:0">{{ t('ui.b_card_h') }}</h3>
+    <p class="text-muted" style="font-size:14px">{{ t('ui.b_card_lede') }}</p>
+    {% if c.owner %}
+    <form method="post">
+      <input type="hidden" name="action" value="reflink">
+      <label>{{ t('ui.b_ref') }} <input name="reflink" value="{{ c.reflink }}" placeholder="https://broker.example/?refid=12345"></label>
+      <label style="display:block;margin-top:10px">{{ t('ui.b_ref_name') }} <input name="refname" value="{{ c.refname }}" placeholder="Sam"></label>
+      <div class="actions"><button type="submit">{{ t('ui.b_save') }}</button>
+        {% if c.code %}<a class="btn btn-gold" href="{{ url_for('views.broker_card', code=c.code, lots=c.lots, nights=c.nights) }}">{{ t('ui.b_card') }}</a>{% endif %}</div>
+    </form>
+    {% if c.notice == 'saved' %}<p class="soon">✓</p>{% endif %}
+    {% else %}<p class="soon">{{ t('ui.b_card_signin') }}</p>{% endif %}
+  </div>
+  <div class="lux" style="padding:22px">
+    <h3 style="margin-top:0">{{ t('ui.b_obs_h') }}</h3>
+    <p class="text-muted" style="font-size:14px">{{ t('ui.b_obs_lede') }}</p>
+    {% if c.owner %}
+    <form method="post">
+      <input type="hidden" name="action" value="observe">
+      <div class="fields">
+        <label>{{ t('ui.b_broker') }}
+          <select name="broker">{% for k, b in c.brokers.items() %}<option value="{{ k }}">{{ b.name }}</option>{% endfor %}</select>
+        </label>
+        <label>{{ t('ui.b_obs_spread') }} <input name="spread" placeholder="0.18" required></label>
+        <label>{{ t('ui.b_obs_slip') }} <input name="slippage" placeholder="0.05"></label>
+      </div>
+      <div class="actions"><button type="submit">{{ t('ui.b_obs_btn') }}</button></div>
+    </form>
+    {% if c.notice == 'observed' %}<p class="soon">{{ t('ui.b_obs_ok') }}</p>{% endif %}
+    {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+    {% else %}<p class="soon">{{ t('ui.b_obs_signin') }}</p>{% endif %}
+  </div>
+</div>

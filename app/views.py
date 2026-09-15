@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
                    send_from_directory, session)
 
-from . import caltool, feeds, rebatetool, scan, scantool, store, telegram, verifytool, watch
+from . import brokertool, caltool, feeds, rebatetool, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -135,6 +135,20 @@ def influencer_loss_report():
                             f.get("date", ""), f.get("story", ""), f.get("broker", ""))
     return Response(body, mimetype="text/plain",
                     headers={"Content-Disposition": "attachment; filename=scam-loss-report.txt"})
+
+
+@bp.route("/p/broker-comparator/card/<code>")
+def broker_card(code):
+    """Public referral card: the ranked table with the IB's own link, no login."""
+    try:
+        lots = float(request.args.get("lots", 1) or 1)
+        nights = int(float(request.args.get("nights", 0) or 0))
+    except ValueError:
+        lots, nights = 1.0, 0
+    page = brokertool.card_page(code, lots, nights)
+    if page is None:
+        abort(404)
+    return render_template("broker_card.html", p=BY_SLUG["broker-comparator"], s=page)
 
 
 @bp.route("/p/rebate-auditor/dispute/<int:run_id>.pdf")
