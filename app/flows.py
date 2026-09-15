@@ -38,6 +38,12 @@ FLOWS = {
     "gold-calendar": [],
     "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
     "churn-radar": [],
+    "monte-carlo-sim": [
+        S("wr", "flow.mc_wr", number=True, options=(("35%", "35"), ("45%", "45"), ("55%", "55"), ("65%", "65"))),
+        S("rr", "flow.mc_rr", number=True, options=(("1", "1"), ("1.5", "1.5"), ("2", "2"), ("3", "3"))),
+        S("risk", "flow.mc_risk", number=True, options=(("0.5%", "0.5"), ("1%", "1"), ("2%", "2"))),
+        S("firm", "flow.mc_firm", text=False, options=(("FTMO", "ftmo"), ("FundedNext", "fundednext"), ("The5ers", "the5ers"), ("MyFundedFX", "myfundedfx"), ("E8", "e8"))),
+    ],
     "drawdown-sentinel": [
         S("name", "flow.sn_name"),
         S("firm", "flow.sn_firm", options=(("FTMO", "ftmo"), ("FundedNext", "fundednext"), ("The5ers", "the5ers"), ("FundingPips", "fundingpips"), ("MyFundedFX", "myfundedfx"), ("E8", "e8"))),
@@ -90,6 +96,8 @@ def build(slug, a):
         return "/ibchurn"
     if slug == "broker-comparator":
         return "/goldspread %s %s" % (a["lots"], a["nights"])
+    if slug == "monte-carlo-sim":
+        return "/simulate %s %s %s %s" % (a["wr"], a["rr"], a["risk"], a["firm"])
     if slug == "drawdown-sentinel":
         return "/sentinel link %s %s %s" % (a["name"].replace(" ", "_"), a["firm"], a["balance"])
     if slug == "link-attribution":

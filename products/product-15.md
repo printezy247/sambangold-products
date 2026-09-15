@@ -40,19 +40,23 @@ half, on one Telegram account, with the same free tier on each.
 3. Return realistic pass probability, the distribution of outcomes, and the **expected total cost-to-funded** across retries — the number that actually matters.
 4. Fan chart shows where the breaches cluster, which is usually earlier than traders expect.
 
+**Live.** Paths are drawn from win rate, R:R and risk per trade, `trades_per_day` a day, up to 200 trades, and checked after every trade against the same rule packs #14 uses (FTMO, FundedNext, The5ers, FundingPips, MyFundedFX, E8, custom): daily loss from the day-start balance, max drawdown static or trailing, the profit target, minimum days, and the consistency rule. Each path ends PASS, FAIL with the rule that killed it, or TIMEOUT. Outputs: pass probability, failure share by rule, median trades and days to pass, expected attempts, cost to funded (fee ÷ pass probability), expectancy in R, and a fan chart (p10–p90, p25–p75, median, sample paths) as inline SVG. A seed makes any run reproducible. 1,000 paths per run on the free tier; runs are archived per account with a PDF.
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/simulate WINRATE RR RISK%` | summary card with pass probability and expected cost |
+| `/simulate WINRATE RR RISK% [FIRM] [TARGET%]` | summary card: pass probability, expected attempts, cost to funded, where paths die |
 
 ---
 
 ## Dashboard views
 
-- Equity-path fan chart across the simulated runs
-- Rule-pack picker — daily DD, trailing DD, min days, consistency
-- PDF export of the run
+- Inputs: win rate, R:R, risk, firm pack, target, fee, trades per day, paths, seed
+- Tiles: pass probability, cost to funded, median trades to pass, expectancy
+- Equity-path fan chart (inline SVG) with the target and max-drawdown lines
+- Where the paths die: share per rule and the median trade of failure
+- Run history per account and a PDF per run
 
 ## Monetization
 

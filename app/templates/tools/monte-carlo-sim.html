@@ -1,0 +1,46 @@
+{% set c = tool %}
+<h2>{{ t('ui.m_h') }}</h2>
+<p class="lede">{{ t('ui.m_lede') }}</p>
+<form method="get" class="panel tool">
+  <div class="fields">
+    <label>{{ t('ui.m_wr') }} <input name="winrate" value="{{ c.form.get('winrate', '') }}" placeholder="45" required></label>
+    <label>{{ t('ui.m_rr') }} <input name="rr" value="{{ c.form.get('rr', 2) }}"></label>
+    <label>{{ t('ui.m_risk') }} <input name="risk" value="{{ c.form.get('risk', 1) }}"></label>
+    <label>{{ t('ui.d_firm') }}<select name="firm">{% for k, p in c.packs.items() %}<option value="{{ k }}" {{ 'selected' if c.form.get('firm') == k }}>{{ p.name }}</option>{% endfor %}</select></label>
+    <label>{{ t('ui.m_target') }} <input name="target" value="{{ c.form.get('target', 10) }}"></label>
+    <label>{{ t('ui.p_fee') }} <input name="fee" value="{{ c.form.get('fee', 500) }}"></label>
+    <label>{{ t('ui.m_tpd') }} <input name="tpd" value="{{ c.form.get('tpd', 3) }}"></label>
+    <label>{{ t('ui.m_sims') }} <input name="sims" value="{{ c.form.get('sims', c.free) }}"></label>
+    <label>{{ t('ui.m_seed') }} <input name="seed" value="{{ c.form.get('seed', '') }}" placeholder="{{ t('ui.optional') }}"></label>
+  </div>
+  <div class="actions"><button type="submit">{{ t('ui.m_run') }}</button></div>
+  {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+</form>
+
+{% if c.res %}
+{% set r = c.res %}{% set v = c.verdict(r.p_pass) %}
+<div class="stats">
+  <div class="stat glass {{ 'positive' if v == 'good' else ('warn' if v == 'fair' else 'negative') }}"><span>{{ t('ui.m_ppass') }}</span><b>{{ c.icon[v] }} {{ c.pct(r.p_pass) }}</b><small>{{ r.inputs.sims }} {{ t('ui.m_paths') }} · seed {{ r.seed }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.m_cost') }}</span><b>{% if r.cost_to_funded %}${{ '{:,.0f}'.format(r.cost_to_funded) }}{% else %}∞{% endif %}</b><small>{{ t('ui.m_attempts', n=r.expected_attempts or '∞') }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.m_median') }}</span><b>{% if r.median_trades_to_pass %}{{ r.median_trades_to_pass }}{% else %}—{% endif %}</b><small>{% if r.median_days_to_pass %}{{ r.median_days_to_pass }} {{ t('ui.n_days') }}{% endif %}</small></div>
+  <div class="stat glass {{ 'positive' if r.expectancy_r > 0 else 'negative' }}"><span>{{ t('ui.m_exp') }}</span><b>{{ '%+.2f' % r.expectancy_r }} R</b><small>{{ t('ui.m_exp_note') }}</small></div>
+</div>
+
+<h3>{{ t('ui.m_fan') }}</h3>
+<div class="panel" style="padding:12px">{{ c.svg|safe }}</div>
+<p class="text-muted" style="font-size:12px">{{ t('ui.m_fan_note') }}</p>
+
+{% if r.reasons %}
+<h3>{{ t('ui.m_fails') }}</h3>
+<table class="flags"><thead><tr><th>{{ t('ui.rule') }}</th><th>{{ t('ui.m_share') }}</th></tr></thead>
+<tbody>{% for k, p in r.reasons|dictsort(by='value', reverse=true) %}<tr><td><b>{{ t('mc.r_' ~ k) }}</b></td><td class="mono">{{ c.pct(p) }}</td></tr>{% endfor %}
+{% if r.median_trades_to_fail %}<tr><td class="text-muted">{{ t('ui.m_fail_when') }}</td><td class="mono">{{ r.median_trades_to_fail }} trades</td></tr>{% endif %}</tbody></table>
+{% endif %}
+{% if c.run_id %}<p><a class="btn btn-gold small" href="{{ url_for('views.mc_pdf', run_id=c.run_id) }}" download>⬇ PDF</a></p>{% elif not c.owner %}<p class="soon">{{ t('product.signin') }}</p>{% endif %}
+{% endif %}
+
+{% if c.owner and c.runs %}
+<h3>{{ t('ui.n_runs') }}</h3>
+<table class="flags"><thead><tr><th>#</th><th>{{ t('ui.m_run_label') }}</th><th>{{ t('ui.m_ppass') }}</th><th>{{ t('ui.when') }}</th><th></th></tr></thead>
+<tbody>{% for x in c.runs %}<tr><td class="mono">{{ x.id }}</td><td>{{ x.label }}</td><td class="mono">{{ c.pct(x.metric or 0) }}</td><td class="mono">{{ x.created_at|utc }}</td><td><a class="btn small" href="{{ url_for('views.mc_pdf', run_id=x.id) }}" download>PDF</a></td></tr>{% endfor %}</tbody></table>
+{% endif %}
