@@ -1,0 +1,44 @@
+{% set c = tool %}
+<h2>{{ t('ui.x_h') }}</h2>
+<p class="lede">{{ t('ui.x_lede') }}</p>
+<form method="post" class="panel tool">
+  <input type="hidden" name="action" value="run">
+  <label class="wide" style="display:block">{{ t('ui.x_positions') }}
+    <textarea name="positions" rows="6" placeholder="{{ c.sample|replace('\n', '&#10;') }}">{{ c.form.get('positions', '') }}</textarea>
+  </label>
+  <div class="fields" style="margin-top:12px"><label>{{ t('ui.x_balance') }} <input name="balance" value="{{ c.form.get('balance', '') }}" placeholder="10000"></label></div>
+  <div class="actions">
+    <button type="submit">{{ t('ui.x_run') }}</button>
+    <button type="submit" name="action" value="sample" class="ghost">{{ t('ui.n_sample') }}</button>
+    {% if c.owner %}<button type="submit" name="action" value="warn" class="ghost">{{ t('ui.x_warn_off' if c.warn else 'ui.x_warn_on') }}</button>{% endif %}
+  </div>
+  {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+  {% if not c.owner %}<p class="soon">{{ t('ui.x_signin') }}</p>{% endif %}
+</form>
+
+{% if c.r %}
+{% set r = c.r %}
+<div class="stats">
+  <div class="stat glass {{ 'negative' if r.state == 'over' else ('warn' if r.state == 'watch' else 'positive') }}"><span>{{ t('ui.x_true') }}</span><b>{{ c.icon[r.state] }} {{ c.money(r.true_risk) }}</b><small>{{ t('ui.x_gross') }} {{ c.money(r.gross) }} · {{ t('ex.state_' ~ r.state) }}</small></div>
+  <div class="stat glass {{ 'warn' if r.concentration >= 0.6 else '' }}"><span>{{ t('ui.x_biggest') }}</span><b>{{ r.biggest.factor }} {{ (r.concentration * 100)|round|int }}%</b><small>{{ t('ex.long' if r.biggest.net > 0 else 'ex.short') }} {{ c.money(r.biggest.net|abs) }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.x_cost') }}</span><b>{{ c.money(r.spread_total) }}</b><small>{{ t('ui.x_swap_week') }} {{ c.money(r.swap_week_total|abs) }}</small></div>
+  {% if r.leverage %}<div class="stat glass {{ 'negative' if 'leverage' in r.flags else '' }}"><span>{{ t('ui.x_leverage') }}</span><b>{{ r.leverage }}×</b><small>{{ t('ui.x_leverage_note') }}</small></div>{% endif %}
+</div>
+{% if r.flags %}<ul class="tight">{% for f in r.flags %}<li>{{ t('ex.f_' ~ f, n=r.stack.symbols|length, factor=r.stack.factor, syms=r.stack.symbols|join(', '), pct=(r.concentration * 100)|round|int, x=r.leverage) }}</li>{% endfor %}</ul>{% endif %}
+
+<h3>{{ t('ui.x_factors') }}</h3>
+<table class="flags"><thead><tr><th>{{ t('ui.x_factor') }}</th><th>{{ t('ui.x_net') }}</th><th>{{ t('ui.x_share') }}</th></tr></thead>
+<tbody>{% for f, v in r.factors.items() %}<tr><td><b>{{ f }}</b></td><td class="mono" style="color:{{ 'var(--win)' if v > 0 else 'var(--loss)' }}">{{ t('ex.long' if v > 0 else 'ex.short') }} {{ c.money(v|abs) }}</td><td class="mono">{{ ((v|abs) / r.gross * 100)|round|int if r.gross else 0 }}%</td></tr>{% endfor %}</tbody></table>
+
+<h3>{{ t('ui.x_heat') }}</h3>
+<div style="overflow-x:auto"><table class="flags" style="width:auto">
+  <thead><tr><th></th>{% for p in r.positions %}<th>{{ p.symbol }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for p in r.positions %}{% set i = loop.index0 %}<tr><td><b>{{ p.symbol }}</b> <span class="text-muted">{{ p.side }} {{ '%g' % p.lots }}</span></td>
+  {% for v in r.matrix[i] %}<td class="mono" style="text-align:center;background:{{ 'rgba(255,77,79,.35)' if v > 0 else ('rgba(0,196,106,.3)' if v < 0 else 'transparent') }}">{{ '%+d' % v if v else '·' }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+<p class="text-muted" style="font-size:12px">{{ t('ui.x_heat_note') }}</p>
+
+<h3>{{ t('ui.x_costs') }}</h3>
+<table class="flags"><thead><tr><th>Symbol</th><th>{{ t('ui.b_lots') }}</th><th>{{ t('ui.x_spread') }}</th><th>{{ t('ui.x_swap') }}</th><th>{{ t('ui.x_swap_week') }}</th></tr></thead>
+<tbody>{% for k in r.costs %}<tr><td><b>{{ k.symbol }}</b> <span class="text-muted">{{ k.side }}</span></td><td class="mono">{{ '%g' % k.lots }}</td><td class="mono">{{ c.money(k.spread) }}</td><td class="mono">{{ '%+.0f' % k.swap_night }}</td><td class="mono">{{ '%+.0f' % k.swap_week }}</td></tr>{% endfor %}</tbody></table>
+<p class="text-muted" style="font-size:12px">{{ t('ui.x_costs_note') }}</p>
+{% endif %}
