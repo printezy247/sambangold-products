@@ -1,4 +1,9 @@
-"""#16 Overexposure Monitor — the bot snapshot, the warn toggle, the dashboard."""
+"""#16 Overexposure Monitor — the bot snapshot, the warn toggle, the dashboard.
+
+The over-exposure warning stays free for the same reason the drawdown
+sentinel's does: it is a risk line, not a convenience. See the note in
+`sentineltool`.
+"""
 
 from . import exposure, store
 from .brand import DEFAULT_LANG, t

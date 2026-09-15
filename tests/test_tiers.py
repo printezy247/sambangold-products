@@ -239,3 +239,34 @@ def test_the_ranks_page_states_both_prices_for_general(client):
     client.get("/lang/en")
     body = client.get("/pricing").get_data(as_text=True)
     assert "free for anyone trading under Sam" in body
+
+
+# --- where the line sits: convenience is charged, safety is not ------------- #
+
+def test_the_calendar_reminder_is_general_but_reading_the_calendar_is_free(app):
+    from app.telegram import reply_for
+    with app.app_context():
+        assert "CPI m/m" in reply_for("/calendar", chat_id=7, lang="en")   # the answer, free
+        assert "General" in reply_for("/calendar_alert", chat_id=7, lang="en")
+        assert not store.calendar_subscribed(7)
+        store.grant_entitlement("7", "free", source="ib", external_id="ib:7")
+        assert "ON" in reply_for("/calendar_alert", chat_id=7, lang="en")
+
+
+def test_a_risk_warning_is_never_behind_a_rank(app):
+    """A breach warning is the difference between noticing and losing a funded
+    account. The scale there is sold by the account cap, not by the warning."""
+    from app.sentineltool import link_account, apply_report
+    sent = []
+    with app.app_context():
+        acc, err = link_account("77", "A", "FTMO", 100000)      # no rank at all
+        assert acc and not err
+        apply_report(acc, equity=94000, send=lambda chat, text: sent.append(text))
+    assert sent, "a trader near a breach hears about it whatever they pay"
+
+
+def test_the_exposure_warning_is_free_too(app):
+    from app import exposuretool
+    with app.app_context():
+        assert "ex.warn" not in str(exposuretool.bot_exposure(["warn"], chat_id="77", lang="ms"))
+        assert store.get_setting("exposure-monitor", "77", "warn") == "on"

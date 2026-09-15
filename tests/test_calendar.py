@@ -53,6 +53,11 @@ def test_bot_calendar_summary_and_alert_toggle(app):
         text = reply_for("/calendar", chat_id=7, lang="en")
         assert "Next red USD events" in text and "CPI m/m" in text and "Next FOMC" in text
         assert "30-minute alert: <b>OFF</b>" in text
+
+        # the standing reminder is General; reading the calendar above was not
+        assert "General" in reply_for("/calendar_alert", chat_id=7, lang="en")
+        assert not store.calendar_subscribed(7)
+        store.grant_entitlement("7", "free", source="ib", external_id="ib:7")
         assert "ON" in reply_for("/calendar_alert", chat_id=7, lang="en")
         assert store.calendar_subscribed(7)
         assert "MATI" in reply_for("/calendar_alert", chat_id=7, lang="ms")
@@ -90,7 +95,11 @@ def test_dashboard_calendar_renders_grid_pdf_and_toggle(client):
     pdf = client.get("/p/gold-calendar/quarter.pdf")
     assert pdf.mimetype == "application/pdf" and pdf.data.startswith(b"%PDF")
 
-    login(client, "42")
+    login(client, "42")          # no rank: the toggle names the rank instead of firing
+    body = client.post("/p/gold-calendar", data={"action": "cal_on"}).get_data(as_text=True)
+    assert "General" in body and "Matikan alert" not in body
+
+    login(client, "42", rank="free")
     body = client.post("/p/gold-calendar", data={"action": "cal_on"}).get_data(as_text=True)
     assert "Matikan alert" in body
     with client.application.app_context():

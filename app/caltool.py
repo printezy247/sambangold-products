@@ -48,8 +48,17 @@ def bot_calendar(args, chat_id=None, lang=DEFAULT_LANG, **_):
 
 
 def bot_calendar_alert(args, chat_id=None, lang=DEFAULT_LANG, **_):
+    """The standing reminder — a General capability.
+
+    Reading the calendar stays free: /calendar answers in full for anyone.
+    What the rank buys is the app *remembering* to warn you thirty minutes
+    before each red event, which is the same thing an armed alert buys."""
     if not chat_id:
         return t("cal.need_chat", lang)
+    from .gate import bot_gate
+    blocked = bot_gate("alerts", chat_id=chat_id, lang=lang)
+    if blocked:
+        return blocked
     state = store.calendar_toggle(chat_id)
     return t("cal.on" if state else "cal.off", lang)
 
@@ -95,10 +104,16 @@ def dashboard_calendar(request, user=None):
         dt.date(year, month, 1)
     except ValueError:
         year, month = local.year, local.month
+    from .gate import allows, upgrade_line, user_tier
+    from .auth import lang as ui_lang
+    may_subscribe = allows(user_tier(user), "alerts")
     notice = None
     if owner and request.method == "POST" and request.form.get("action") in ("cal_on", "cal_off"):
-        store.calendar_toggle(owner, request.form["action"] == "cal_on")
-        notice = "ok"
+        if may_subscribe:
+            store.calendar_toggle(owner, request.form["action"] == "cal_on")
+            notice = "ok"
+        else:
+            notice = "gated"
     events = goldcal.red_events(now, days=62)
     prev = (dt.date(year, month, 1) - dt.timedelta(days=1))
     nxt = (dt.date(year, month, 28) + dt.timedelta(days=4)).replace(day=1)
@@ -110,7 +125,9 @@ def dashboard_calendar(request, user=None):
         "upcoming": [e for e in events if e["at"] > now][:10],
         "season": season, "this_month": season[local.month],
         "holiday": goldcal.next_holiday(now),
-        "subscribed": bool(owner and store.calendar_subscribed(owner)),
+        "subscribed": bool(owner and may_subscribe and store.calendar_subscribed(owner)),
+        "may_subscribe": may_subscribe,
+        "upgrade": "" if may_subscribe else upgrade_line("alerts", ui_lang()),
         "owner": owner, "notice": notice,
         "baseline": store.baseline_spread(), "history": store.event_spread_history(),
         "fmt_myt": goldcal.fmt_myt, "fmt_utc": goldcal.fmt_utc,
