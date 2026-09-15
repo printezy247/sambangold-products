@@ -820,3 +820,28 @@ def sentinel_log(account_id, equity, state, note=None):
 def sentinel_history(account_id, limit=30):
     return [dict(r) for r in db().execute("SELECT at, equity, state, note FROM sentinel_log WHERE account_id = ? ORDER BY at DESC LIMIT ?",
                                           (int(account_id), limit))]
+
+
+# --------------------------------------------------------------------------- #
+# #17 Tokenized gold: the premium sampled by the five-minute checker.
+# --------------------------------------------------------------------------- #
+
+PREMIUM_SCHEMA = """
+CREATE TABLE IF NOT EXISTS premium_log (
+    id   INTEGER PRIMARY KEY,
+    at   REAL NOT NULL,
+    paxg REAL, xaut REAL, spot REAL, usdt REAL
+);
+CREATE INDEX IF NOT EXISTS premium_log_at ON premium_log(at);
+"""
+SCHEMA += PREMIUM_SCHEMA
+
+
+def log_premium(paxg, xaut, spot, usdt):
+    db().execute("INSERT INTO premium_log (at, paxg, xaut, spot, usdt) VALUES (?, ?, ?, ?, ?)", (time.time(), paxg, xaut, spot, usdt))
+    db().commit()
+
+
+def premium_history(days=7, limit=2500):
+    return [dict(r) for r in db().execute("SELECT at, paxg, xaut, spot, usdt FROM premium_log WHERE at > ? ORDER BY at LIMIT ?",
+                                          (time.time() - days * 86400, limit))]

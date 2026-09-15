@@ -106,6 +106,8 @@ def check_alerts(send):
     except feeds.FeedError:
         return {"checked": 0, "fired": 0, "pushed": 0, "error": "feed unavailable"}
     calendar = caltool.check_calendar(send, quote)
+    from . import tokengoldtool
+    tokengoldtool.log_premium()
     if not alerts:
         return {"checked": 0, "fired": 0, "pushed": calendar["pushed"]}
     fired = 0

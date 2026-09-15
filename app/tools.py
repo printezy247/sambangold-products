@@ -16,6 +16,7 @@ from .scantool import (bot_audit, bot_copyaudit, bot_influencer, bot_scan, dashb
                        dashboard_copyaudit, dashboard_influencer, dashboard_redflag)
 from .brokertool import bot_goldspread, dashboard_brokers
 from .exposuretool import bot_exposure, dashboard_exposure
+from .tokengoldtool import bot_paxg, bot_walletcheck, dashboard_tokengold
 from .mctool import bot_simulate, dashboard_mc
 from .sentineltool import bot_sentinel, dashboard_sentinel
 from .linktool import bot_funnel, bot_newlink, dashboard_links
@@ -146,10 +147,11 @@ BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc,
        "audit": bot_audit, "copyaudit": bot_copyaudit, "scan": bot_scan, "influencer": bot_influencer,
        "verify": bot_verify, "rebateaudit": bot_rebateaudit, "rebatestatus": bot_rebatestatus,
        "ibchurn": bot_ibchurn, "goldspread": bot_goldspread,
-       "newlink": bot_newlink, "funnel": bot_funnel, "sentinel": bot_sentinel, "simulate": bot_simulate, "exposure": bot_exposure}
+       "newlink": bot_newlink, "funnel": bot_funnel, "sentinel": bot_sentinel, "simulate": bot_simulate, "exposure": bot_exposure,
+       "paxg": bot_paxg, "walletcheck": bot_walletcheck}
 DASHBOARD = {"gold-watch": dashboard_watch, "gold-calendar": dashboard_calendar,
              "prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib,
              "bot-scam-detector": dashboard_botscam, "copy-trade-audit": dashboard_copyaudit,
              "red-flag-scanner": dashboard_redflag, "influencer-audit": dashboard_influencer,
              "signal-verifier": dashboard_verify, "rebate-auditor": dashboard_rebate, "churn-radar": dashboard_churn, "broker-comparator": dashboard_brokers,
-             "link-attribution": dashboard_links, "drawdown-sentinel": dashboard_sentinel, "monte-carlo-sim": dashboard_mc, "exposure-monitor": dashboard_exposure}
+             "link-attribution": dashboard_links, "drawdown-sentinel": dashboard_sentinel, "monte-carlo-sim": dashboard_mc, "exposure-monitor": dashboard_exposure, "tokenized-gold": dashboard_tokengold}

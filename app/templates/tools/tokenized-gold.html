@@ -1,0 +1,43 @@
+{% set c = tool %}
+<h2>{{ t('ui.t_h') }}</h2>
+<p class="lede">{{ t('ui.t_lede') }}</p>
+{% if c.a %}{% set a = c.a %}
+<div class="stats">
+  <div class="stat glass {{ 'warn' if 'paxg_premium' in a.flags else '' }}"><span>PAXG</span><b>{{ c.fmt(a.paxg) }}</b><small>{{ t('ui.t_premium') }} <b>{{ c.pct(a.paxg_premium) }}</b></small></div>
+  <div class="stat glass {{ 'warn' if 'xaut_premium' in a.flags else '' }}"><span>XAUT</span><b>{{ c.fmt(a.xaut) }}</b><small>{{ t('ui.t_premium') }} <b>{{ c.pct(a.xaut_premium) }}</b></small></div>
+  <div class="stat glass"><span>{{ t('ui.t_spot') }}</span><b>{{ c.fmt(a.spot) }}</b><small>{{ a.source_spot }}</small></div>
+  <div class="stat glass {{ 'negative' if a.peg == 'off' else 'positive' }}"><span>USDT / USD</span><b>{% if a.usdt %}{{ '%.4f' % a.usdt }}{% else %}—{% endif %}</b><small>{{ t('ui.t_peg_' ~ (a.peg or 'na')) }} {{ c.pct(a.usdt_off) }}</small></div>
+</div>
+<p class="text-muted" style="font-size:12px">{{ t('tk.basis') }} · PAXG−XAUT {{ c.pct(a.paxg_xaut) }}{% if a.errors %} · {{ t('tk.partial', n=a.errors|length) }}{% endif %}</p>
+{% else %}<p class="err">{{ c.error }}</p>{% endif %}
+
+<h3>{{ t('ui.t_chart') }}</h3>
+{% if c.svg %}<div class="panel" style="padding:12px">{{ c.svg|safe }}</div><p class="text-muted" style="font-size:12px">{{ t('ui.t_chart_note', n=c.history|length) }}</p>
+{% else %}<p class="lede">{{ t('ui.t_nohist') }}</p>{% endif %}
+
+<h3>{{ t('ui.t_facts', date=c.facts_date) }}</h3>
+<table class="flags"><thead><tr><th>Token</th><th>{{ t('ui.t_issuer') }}</th><th>{{ t('ui.t_attest') }}</th><th>{{ t('ui.t_redeem') }}</th><th>{{ t('ui.t_fee') }}</th><th></th></tr></thead>
+<tbody>{% for k, v in c.tokens.items() %}<tr><td><b>{{ k }}</b> <span class="text-muted">{{ v.chain }}</span></td><td>{{ v.issuer }}</td><td>{{ v.attestation }}</td><td>{{ v.redemption }}</td><td>{{ v.fee }}</td><td><a href="{{ v.url }}" rel="noopener" target="_blank">{{ t('ui.open') }}</a></td></tr>{% endfor %}</tbody></table>
+
+<h2>{{ t('ui.t_wallet_h') }}</h2>
+<p class="lede">{{ t('ui.t_wallet_lede') }}</p>
+<form method="get" class="panel tool">
+  <div class="fields">
+    <label>{{ t('ui.t_addr') }} <input name="address" value="{{ c.form.get('address', '') }}" placeholder="0x… / T… / bc1…" required></label>
+    <label>{{ t('ui.t_expected') }} <input name="expected" value="{{ c.form.get('expected', '') }}" placeholder="{{ t('ui.optional') }}"></label>
+  </div>
+  <div class="actions"><button type="submit">{{ t('ui.t_check') }}</button></div>
+</form>
+{% if c.wallet %}
+{% set w = c.wallet %}
+<div class="stats">
+  <div class="stat glass {{ 'negative' if 'poisoning' in w.flags or 'bad_checksum' in w.flags else ('warn' if w.flags else 'positive') }}"><span>{{ t('ui.t_verdict') }}</span>
+    <b style="font-size:18px">{% if 'poisoning' in w.flags %}🚨 {{ t('ui.t_v_poison') }}{% elif 'bad_checksum' in w.flags %}❌ {{ t('ui.t_v_bad') }}{% elif 'unknown_format' in w.flags %}❔ {{ t('ui.t_v_unknown') }}{% elif 'no_checksum' in w.flags %}🟡 {{ t('ui.t_v_nocheck') }}{% else %}✅ {{ t('ui.t_v_ok') }}{% endif %}</b>
+    <small>{% if w.chain %}{{ t('tk.chain_' ~ w.chain) }}{% endif %}</small></div>
+</div>
+<ul class="tight">{% for line in c.wallet_lines(w, lang) %}<li>{{ line|safe }}</li>{% endfor %}</ul>
+{% endif %}
+<h3>{{ t('ui.t_fees_h') }}</h3>
+<table class="flags"><thead><tr><th>{{ t('ui.t_network') }}</th><th>{{ t('ui.t_fee_usd') }}</th></tr></thead>
+<tbody>{% for k, v in c.fees.items() %}<tr><td>{{ k }}</td><td class="mono">${{ '%g' % v }}</td></tr>{% endfor %}</tbody></table>
+<p class="soon">{{ t('tk.w_rules') }}</p>
