@@ -1,18 +1,18 @@
 {% set c = tool %}{% set spec = c.spec %}
-<h2>{{ heading }}</h2>
+<h2>{{ t(heading) }}</h2>
 <form method="post" class="panel tool">
   <input type="hidden" name="action" value="scan">
   <div class="fields">
-    <label>{{ spec.subject_label }} <input name="subject" value="{{ c.form.get('subject', '') }}" placeholder="{{ spec.subject_placeholder }}" {{ 'required' if spec.needs_subject }}></label>
+    <label>{{ t(spec.subject_label) }} <input name="subject" value="{{ c.form.get('subject', '') }}" placeholder="{{ spec.subject_placeholder }}" {{ 'required' if spec.needs_subject }}></label>
     {% if c.slug == 'copy-trade-audit' %}
-    <label>Typical spread (pips) <input name="spread_pips" value="{{ c.form.get('spread_pips', '') }}" placeholder="2"></label>
-    <label>Lots you copy per month <input name="lots" value="{{ c.form.get('lots', '') }}" placeholder="10"></label>
+    <label>{{ t('ui.s_spread') }} <input name="spread_pips" value="{{ c.form.get('spread_pips', '') }}" placeholder="2"></label>
+    <label>{{ t('ui.s_lots') }} <input name="lots" value="{{ c.form.get('lots', '') }}" placeholder="10"></label>
     {% endif %}
   </div>
-  <label class="wide" style="display:block;margin-top:14px">{{ spec.text_label }}
-    <textarea name="text" rows="7" placeholder="{{ text_placeholder }}">{{ c.form.get('text', '') }}</textarea>
+  <label class="wide" style="display:block;margin-top:14px">{{ t(spec.text_label) }}
+    <textarea name="text" rows="7" placeholder="{{ t(text_placeholder) }}">{{ c.form.get('text', '') }}</textarea>
   </label>
-  <div class="actions"><button type="submit">{{ button }}</button></div>
+  <div class="actions"><button type="submit">{{ t(button) }}</button></div>
   {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
   {% if not c.owner %}<p class="soon">{{ t('product.signin') }} {{ t('scan.disclaimer') }}</p>{% endif %}
 </form>
@@ -22,25 +22,25 @@
 {% set tone = 'negative' if r.verdict == 'HIGH RISK' else ('warn' if r.verdict == 'CAUTION' else 'positive') %}
 <div class="stats">
   <div class="stat glass {{ tone }}"><span>{{ t('scan.subject') }} · {{ r.subject }}</span><b>{{ c.verdict_icon[r.verdict] }} {{ c.verdict_text(r.verdict, lang) }}</b><small>{{ t('scan.score') }} {{ r.score }}/100</small></div>
-  <div class="stat glass"><span>Flags</span><b><span style="color:var(--loss)">{{ r.reds }}</span> / <span style="color:var(--gold)">{{ r.yellows }}</span> / <span style="color:var(--win)">{{ r.goods }}</span></b><small>red / yellow / good</small></div>
+  <div class="stat glass"><span>{{ t('ui.s_flags') }}</span><b><span style="color:var(--loss)">{{ r.reds }}</span> / <span style="color:var(--gold)">{{ r.yellows }}</span> / <span style="color:var(--win)">{{ r.goods }}</span></b><small>{{ t('ui.s_rgy') }}</small></div>
   {% if c.slug == 'copy-trade-audit' %}
-  <div class="stat glass {{ 'positive' if r.tier1 else 'warn' }}"><span>Regulation</span><b style="font-size:18px">{% if r.known %}{{ 'Tier-1' if r.tier1 else 'Offshore only' }}{% else %}Unknown{% endif %}</b><small>{% if r.known %}{{ r.regulators|map(attribute=0)|join(', ') }}{% else %}not in our table{% endif %}</small></div>
-  {% if r.cost %}<div class="stat glass warn"><span>Spread cost / year</span><b>${{ '{:,.0f}'.format(r.cost.yearly) }}</b><small>${{ '{:,.0f}'.format(r.cost.monthly) }} a month at {{ r.cost.spread_pips }} pips × {{ r.cost.lots }} lots</small></div>{% endif %}
+  <div class="stat glass {{ 'positive' if r.tier1 else 'warn' }}"><span>{{ t('ui.s_reg') }}</span><b style="font-size:18px">{% if r.known %}{{ t('ui.s_tier1') if r.tier1 else t('ui.s_offshore') }}{% else %}{{ t('ui.s_unknown') }}{% endif %}</b><small>{% if r.known %}{{ r.regulators|map(attribute=0)|join(', ') }}{% else %}{{ t('ui.s_not_table') }}{% endif %}</small></div>
+  {% if r.cost %}<div class="stat glass warn"><span>{{ t('ui.s_cost_year') }}</span><b>${{ '{:,.0f}'.format(r.cost.yearly) }}</b><small>{{ t('ui.s_cost_note', m=r.cost.monthly, p=r.cost.spread_pips, l=r.cost.lots) }}</small></div>{% endif %}
   {% endif %}
   {% if c.slug == 'influencer-audit' %}
-  <div class="stat glass {{ 'warn' if r.broker_links else '' }}"><span>Broker referral links</span><b>{{ r.broker_links|length }}</b><small>they get paid when you deposit</small></div>
+  <div class="stat glass {{ 'warn' if r.broker_links else '' }}"><span>{{ t('ui.s_ref') }}</span><b>{{ r.broker_links|length }}</b><small>{{ t('ui.s_ref_note') }}</small></div>
   {% endif %}
 </div>
 {% if c.scan_id %}
-<p class="lede">Share link: <a class="mono" href="{{ url_for('views.scan_public', slug=c.slug, scan_id=c.scan_id) }}">{{ url_for('views.scan_public', slug=c.slug, scan_id=c.scan_id, _external=True) }}</a>
-  {% if c.public|length > 1 %}· scanned {{ c.public|length }}× by the community{% endif %}</p>
+<p class="lede">{{ t('ui.s_share') }}: <a class="mono" href="{{ url_for('views.scan_public', slug=c.slug, scan_id=c.scan_id) }}">{{ url_for('views.scan_public', slug=c.slug, scan_id=c.scan_id, _external=True) }}</a>
+  {% if c.public|length > 1 %}· {{ t('ui.s_community', n=c.public|length) }}{% endif %}</p>
 {% endif %}
 
 {% if r.findings %}
 <table class="flags">
-  <thead><tr><th></th><th>Flag</th><th>Why it matters</th><th>Where</th></tr></thead>
+  <thead><tr><th></th><th>{{ t('ui.flag') }}</th><th>{{ t('ui.why') }}</th><th>{{ t('ui.where') }}</th></tr></thead>
   <tbody>
-  {% for f in r.findings %}
+  {% for f in c.localise(r.findings, lang) %}
     <tr><td>{{ c.flag_icon[f.flag] }}</td><td><b>{{ f.label }}</b></td><td>{{ f.why }}</td><td class="text-muted" style="font-size:12px">{{ f.snippet }}</td></tr>
   {% endfor %}
   </tbody>
@@ -48,30 +48,30 @@
 {% else %}<p class="lede">{{ t('scan.clean') }}</p>{% endif %}
 
 {% if c.slug == 'bot-scam-detector' %}
-<h3>Checklist</h3>
-<ul class="tight">{% for line in r.checklist %}<li>☐ {{ line }}</li>{% endfor %}</ul>
+<h3>{{ t('ui.s_checklist') }}</h3>
+<ul class="tight">{% for line in c.checklist(lang) %}<li>☐ {{ line }}</li>{% endfor %}</ul>
 {% elif c.slug == 'copy-trade-audit' %}
-<h3>Verify on the register</h3>
+<h3>{{ t('ui.s_verify') }}</h3>
 <table class="flags">
-  <thead><tr><th>Regulator</th><th>What it means</th><th>Register</th></tr></thead>
+  <thead><tr><th>{{ t('ui.regulator') }}</th><th>{{ t('ui.meaning') }}</th><th>{{ t('ui.register') }}</th></tr></thead>
   <tbody>
   {% for name, desc, url in (r.regulators if r.known and r.regulators else r.registers) %}
-    <tr><td><b>{{ name }}</b></td><td>{{ desc }}</td><td><a href="{{ url }}" rel="noopener" target="_blank">open ↗</a></td></tr>
+    <tr><td><b>{{ name }}</b></td><td>{{ desc }}</td><td><a href="{{ url }}" rel="noopener" target="_blank">{{ t('ui.open') }}</a></td></tr>
   {% endfor %}
   </tbody>
 </table>
 {% elif c.slug == 'influencer-audit' %}
 <h3>{{ t('scan.demand') }}</h3>
-<ul class="tight">{% for d in r.demands %}<li>{{ d }}</li>{% endfor %}</ul>
-{% if r.broker_links %}<h3>Broker-promotion trail</h3><ul class="tight">{% for u in r.broker_links %}<li class="mono" style="font-size:12px;word-break:break-all">{{ u }}</li>{% endfor %}</ul>{% endif %}
+<ul class="tight">{% for d in c.demands(lang) %}<li>{{ d }}</li>{% endfor %}</ul>
+{% if r.broker_links %}<h3>{{ t('ui.s_trail') }}</h3><ul class="tight">{% for u in r.broker_links %}<li class="mono" style="font-size:12px;word-break:break-all">{{ u }}</li>{% endfor %}</ul>{% endif %}
 {% endif %}
 {% endif %}
 
 {% if c.owner %}
 {% if c.watch %}
-<h3>Watchlist</h3>
+<h3>{{ t('ui.s_watch') }}</h3>
 <table class="flags">
-  <thead><tr><th>{{ t('scan.subject') }}</th><th>Scans</th><th>Latest score</th><th>Re-scan</th></tr></thead>
+  <thead><tr><th>{{ t('scan.subject') }}</th><th>{{ t('ui.scans') }}</th><th>{{ t('ui.latest') }}</th><th>{{ t('ui.rescan') }}</th></tr></thead>
   <tbody>
   {% for w in c.watch %}
     <tr><td><b>{{ w.subject }}</b></td><td>{{ w.n }}×</td><td class="mono">{{ w.score }}/100</td>
@@ -81,12 +81,12 @@
 </table>
 {% endif %}
 {% if c.history %}
-<h3>History</h3>
+<h3>{{ t('ui.history') }}</h3>
 <table class="flags">
-  <thead><tr><th>#</th><th>{{ t('scan.subject') }}</th><th>Verdict</th><th>Score</th><th>When (UTC)</th></tr></thead>
+  <thead><tr><th>#</th><th>{{ t('scan.subject') }}</th><th>{{ t('ui.verdict') }}</th><th>{{ t('scan.score')|capitalize }}</th><th>{{ t('ui.when') }}</th></tr></thead>
   <tbody>
   {% for h in c.history[:20] %}
-    <tr><td><a class="mono" href="{{ url_for('views.scan_public', slug=c.slug, scan_id=h.id) }}">{{ h.id }}</a></td><td>{{ h.subject }}</td><td>{{ c.verdict_icon[h.verdict] }} {{ h.verdict }}</td><td class="mono">{{ h.score }}</td><td class="mono">{{ h.created_at|utc }}</td></tr>
+    <tr><td><a class="mono" href="{{ url_for('views.scan_public', slug=c.slug, scan_id=h.id) }}">{{ h.id }}</a></td><td>{{ h.subject }}</td><td>{{ c.verdict_icon[h.verdict] }} {{ c.verdict_text(h.verdict, lang) }}</td><td class="mono">{{ h.score }}</td><td class="mono">{{ h.created_at|utc }}</td></tr>
   {% endfor %}
   </tbody>
 </table>

@@ -5,7 +5,7 @@ Routes, the bot command dispatch table, the index page and the tests all read
 from this module, so a product cannot quietly exist on one surface only.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 
 @dataclass(frozen=True)
@@ -36,6 +36,19 @@ class Product:
     @property
     def primary_label(self) -> str:
         return "🤖 bot-led" if self.primary == "bot" else "🌐 dashboard-led"
+
+    def view(self, lang="ms"):
+        """This product with its user-facing copy in `lang` (English is the registry itself)."""
+        if lang != "ms":
+            return self
+        from .products_ms import MS
+        extra = MS.get(self.slug)
+        return replace(self, **extra) if extra else self
+
+    def primary_text(self, lang="ms"):
+        if lang == "ms":
+            return "🤖 Utama: bot" if self.primary == "bot" else "🌐 Utama: dashboard"
+        return self.primary_label
 
 
 PRODUCTS = (

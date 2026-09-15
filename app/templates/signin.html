@@ -14,7 +14,7 @@
               data-telegram-login="{{ bot_username }}" data-size="large" data-request-access="write"
               data-auth-url="{{ url_for('auth.telegram_callback', _external=True, next=next or None) }}"></script>
     {% else %}
-      <p class="text-muted" style="margin:0;font-size:14px">TELEGRAM_BOT_USERNAME is not set — the Telegram button appears once it is.</p>
+      <p class="text-muted" style="margin:0;font-size:14px">{{ t('signin.no_username') }}</p>
     {% endif %}
     <p class="text-muted" style="font-size:11px;margin:12px 0 0">{{ t('signin.telegram_hint') }}</p>
   </div>

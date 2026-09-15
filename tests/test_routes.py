@@ -19,9 +19,13 @@ def test_every_product_has_a_dashboard_page(client, product):
     page = client.get("/p/%s" % product.slug)
     assert page.status_code == 200
     body = page.get_data(as_text=True)
+    ms = product.view("ms")                       # the page is Bahasa Melayu first
     assert str(escape(product.name)) in body
-    assert str(escape(product.bot_commands[0][0])) in body
-    assert str(escape(product.dashboard_views[0])) in body
+    assert str(escape(ms.bot_commands[0][0])) in body
+    assert str(escape(ms.dashboard_views[0])) in body
+    client.get("/lang/en")
+    en = client.get("/p/%s" % product.slug).get_data(as_text=True)
+    assert str(escape(product.dashboard_views[0])) in en
 
 
 def test_unknown_slug_is_404(client):
@@ -74,7 +78,7 @@ def test_prop_dashboard_scans_pasted_terms(client):
     page = client.post("/p/prop-calculator", data={
         "terms": "A trailing maximum drawdown applies. News trading is prohibited."})
     body = page.get_data(as_text=True)
-    assert "Trailing drawdown" in body and "No news trading" in body
+    assert "Trailing drawdown" in body and "Dilarang trade berita" in body
 
 
 def test_prop_dashboard_shows_input_errors(client):
@@ -86,8 +90,8 @@ def test_ib_dashboard_computes_timeline_and_checklist(client):
     page = client.get("/p/ib-revenue-calculator?lots=10&rate=5&payout_threshold=120")
     body = page.get_data(as_text=True)
     assert page.status_code == 200
-    assert "$150" in body and "day 120" in body
-    assert "Registration" in body and "checklist.txt" in body
+    assert "$150" in body and "hari 120" in body
+    assert "Pendaftaran" in body and "checklist.txt" in body
 
 
 def test_ib_checklist_downloads_as_text(client):

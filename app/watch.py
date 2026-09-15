@@ -14,14 +14,8 @@ import time
 from flask import current_app
 
 from . import feeds, store
+from .brand import DEFAULT_LANG, t
 
-WATCH_USAGE = (
-    "Usage:\n"
-    "<code>/watch XAUUSD</code> — live price, spread and entry/stop levels\n"
-    "<code>/watch XAUUSD above 2450</code> — alert when the <i>ask</i> reaches 2450\n"
-    "<code>/watch XAUUSD below 2380</code> — alert when the <i>bid</i> falls to 2380\n"
-    "<code>/watch list</code> · <code>/watch clear</code>"
-)
 STOP_PCT = 0.005  # a 0.5% stop, widened by the spread, as a starting point
 
 
@@ -29,72 +23,73 @@ def fmt(value):
     return "%s" % format(value, ",.2f")
 
 
-def quote_lines(quote):
+def quote_lines(quote, lang=DEFAULT_LANG):
     bps = feeds.spread_bps(quote)
-    spread = ("%s (%.1f bps)" % (fmt(quote["spread"]), bps)) if bps is not None else "n/a (no order book)"
+    spread = ("%s (%.1f bps)" % (fmt(quote["spread"]), bps)) if bps is not None else t("watch.nobook", lang)
     spread_abs = quote["spread"] or 0.0
     long_entry, long_stop = quote["ask"], quote["ask"] * (1 - STOP_PCT) - spread_abs
     short_entry, short_stop = quote["bid"], quote["bid"] * (1 + STOP_PCT) + spread_abs
     return [
         "<b>XAUUSD %s</b>  bid %s · ask %s" % (fmt(quote["mid"]), fmt(quote["bid"]), fmt(quote["ask"])),
-        "Spread %s · %s" % (spread, quote["source"]),
-        "Long: enter %s, stop %s" % (fmt(long_entry), fmt(long_stop)),
-        "Short: enter %s, stop %s" % (fmt(short_entry), fmt(short_stop)),
+        t("watch.spread", lang, spread=spread, src=quote["source"]),
+        t("watch.long", lang, e=fmt(long_entry), s=fmt(long_stop)),
+        t("watch.short", lang, e=fmt(short_entry), s=fmt(short_stop)),
     ]
 
 
-def alert_line(a):
-    return "#%d  %s %s %s" % (a["id"], a["symbol"], a["direction"], fmt(a["level"]))
+def alert_line(a, lang=DEFAULT_LANG):
+    return "#%d  %s %s %s" % (a["id"], a["symbol"], t("watch." + a["direction"], lang), fmt(a["level"]))
 
 
 # --- bot -------------------------------------------------------------------- #
 
-def bot_watch(args, chat_id=None, **_):
+def bot_watch(args, chat_id=None, lang=DEFAULT_LANG, **_):
+    usage = t("watch.usage", lang)
     sub = args[0].lower() if args else ""
     if sub in ("", "help"):
-        return WATCH_USAGE
+        return usage
 
     if sub == "list":
         rows = store.alerts_for(chat_id) if chat_id else []
         if not rows:
-            return "No alerts armed.\n\n" + WATCH_USAGE
-        return "<b>Armed alerts</b>\n" + "\n".join(alert_line(a) for a in rows)
+            return t("watch.none", lang) + "\n\n" + usage
+        return t("watch.list", lang) + "\n" + "\n".join(alert_line(a, lang) for a in rows)
 
     if sub == "clear":
         n = store.clear_alerts(chat_id) if chat_id else 0
-        return "Cleared %d alert%s." % (n, "" if n == 1 else "s")
+        return t("watch.cleared", lang, n=n)
 
     symbol = sub.upper()
     if symbol not in ("XAUUSD", "GOLD", "XAU"):
-        return "Only gold for now (<code>XAUUSD</code>). Multi-pair is on the PRO tier.\n\n" + WATCH_USAGE
+        return t("watch.only_gold", lang) + "\n\n" + usage
     symbol = "XAUUSD"
 
     try:
         quote = feeds.gold_quote()
     except feeds.FeedError as exc:
-        return "Feed unavailable right now (%s). Try again in a minute." % exc
+        return t("watch.feed_down", lang, err=exc)
 
     if len(args) == 1:
         rows = store.alerts_for(chat_id) if chat_id else []
-        lines = quote_lines(quote)
+        lines = quote_lines(quote, lang)
         if rows:
-            lines += ["", "Armed: " + ", ".join(alert_line(a) for a in rows)]
+            lines += ["", t("watch.armed", lang) + ", ".join(alert_line(a, lang) for a in rows)]
         return "\n".join(lines)
 
     direction = args[1].lower()
     if direction not in ("above", "below") or len(args) < 3:
-        return WATCH_USAGE
+        return usage
     try:
         level = float(args[2].replace(",", ""))
     except ValueError:
-        return "Level must be a number.\n\n" + WATCH_USAGE
+        return t("watch.level_num", lang) + "\n\n" + usage
     if not chat_id:
-        return "Alerts need a chat to fire into."
+        return t("watch.need_chat", lang)
 
     alert_id = store.add_alert(chat_id, symbol, direction, level)
     side = "ask" if direction == "above" else "bid"
-    return "✅ Alert #%d armed: %s %s %s (fires on the %s).\nNow: bid %s · ask %s" % (
-        alert_id, symbol, direction, fmt(level), side, fmt(quote["bid"]), fmt(quote["ask"]))
+    return t("watch.ok", lang, id=alert_id, sym=symbol, dir=t("watch." + direction, lang), level=fmt(level),
+             side=side, bid=fmt(quote["bid"]), ask=fmt(quote["ask"]))
 
 
 # --- checker ---------------------------------------------------------------- #
@@ -117,10 +112,9 @@ def check_alerts(send):
     for alert in alerts:
         if feeds.crossed(alert["direction"], alert["level"], quote):
             price = store.record_trigger(alert, quote)
-            send(alert["owner"], "🔔 <b>XAUUSD %s %s</b> — %s now %s (%s)\n%s" % (
-                alert["direction"], fmt(alert["level"]),
-                "ask" if alert["direction"] == "above" else "bid", fmt(price), quote["source"],
-                "Educational research only. Verify with your broker."))
+            lang = store.tg_lang(alert["owner"]) or DEFAULT_LANG
+            send(alert["owner"], t("watch.fire", lang, dir=t("watch." + alert["direction"], lang), level=fmt(alert["level"]),
+                                   side="ask" if alert["direction"] == "above" else "bid", price=fmt(price), src=quote["source"]))
             fired += 1
     return {"checked": len(alerts), "fired": fired, "source": quote["source"], "pushed": calendar["pushed"]}
 
@@ -131,9 +125,10 @@ def dashboard_watch(request, user=None):
     owner = user["owner"] if user else None
     ctx = {"form": request.values, "quote": None, "feed_error": None, "owner": owner,
            "alerts": [], "history": [], "notice": None}
+    from .auth import lang as ui_lang
     try:
         ctx["quote"] = feeds.gold_quote()
-        ctx["lines"] = quote_lines(ctx["quote"])
+        ctx["lines"] = quote_lines(ctx["quote"], ui_lang())
         ctx["spread_bps"] = feeds.spread_bps(ctx["quote"])
     except feeds.FeedError as exc:
         ctx["feed_error"] = str(exc)
@@ -144,18 +139,18 @@ def dashboard_watch(request, user=None):
         if action == "arm":
             try:
                 aid = store.add_alert(owner, "XAUUSD", form.get("direction", "above"), form["level"])
-                ctx["notice"] = "Alert #%d armed." % aid
+                ctx["notice"] = t("watch.d_armed", ui_lang(), id=aid)
             except (KeyError, ValueError):
-                ctx["notice"] = "Level must be a number."
+                ctx["notice"] = t("watch.level_num", ui_lang())
         elif action == "update":
             try:
                 store.update_alert(owner, form["id"], level=form["level"])
-                ctx["notice"] = "Threshold updated."
+                ctx["notice"] = t("watch.d_updated", ui_lang())
             except (KeyError, ValueError):
-                ctx["notice"] = "Level must be a number."
+                ctx["notice"] = t("watch.level_num", ui_lang())
         elif action == "disarm":
             store.update_alert(owner, form.get("id"), active=False)
-            ctx["notice"] = "Alert disarmed."
+            ctx["notice"] = t("watch.d_disarmed", ui_lang())
 
     if owner:
         ctx["alerts"] = store.alerts_for(owner)

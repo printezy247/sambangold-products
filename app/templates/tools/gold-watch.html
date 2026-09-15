@@ -1,53 +1,53 @@
-<h2>Live gold</h2>
+<h2>{{ t('ui.w_live') }}</h2>
 {% if tool.quote %}
 {% set q = tool.quote %}
 <div class="stats">
-  <div class="stat"><span>XAUUSD mid</span><b>{{ '{:,.2f}'.format(q.mid) }}</b><small>{{ q.source }}</small></div>
-  <div class="stat"><span>Bid / ask</span><b>{{ '{:,.2f}'.format(q.bid) }} / {{ '{:,.2f}'.format(q.ask) }}</b><small>the prices you would actually get</small></div>
+  <div class="stat"><span>{{ t('ui.w_mid') }}</span><b>{{ '{:,.2f}'.format(q.mid) }}</b><small>{{ q.source }}</small></div>
+  <div class="stat"><span>{{ t('ui.w_bidask') }}</span><b>{{ '{:,.2f}'.format(q.bid) }} / {{ '{:,.2f}'.format(q.ask) }}</b><small>{{ t('ui.w_bidask_note') }}</small></div>
   <div class="stat {{ 'warn' if tool.spread_bps is none else ('positive' if tool.spread_bps < 5 else 'warn') }}"><span>Spread</span>
     <b>{% if tool.spread_bps is none %}n/a{% else %}{{ '%.1f' % tool.spread_bps }} bps{% endif %}</b>
-    <small>{% if tool.spread_bps is none %}no order book on this source{% else %}{{ '{:,.2f}'.format(q.spread) }} per oz{% endif %}</small></div>
+    <small>{% if tool.spread_bps is none %}{{ t('ui.w_nobook') }}{% else %}{{ '{:,.2f}'.format(q.spread) }} {{ t('ui.w_peroz') }}{% endif %}</small></div>
 </div>
-<p class="lede">{{ tool.lines[2] }} · {{ tool.lines[3] }}. Stops are 0.5% widened by the spread — a starting point, not a signal.</p>
+<p class="lede">{{ tool.lines[2] }} · {{ tool.lines[3] }}. {{ t('ui.w_stopnote') }}</p>
 {% else %}
-<p class="err">Feed unavailable: {{ tool.feed_error }}</p>
+<p class="err">{{ t('ui.w_feed_err', err=tool.feed_error) }}</p>
 {% endif %}
 
-<h2>Armed alerts</h2>
+<h2>{{ t('ui.w_armed') }}</h2>
 {% if not tool.owner %}
-<p class="lede">Sign in with Telegram (top right) to see the alerts you armed in the bot, edit thresholds and export history. One account, both surfaces.</p>
+<p class="lede">{{ t('ui.w_signin') }}</p>
 {% else %}
 {% if tool.notice %}<p class="soon">{{ tool.notice }}</p>{% endif %}
 <form method="post" class="panel tool">
   <input type="hidden" name="action" value="arm">
   <div class="fields">
-    <label>Direction
+    <label>{{ t('ui.w_dir') }}
       <select name="direction">
-        <option value="above">above — fires on the ask</option>
-        <option value="below">below — fires on the bid</option>
+        <option value="above">{{ t('ui.w_above') }}</option>
+        <option value="below">{{ t('ui.w_below') }}</option>
       </select>
     </label>
-    <label>Level <input name="level" placeholder="2450" required></label>
+    <label>{{ t('ui.w_level') }} <input name="level" placeholder="2450" required></label>
   </div>
-  <div class="actions"><button type="submit">Arm alert</button></div>
+  <div class="actions"><button type="submit">{{ t('ui.w_arm') }}</button></div>
 </form>
 {% if tool.alerts %}
 <table class="flags">
-  <thead><tr><th>#</th><th>Pair</th><th>Direction</th><th>Level</th><th></th></tr></thead>
+  <thead><tr><th>#</th><th>{{ t('ui.w_pair') }}</th><th>{{ t('ui.w_dir') }}</th><th>{{ t('ui.w_level') }}</th><th></th></tr></thead>
   <tbody>
   {% for a in tool.alerts %}
     <tr>
-      <td>{{ a.id }}</td><td>{{ a.symbol }}</td><td>{{ a.direction }}</td>
+      <td>{{ a.id }}</td><td>{{ a.symbol }}</td><td>{{ t('watch.' ~ a.direction) }}</td>
       <td>
         <form method="post" class="inline">
           <input type="hidden" name="action" value="update"><input type="hidden" name="id" value="{{ a.id }}">
-          <input name="level" value="{{ '%g' % a.level }}" size="8"> <button type="submit" class="ghost small">Save</button>
+          <input name="level" value="{{ '%g' % a.level }}" size="8"> <button type="submit" class="ghost small">{{ t('ui.w_save') }}</button>
         </form>
       </td>
       <td>
         <form method="post" class="inline">
           <input type="hidden" name="action" value="disarm"><input type="hidden" name="id" value="{{ a.id }}">
-          <button type="submit" class="ghost small">Disarm</button>
+          <button type="submit" class="ghost small">{{ t('ui.w_disarm') }}</button>
         </form>
       </td>
     </tr>
@@ -55,22 +55,22 @@
   </tbody>
 </table>
 {% else %}
-<p class="lede">Nothing armed. Arm one here or send <code>/watch XAUUSD above 2450</code> to the bot — same list.</p>
+<p class="lede">{{ t('ui.w_none')|safe }}</p>
 {% endif %}
 
-<h2>Alert history</h2>
+<h2>{{ t('ui.w_hist') }}</h2>
 {% if tool.history %}
 <table class="flags">
-  <thead><tr><th>Fired (UTC)</th><th>Alert</th><th>Price</th><th>Spread</th><th>Source</th></tr></thead>
+  <thead><tr><th>{{ t('ui.w_fired') }}</th><th>{{ t('ui.w_alert') }}</th><th>{{ t('ui.price') }}</th><th>Spread</th><th>{{ t('ui.source') }}</th></tr></thead>
   <tbody>
-  {% for t in tool.history %}
-    <tr><td>{{ t.fired_at | utc }}</td><td>{{ t.symbol }} {{ t.direction }} {{ '{:,.2f}'.format(t.level) }}</td>
-        <td><b>{{ '{:,.2f}'.format(t.price) }}</b></td><td>{{ '—' if t.spread is none else '{:,.2f}'.format(t.spread) }}</td><td>{{ t.source }}</td></tr>
+  {% for h in tool.history %}
+    <tr><td>{{ h.fired_at | utc }}</td><td>{{ h.symbol }} {{ t('watch.' ~ h.direction) }} {{ '{:,.2f}'.format(h.level) }}</td>
+        <td><b>{{ '{:,.2f}'.format(h.price) }}</b></td><td>{{ '—' if h.spread is none else '{:,.2f}'.format(h.spread) }}</td><td>{{ h.source }}</td></tr>
   {% endfor %}
   </tbody>
 </table>
-<p><a href="{{ url_for('views.gold_watch_csv') }}" download>⬇ Export history (.csv)</a></p>
+<p><a href="{{ url_for('views.gold_watch_csv') }}" download>{{ t('ui.w_export') }}</a></p>
 {% else %}
-<p class="lede">No triggers yet. Each one is recorded with the price and spread at fire time — the journal a chat log cannot give you.</p>
+<p class="lede">{{ t('ui.w_nohist') }}</p>
 {% endif %}
 {% endif %}

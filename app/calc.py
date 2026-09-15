@@ -106,7 +106,22 @@ TC_RULES = (
 )
 
 
-def scan_terms(text):
+TC_RULES_MS = {
+    "Trailing drawdown": ("Trailing drawdown", "Lantai naik bersama paras ekuiti tertinggi anda, jadi untung awal mengecilkan ruang anda."),
+    "Consistency rule": ("Peraturan consistency", "Satu hari yang bagus boleh batalkan kelulusan; untung mesti sekata."),
+    "Balance-based daily loss": ("Daily loss ikut baki tertinggi", "Diukur dari puncak hari itu, bukan pembukaan, jadi untung terbuka dikira menentang anda."),
+    "Fee is not refunded": ("Yuran tak dipulangkan", "Anda bayar untuk tiket loteri, bukan deposit."),
+    "No news trading": ("Dilarang trade berita", "Trade sekitar data berjadual boleh batalkan kelulusan selepas itu."),
+    "No weekend holding": ("Dilarang pegang hujung minggu", "Setup swing mesti ditutup setiap Jumaat."),
+    "Minimum trading days": ("Hari dagangan minimum", "Lulus cepat ditahan sehingga kiraan hari dicapai."),
+    "Time limit": ("Had masa", "Jam, bukan edge anda, yang tentukan percubaan itu."),
+    "Copy or hedge trading banned": ("Copy atau hedge dilarang", "Alat risiko biasa jadi alasan penamatan."),
+    "Firm may change rules": ("Firm boleh tukar peraturan", "Apa yang anda daftar bukan apa yang anda akan dipegang."),
+    "Lot or position limits": ("Had lot atau posisi", "Hadkan skala anda sebaik anda funded."),
+}
+
+
+def scan_terms(text, lang="en"):
     """Red/yellow flags found in pasted challenge terms, most severe first."""
     text = text or ""
     found = []
@@ -115,6 +130,8 @@ def scan_terms(text):
         if match:
             start = max(0, match.start() - 60)
             snippet = " ".join(text[start:match.end() + 60].split())
+            if lang == "ms":
+                label, why = TC_RULES_MS.get(label, (label, why))
             found.append({"flag": flag, "label": label, "why": why, "snippet": snippet})
     reds = sum(1 for f in found if f["flag"] == "red")
     yellows = len(found) - reds
@@ -210,13 +227,42 @@ IB_CHECKLIST = (
 )
 
 
-def ib_checklist_text():
+IB_CHECKLIST_MS = (
+    ("Pendaftaran", (
+        "Sahkan broker berlesen di bidang kuasa setiap klien yang anda rujuk.",
+        "Semak sama ada bidang kuasa anda sendiri perlukan pendaftaran atau lesen IB.",
+        "Simpan perjanjian IB yang ditandatangani dan setiap pindaan di satu tempat.",
+    )),
+    ("Pemasaran", (
+        "Tiada ayat 'untung dijamin' atau 'tanpa risiko' di mana-mana, termasuk group chat.",
+        "Setiap post awam bawa pendedahan risiko yang broker wajibkan.",
+        "Simpan salinan setiap mesej promosi dengan tarikh ia dihantar.",
+    )),
+    ("Pengendalian klien", (
+        "Jangan sesekali ambil deposit, pegang dana atau trade bagi pihak klien.",
+        "Serahkan soalan KYC kepada broker; jangan kumpul dokumen ID sendiri.",
+        "Catat setiap aduan dan majukan kepada broker dalam tempoh mereka.",
+    )),
+    ("Payout", (
+        "Selaraskan laporan lot broker dengan senarai klien anda sendiri setiap bulan.",
+        "Rekod tetingkap clawback dan peristiwa yang mencetuskannya.",
+        "Letak ambang payout dan tempoh pegangan di sebelah setiap ramalan hasil.",
+    )),
+)
+
+
+def ib_checklist(lang="en"):
+    return IB_CHECKLIST_MS if lang == "ms" else IB_CHECKLIST
+
+
+def ib_checklist_text(lang="en"):
     """The compliance checklist as plain text, for download."""
-    lines = ["IB affiliate compliance checklist — Sambangold #8", ""]
-    for section, items in IB_CHECKLIST:
+    lines = ["IB affiliate compliance checklist — SAMBANGGOLD #8", ""]
+    for section, items in ib_checklist(lang):
         lines.append("## %s" % section)
         for item in items:
             lines.append("- [ ] %s" % item)
         lines.append("")
-    lines.append("Educational research only. Not legal or financial advice.")
+    lines.append("Pendidikan sahaja. Bukan nasihat undang-undang atau kewangan." if lang == "ms"
+                 else "Educational research only. Not legal or financial advice.")
     return "\n".join(lines)

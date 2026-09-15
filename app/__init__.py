@@ -40,7 +40,7 @@ def create_app(config_object=Config):
     @app.context_processor
     def inject_brand():
         lang = auth.lang()
-        username = app.config["TELEGRAM_BOT_USERNAME"]
+        username = telegram.bot_username()
         return {
             "BRAND": brand.BRAND, "TOKENS": brand.TOKENS, "lang": lang,
             "t": lambda key, **kw: brand.t(key, lang, **kw),

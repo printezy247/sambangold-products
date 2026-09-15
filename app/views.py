@@ -10,7 +10,7 @@ from flask import (Blueprint, Response, abort, current_app, jsonify, render_temp
                    send_from_directory, session)
 
 from . import caltool, feeds, scan, scantool, store, telegram, watch
-from .auth import admin_required, current_user, login_required
+from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
 from .tools import DASHBOARD, money, pct
@@ -134,7 +134,7 @@ def influencer_loss_report():
 
 @bp.route("/p/ib-revenue-calculator/checklist.txt")
 def ib_checklist():
-    return Response(ib_checklist_text(), mimetype="text/plain",
+    return Response(ib_checklist_text(ui_lang()), mimetype="text/plain",
                     headers={"Content-Disposition": "attachment; filename=ib-compliance-checklist.txt"})
 
 

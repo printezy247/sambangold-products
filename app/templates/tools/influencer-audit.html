@@ -1,18 +1,18 @@
-{% with heading="Audit an influencer", button="Audit", text_placeholder="Paste their post, bio, pinned message or DM, links included…" %}{% include "tools/_scanner.html" %}{% endwith %}
+{% with heading="ui.s_h_inf", button="ui.audit", text_placeholder="ui.s_ph_inf" %}{% include "tools/_scanner.html" %}{% endwith %}
 
-<h2>Loss-report template</h2>
-<p class="lede">Lost money already? Fill this in and download the report in the shape the FTC, CFTC, IC3, SC Malaysia and BNM forms ask for.</p>
+<h2>{{ t('ui.l_title') }}</h2>
+<p class="lede">{{ t('ui.l_lede') }}</p>
 <form method="post" action="{{ url_for('views.influencer_loss_report') }}" class="panel tool">
   <div class="fields">
-    <label>Influencer handle <input name="handle" placeholder="@gold_guru" required></label>
-    <label>Platform <input name="platform" placeholder="TikTok, Instagram, Telegram…"></label>
-    <label>Broker / venue promoted <input name="broker" placeholder="optional"></label>
-    <label>Amount lost <input name="amount" placeholder="5000"></label>
-    <label>Currency <input name="currency" placeholder="USD / MYR"></label>
-    <label>Date(s) <input name="date" placeholder="2026-08-01 to 2026-08-20"></label>
+    <label>{{ t('ui.l_handle') }} <input name="handle" placeholder="@gold_guru" required></label>
+    <label>{{ t('ui.l_platform') }} <input name="platform" placeholder="TikTok, Instagram, Telegram…"></label>
+    <label>{{ t('ui.l_broker') }} <input name="broker" placeholder="{{ t('ui.optional') }}"></label>
+    <label>{{ t('ui.l_amount') }} <input name="amount" placeholder="5000"></label>
+    <label>{{ t('ui.l_currency') }} <input name="currency" placeholder="MYR / USD"></label>
+    <label>{{ t('ui.l_date') }} <input name="date" placeholder="2026-08-01 – 2026-08-20"></label>
   </div>
-  <label class="wide" style="display:block;margin-top:14px">What happened, in order
-    <textarea name="story" rows="6" placeholder="First contact, what was promised, what you paid, what happened after…"></textarea>
+  <label class="wide" style="display:block;margin-top:14px">{{ t('ui.l_story') }}
+    <textarea name="story" rows="6" placeholder="{{ t('ui.l_story_ph') }}"></textarea>
   </label>
-  <div class="actions"><button type="submit" class="btn-gold">⬇ Download report.txt</button></div>
+  <div class="actions"><button type="submit" class="btn-gold">{{ t('ui.l_download') }}</button></div>
 </form>
