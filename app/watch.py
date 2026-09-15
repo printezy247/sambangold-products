@@ -120,7 +120,7 @@ def check_alerts(send):
 # --- dashboard -------------------------------------------------------------- #
 
 def dashboard_watch(request, user=None):
-    owner = user["id"] if user else None
+    owner = user["owner"] if user else None
     ctx = {"form": request.values, "quote": None, "feed_error": None, "owner": owner,
            "alerts": [], "history": [], "notice": None}
     try:

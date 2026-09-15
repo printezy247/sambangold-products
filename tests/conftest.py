@@ -33,6 +33,9 @@ def client(app):
     return app.test_client()
 
 
-def login(client, user_id="42"):
+def login(client, user_id="42", email=None, admin=False):
+    """Put a signed-in user in the session the way auth.sign_in would."""
     with client.session_transaction() as s:
-        s["user"] = {"id": user_id, "username": "tester", "first_name": "Test"}
+        s["user"] = {"uid": 1, "owner": user_id, "telegram_id": user_id, "email": email,
+                     "username": "tester", "name": "Test", "locale": "ms",
+                     "is_admin": admin, "rank": "elite" if admin else "free"}

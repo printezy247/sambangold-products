@@ -1,46 +1,45 @@
 {% extends "base.html" %}
 {% block title %}{{ p.number }} · {{ p.name }}{% endblock %}
 {% block body %}
-  <h1>{{ p.emoji }} {{ p.number }} · {{ p.name }}</h1>
-  <p class="lede">{{ p.problem }}</p>
-  <p class="lede"><strong>{{ p.solution }}</strong></p>
-
-  <div class="chips">
-    <span class="chip">{{ p.vertical }}</span>
-    <span class="chip">{{ p.primary_label }}</span>
-    <span class="chip web">Free tier — {{ p.free_tier }}</span>
+<div class="wrap" style="padding-top:48px">
+  <p style="margin:0"><a class="text-muted" href="{{ url_for('views.index') }}#tools">← {{ t('product.back') }}</a></p>
+  <div style="display:flex;align-items:center;gap:18px;margin-top:14px;flex-wrap:wrap">
+    <img src="{{ url_for('views.assets', filename='icons/ic-%02d.svg'|format(p.number)) }}" alt="" style="width:72px;height:72px">
+    <div>
+      <h1 style="margin:0">{{ p.emoji }} {{ p.number }} · {{ p.name }}</h1>
+      <div class="chips" style="margin-top:8px">
+        <span class="chip">{{ p.vertical }}</span>
+        <span class="chip bot">{{ p.primary_label }}</span>
+        <span class="chip win">{{ t('product.free') }} — {{ p.free_tier }}</span>
+        {% if tool %}<span class="chip gold">● {{ t('grid.live') }}</span>{% endif %}
+      </div>
+    </div>
   </div>
+  <p class="lede" style="margin-top:18px">{{ p.problem }}</p>
+  <p class="lede"><strong style="color:var(--fg)">{{ p.solution }}</strong></p>
 
   <div class="halves">
-    <div class="panel">
-      <h3>🤖 Telegram half</h3>
+    <div class="lux" style="padding:22px">
+      <h3 style="margin-top:0">🤖 {{ t('product.bot_half') }}</h3>
       <ul class="tight">
-        {% for command, does in p.bot_commands %}
-          <li><code>{{ command }}</code> — {{ does }}</li>
-        {% endfor %}
+        {% for command, does in p.bot_commands %}<li><code>{{ command }}</code> — {{ does }}</li>{% endfor %}
       </ul>
+      {% if bot_link %}<a class="btn btn-gold small" style="margin-top:16px" href="{{ bot_link }}">{{ t('nav.cta') }}</a>{% endif %}
     </div>
-    <div class="panel">
-      <h3>🌐 Dashboard half</h3>
-      <ul class="tight">
-        {% for view in p.dashboard_views %}<li>{{ view }}</li>{% endfor %}
-      </ul>
+    <div class="lux {{ 'lux-gold' if tool }}" style="padding:22px">
+      <h3 style="margin-top:0">🌐 {{ t('product.web_half') }}</h3>
+      <ul class="tight">{% for view in p.dashboard_views %}<li>{{ view }}</li>{% endfor %}</ul>
       <p class="soon">
-        {% if tool %}
-          Live below — same numbers the bot returns.
-        {% elif p.status == 'shipped' %}
-          Panels come online as each view is wired to live data.
-        {% else %}
-          Queued for build — the spec is written, the surface is reserved.
-        {% endif %}
+        {% if tool %}{{ t('product.live_note') }}{% elif p.status == 'shipped' %}{{ t('product.soon') }}{% else %}{{ t('product.queued') }}{% endif %}
       </p>
     </div>
   </div>
 
   {% if tool %}{% include "tools/" ~ p.slug ~ ".html" %}{% endif %}
 
-  <h3>Upsell</h3>
-  <p class="lede">{{ p.upsell }} Paid tiers sell scale and automation only, never basic access.</p>
-
-  <p style="margin-top:28px"><a href="{{ url_for('views.index') }}">← all eighteen</a></p>
+  <div class="lux" style="padding:22px;margin-top:48px">
+    <h3 style="margin-top:0">{{ t('product.upsell') }} · {{ rank_label('pro') }}</h3>
+    <p class="text-muted" style="margin:0">{{ p.upsell }} {{ t('product.upsell_note') }}</p>
+  </div>
+</div>
 {% endblock %}

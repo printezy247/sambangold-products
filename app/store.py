@@ -115,3 +115,203 @@ def record_trigger(alert, quote):
 def triggers_for(owner, limit=200):
     return [dict(r) for r in db().execute(
         "SELECT * FROM triggers WHERE owner = ? ORDER BY fired_at DESC LIMIT ?", (str(owner), limit))]
+
+
+# --------------------------------------------------------------------------- #
+# Accounts: one row per person, reachable by Telegram id and/or email.
+# --------------------------------------------------------------------------- #
+
+ACCOUNT_SCHEMA = """
+CREATE TABLE IF NOT EXISTS users (
+    id            INTEGER PRIMARY KEY,
+    email         TEXT UNIQUE,
+    telegram_id   TEXT UNIQUE,
+    username      TEXT,
+    name          TEXT,
+    locale        TEXT NOT NULL DEFAULT 'ms',
+    created_at    REAL NOT NULL,
+    verified_at   REAL,
+    last_login_at REAL
+);
+CREATE TABLE IF NOT EXISTS email_codes (
+    id         INTEGER PRIMARY KEY,
+    email      TEXT    NOT NULL,
+    code_hash  TEXT    NOT NULL,
+    attempts   INTEGER NOT NULL DEFAULT 0,
+    created_at REAL    NOT NULL,
+    expires_at REAL    NOT NULL,
+    used_at    REAL
+);
+CREATE INDEX IF NOT EXISTS email_codes_email ON email_codes(email, created_at);
+CREATE TABLE IF NOT EXISTS tg_users (
+    telegram_id TEXT PRIMARY KEY,
+    username    TEXT,
+    first_name  TEXT,
+    lang        TEXT,
+    tag         TEXT,
+    starts      INTEGER NOT NULL DEFAULT 0,
+    first_seen  REAL NOT NULL,
+    last_seen   REAL NOT NULL
+);
+"""
+SCHEMA += ACCOUNT_SCHEMA
+
+
+def _row(cur):
+    r = cur.fetchone()
+    return dict(r) if r else None
+
+
+def user_by_id(user_id):
+    return _row(db().execute("SELECT * FROM users WHERE id = ?", (int(user_id),)))
+
+
+def user_by_telegram(telegram_id):
+    return _row(db().execute("SELECT * FROM users WHERE telegram_id = ?", (str(telegram_id),)))
+
+
+def user_by_email(email):
+    return _row(db().execute("SELECT * FROM users WHERE email = ?", (email.lower(),)))
+
+
+def upsert_telegram_user(telegram_id, username="", name="", locale=None, link_to=None):
+    """Sign-in via Telegram. `link_to` attaches the Telegram id to an existing
+    (email) account instead of creating a second one."""
+    now = time.time()
+    existing = user_by_telegram(telegram_id)
+    if existing:
+        db().execute("UPDATE users SET username = ?, name = COALESCE(NULLIF(?, ''), name), last_login_at = ? WHERE id = ?",
+                     (username, name, now, existing["id"]))
+        db().commit()
+        return user_by_id(existing["id"])
+    if link_to:
+        db().execute("UPDATE users SET telegram_id = ?, username = ?, name = COALESCE(NULLIF(name, ''), ?), last_login_at = ? WHERE id = ?",
+                     (str(telegram_id), username, name, now, int(link_to)))
+        db().commit()
+        _migrate_owner("u:%d" % int(link_to), str(telegram_id))
+        return user_by_id(link_to)
+    cur = db().execute(
+        "INSERT INTO users (telegram_id, username, name, locale, created_at, verified_at, last_login_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (str(telegram_id), username, name, locale or "ms", now, now, now))
+    db().commit()
+    return user_by_id(cur.lastrowid)
+
+
+def upsert_email_user(email, locale=None, link_to=None):
+    """Sign-in via a verified email code. `link_to` attaches the email to the
+    current (Telegram) account."""
+    email = email.lower()
+    now = time.time()
+    existing = user_by_email(email)
+    if existing:
+        db().execute("UPDATE users SET last_login_at = ? WHERE id = ?", (now, existing["id"]))
+        db().commit()
+        return user_by_id(existing["id"])
+    if link_to:
+        db().execute("UPDATE users SET email = ?, last_login_at = ? WHERE id = ?", (email, now, int(link_to)))
+        db().commit()
+        return user_by_id(link_to)
+    cur = db().execute(
+        "INSERT INTO users (email, locale, created_at, verified_at, last_login_at) VALUES (?, ?, ?, ?, ?)",
+        (email, locale or "ms", now, now, now))
+    db().commit()
+    return user_by_id(cur.lastrowid)
+
+
+def set_user_locale(user_id, locale):
+    db().execute("UPDATE users SET locale = ? WHERE id = ?", (locale, int(user_id)))
+    db().commit()
+
+
+def owner_key(user):
+    """Alerts and history are keyed by Telegram id when there is one, so the bot
+    and the dashboard share a list; email-only accounts use their row id."""
+    return user["telegram_id"] if user.get("telegram_id") else "u:%d" % user["id"]
+
+
+def _migrate_owner(old, new):
+    for table in ("alerts", "triggers"):
+        db().execute("UPDATE %s SET owner = ? WHERE owner = ?" % table, (new, old))
+    db().commit()
+
+
+def list_users(limit=500):
+    return [dict(r) for r in db().execute("SELECT * FROM users ORDER BY created_at DESC LIMIT ?", (limit,))]
+
+
+def user_counts():
+    q = db().execute
+    return {
+        "users": q("SELECT COUNT(*) FROM users").fetchone()[0],
+        "emails": q("SELECT COUNT(*) FROM users WHERE email IS NOT NULL").fetchone()[0],
+        "telegrams": q("SELECT COUNT(*) FROM users WHERE telegram_id IS NOT NULL").fetchone()[0],
+        "starts": q("SELECT COALESCE(SUM(starts), 0) FROM tg_users").fetchone()[0],
+    }
+
+
+# --- email codes ---------------------------------------------------------- #
+
+def _hash_code(email, code):
+    import hashlib
+    return hashlib.sha256(("%s:%s" % (email.lower(), code)).encode()).hexdigest()
+
+
+def issue_code(email, ttl, resend_after):
+    """Create a fresh 8-digit code. Returns (code, None) or (None, 'cooldown')."""
+    import secrets
+    email = email.lower()
+    now = time.time()
+    last = db().execute("SELECT created_at FROM email_codes WHERE email = ? ORDER BY created_at DESC LIMIT 1", (email,)).fetchone()
+    if last and now - last[0] < resend_after:
+        return None, "cooldown"
+    code = "%08d" % secrets.randbelow(10 ** 8)
+    db().execute("UPDATE email_codes SET used_at = ? WHERE email = ? AND used_at IS NULL", (now, email))
+    db().execute("INSERT INTO email_codes (email, code_hash, created_at, expires_at) VALUES (?, ?, ?, ?)",
+                 (email, _hash_code(email, code), now, now + ttl))
+    db().commit()
+    return code, None
+
+
+def verify_code(email, code, max_attempts):
+    """'ok' | 'wrong' | 'expired' | 'too_many'. A used or expired code never matches."""
+    import hmac
+    email = email.lower()
+    now = time.time()
+    row = _row(db().execute("SELECT * FROM email_codes WHERE email = ? AND used_at IS NULL ORDER BY created_at DESC LIMIT 1", (email,)))
+    if row is None or row["expires_at"] < now:
+        return "expired"
+    if row["attempts"] >= max_attempts:
+        return "too_many"
+    db().execute("UPDATE email_codes SET attempts = attempts + 1 WHERE id = ?", (row["id"],))
+    db().commit()
+    if hmac.compare_digest(row["code_hash"], _hash_code(email, (code or "").strip())):
+        db().execute("UPDATE email_codes SET used_at = ? WHERE id = ?", (now, row["id"]))
+        db().commit()
+        return "ok"
+    return "wrong"
+
+
+# --- bot users: language, attribution -------------------------------------- #
+
+def tg_touch(telegram_id, username="", first_name="", tag=None, start=False):
+    now = time.time()
+    row = _row(db().execute("SELECT * FROM tg_users WHERE telegram_id = ?", (str(telegram_id),)))
+    if row is None:
+        db().execute("INSERT INTO tg_users (telegram_id, username, first_name, tag, starts, first_seen, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                     (str(telegram_id), username, first_name, tag, 1 if start else 0, now, now))
+    else:
+        db().execute("UPDATE tg_users SET username = ?, first_name = ?, last_seen = ?, starts = starts + ?, tag = COALESCE(?, tag) WHERE telegram_id = ?",
+                     (username, first_name, now, 1 if start else 0, tag, str(telegram_id)))
+    db().commit()
+    return _row(db().execute("SELECT * FROM tg_users WHERE telegram_id = ?", (str(telegram_id),)))
+
+
+def tg_lang(telegram_id):
+    row = _row(db().execute("SELECT lang FROM tg_users WHERE telegram_id = ?", (str(telegram_id),)))
+    return row["lang"] if row else None
+
+
+def tg_set_lang(telegram_id, lang):
+    db().execute("UPDATE tg_users SET lang = ? WHERE telegram_id = ?", (lang, str(telegram_id)))
+    db().execute("UPDATE users SET locale = ? WHERE telegram_id = ?", (lang, str(telegram_id)))
+    db().commit()

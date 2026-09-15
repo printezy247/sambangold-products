@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t('google.title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="max-width:520px;padding-top:72px;padding-bottom:72px">
+  <h1>{{ t('google.title') }}</h1>
+  <p class="lede">{{ t('google.body') }}</p>
+  <div class="actions"><a class="btn btn-gold" href="{{ url_for('auth.signin') }}">{{ t('signin.title') }}</a></div>
+</div>
+{% endblock %}

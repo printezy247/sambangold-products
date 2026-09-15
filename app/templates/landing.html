@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{ t('hero.title') }} {{ t('hero.title2') }}{% endblock %}
+{% block style %}
+  .hero { position: relative; overflow: hidden; }
+  .hero .field { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero .halo { position: absolute; top: -260px; left: 50%; transform: translateX(-50%); width: 640px; height: 640px; border-radius: 999px; background: color-mix(in oklab, var(--gold) 10%, transparent); filter: blur(80px); pointer-events: none; }
+  .hero .inner { position: relative; display: grid; gap: 40px; padding: 72px 0 60px; align-items: center; }
+  @media (min-width: 880px) { .hero .inner { grid-template-columns: 1.1fr .9fr; padding: 96px 0 80px; } }
+  .hero h1 { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(46px, 7vw, 92px); line-height: .95; letter-spacing: .01em; margin: 18px 0 0; }
+  .badge { display: inline-block; font-size: 12px; color: var(--gold); border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent); border-radius: 999px; padding: 4px 12px; }
+  .hero .side { position: relative; }
+  .hero .mascot { width: min(320px, 70%); margin: 0 auto; filter: drop-shadow(0 24px 48px rgba(212,175,55,.28)); }
+  .ticket { margin-top: -40px; padding: 22px; position: relative; }
+  .ticket .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .ticket .row:last-child { border-bottom: 0; }
+  .doors { display: grid; gap: 16px; margin-top: 24px; }
+  @media (min-width: 760px) { .doors { grid-template-columns: 1fr 1fr; } }
+  details.faq { border-bottom: 1px solid var(--border); padding: 14px 0; }
+  details.faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; font-weight: 500; }
+  details.faq summary::after { content: "+"; color: var(--gold); transition: transform .2s; }
+  details.faq[open] summary::after { transform: rotate(45deg); }
+  details.faq p { color: var(--muted); margin: 8px 0 0; }
+{% endblock %}
+{% block body %}
+<section class="hero">
+  <div class="grid-bg" style="position:absolute;inset:0"></div>
+  <canvas id="field" class="field" aria-hidden="true"></canvas>
+  <div class="halo"></div>
+  <div class="wrap inner">
+    <div>
+      <span class="badge">{{ t('hero.badge') }}</span>
+      <h1><span class="text-chrome">{{ t('hero.title') }}</span> <span class="text-goldgrad">{{ t('hero.title2') }}</span></h1>
+      <p class="lede" style="margin-top:22px">{{ t('hero.subtitle') }}</p>
+      <div class="actions" style="margin-top:28px">
+        {% if bot_link %}<a class="btn btn-gold" href="{{ bot_link }}">{{ t('hero.cta_primary') }}</a>{% endif %}
+        <a class="btn" href="#tools">{{ t('hero.cta_secondary') }}</a>
+      </div>
+      <p class="text-muted" style="font-size:12px;margin-top:14px">{{ t('hero.note') }}</p>
+    </div>
+    <div class="side">
+      <div class="mascot">
+        <img class="mascot-raise" src="{{ url_for('views.assets', filename='brand/mascot-raise.png') }}" alt="">
+        <img class="mascot-strike" src="{{ url_for('views.assets', filename='brand/mascot-strike.png') }}" alt="">
+      </div>
+      <div class="lux lux-gold ticket">
+        <div class="chips"><span class="chip gold">XAUUSD</span><span class="chip bot">/watch</span><span class="chip win">{{ t('product.free') }}</span></div>
+        {% if quote %}
+          <div class="row"><span class="text-muted">bid / ask</span><b class="mono">{{ '{:,.2f}'.format(quote.bid) }} / {{ '{:,.2f}'.format(quote.ask) }}</b></div>
+          <div class="row"><span class="text-muted">spread</span><b class="mono">{% if quote.spread is none %}n/a{% else %}{{ '{:,.2f}'.format(quote.spread) }}{% endif %}</b></div>
+          <div class="row"><span class="text-muted">{{ quote.source }}</span><span class="text-win">● live</span></div>
+        {% else %}
+          <div class="row"><span class="text-muted">XAUUSD</span><b class="mono">—</b></div>
+          <div class="row"><span class="text-muted">{{ t('product.soon') }}</span></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap stats" style="margin-top:-8px">
+  <div class="stat glass"><span>{{ t('stats.products') }}</span><b>{{ products|length }}</b><small>🤖 + 🌐</small></div>
+  <div class="stat glass positive"><span>{{ t('stats.live') }}</span><b>{{ live|length }}</b><small>{{ t('grid.live') }}</small></div>
+  <div class="stat glass warn"><span>{{ t('stats.free') }}</span><b>{{ products|length }}/{{ products|length }}</b><small>{{ t('faq.q1') }} — {{ t('faq.a1').split('.')[0] }}.</small></div>
+  <div class="stat glass"><span>{{ t('stats.since') }}</span><b>{{ BRAND.since }}</b><small>{{ BRAND.person }} · {{ BRAND.group }}</small></div>
+</section>
+
+<section class="wrap">
+  <h2>{{ t('doors.title') }}</h2>
+  <p class="lede">{{ t('doors.subtitle') }}</p>
+  <div class="doors">
+    <div class="lux lux-gold" style="padding:24px">
+      <div class="text-gold" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em">A</div>
+      <div style="font-size:20px;font-weight:600;margin-top:4px">{{ t('doors.a_title') }}</div>
+      <p class="text-muted" style="margin:8px 0 0">{{ t('doors.a_body') }}</p>
+      {% if bot_link %}<a class="btn btn-gold" style="margin-top:18px" href="{{ bot_link }}">{{ t('doors.a_cta') }}</a>{% endif %}
+    </div>
+    <div class="lux" style="padding:24px">
+      <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em">B</div>
+      <div style="font-size:20px;font-weight:600;margin-top:4px">{{ t('doors.b_title') }}</div>
+      <p class="text-muted" style="margin:8px 0 0">{{ t('doors.b_body') }}</p>
+      <a class="btn" style="margin-top:18px" href="{{ url_for('views.dashboard') if user else url_for('auth.signin') }}">{{ t('doors.b_cta') }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="tools">
+  <h2>{{ t('grid.title') }}</h2>
+  <p class="lede">{{ t('grid.subtitle') }}</p>
+  <div class="grid" style="margin-top:20px">
+    {% for p in live %}{% set is_live = true %}{% include "_card.html" %}{% endfor %}
+    {% for p in rest %}{% set is_live = false %}{% include "_card.html" %}{% endfor %}
+  </div>
+</section>
+
+<section class="wrap" style="max-width:760px">
+  <h2>{{ t('faq.title') }}</h2>
+  {% for i in (1, 2, 3, 4) %}
+    <details class="faq"><summary>{{ t('faq.q%d' % i) }}</summary><p>{{ t('faq.a%d' % i) }}</p></details>
+  {% endfor %}
+</section>
+{% endblock %}
+{% block script %}
+<script>
+  // Decorative field behind the hero: candles, ticks and glyphs drift and lean away from the pointer.
+  (function () {
+    var c = document.getElementById("field"); if (!c || innerWidth < 640) return;
+    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches, ctx = c.getContext("2d"), w = 0, h = 0, raf = 0, sprites = [];
+    var pointer = { x: -1e4, y: -1e4, has: false }, target = { x: 0, y: 0 }, off = { x: 0, y: 0 }, G = ["XAU", "$", "%", "R", "TP", "SL"];
+    function make(i) { var kinds = ["candle", "candle", "tick", "line", "glyph"], k = kinds[i % 5], d = .4 + Math.random() * .6;
+      return { k: k, x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - .5) * .12 * d, vy: -(.04 + Math.random() * .1) * d, s: (k === "glyph" ? 14 : 22) * d + 8, a: .12 + d * .25, up: Math.random() > .5, g: G[i % 6], d: d }; }
+    function resize() { var r = c.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); w = r.width; h = r.height; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); sprites = []; for (var i = 0, n = Math.round(Math.min(56, w * h / 22000)); i < n; i++) sprites.push(make(i)); }
+    function draw(s) { var x = s.x + off.x * s.d, y = s.y + off.y * s.d, gold = "rgba(212,175,55," + s.a + ")", slate = "rgba(154,163,178," + s.a + ")"; ctx.lineWidth = 1;
+      if (s.k === "candle") { ctx.strokeStyle = s.up ? gold : slate; ctx.beginPath(); ctx.moveTo(x, y - s.s / 2); ctx.lineTo(x, y + s.s / 2); ctx.stroke(); ctx.strokeRect(x - s.s * .18, y - s.s * .27, s.s * .36, s.s * .55); }
+      else if (s.k === "tick") { var d = s.s * .35; ctx.strokeStyle = s.up ? gold : slate; ctx.beginPath(); if (s.up) { ctx.moveTo(x - d, y + d * .6); ctx.lineTo(x, y - d * .6); ctx.lineTo(x + d, y + d * .6); } else { ctx.moveTo(x - d, y - d * .6); ctx.lineTo(x, y + d * .6); ctx.lineTo(x + d, y - d * .6); } ctx.stroke(); }
+      else if (s.k === "line") { var lw = s.s * 1.6; ctx.strokeStyle = slate; ctx.beginPath(); ctx.moveTo(x - lw / 2, y + s.s * .2); ctx.lineTo(x - lw / 6, y - s.s * .15); ctx.lineTo(x + lw / 6, y + s.s * .05); ctx.lineTo(x + lw / 2, y - s.s * .3); ctx.stroke(); }
+      else { ctx.fillStyle = gold; ctx.font = "500 " + s.s + "px ui-monospace, monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(s.g, x, y); } }
+    function frame() { raf = 0; ctx.clearRect(0, 0, w, h); off.x += (target.x - off.x) * .06; off.y += (target.y - off.y) * .06;
+      for (var i = 0; i < sprites.length; i++) { var s = sprites[i]; if (!reduced) { s.x += s.vx; s.y += s.vy;
+        if (pointer.has) { var dx = s.x + off.x * s.d - pointer.x, dy = s.y + off.y * s.d - pointer.y, d2 = dx * dx + dy * dy, r = 140; if (d2 < r * r && d2 > 1) { var dd = Math.sqrt(d2), push = (r - dd) / r * .9 * s.d; s.x += dx / dd * push; s.y += dy / dd * push; } }
+        if (s.y < -40) { s.y = h + 40; s.x = Math.random() * w; } if (s.x < -60) s.x = w + 60; if (s.x > w + 60) s.x = -60; } draw(s); }
+      if (!reduced && !document.hidden) raf = requestAnimationFrame(frame); }
+    function start() { if (!raf) raf = requestAnimationFrame(frame); }
+    var host = c.parentElement;
+    host.addEventListener("pointermove", function (e) { if (e.pointerType !== "mouse") return; var r = c.getBoundingClientRect(); pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top; pointer.has = true; target.x = (pointer.x / w - .5) * -24; target.y = (pointer.y / h - .5) * -16; });
+    host.addEventListener("pointerleave", function () { pointer.has = false; target.x = 0; target.y = 0; });
+    addEventListener("resize", resize); document.addEventListener("visibilitychange", start);
+    resize(); start();
+  })();
+</script>
+{% endblock %}
