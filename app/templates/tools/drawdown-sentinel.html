@@ -1,0 +1,72 @@
+{% set c = tool %}
+<h2>{{ t('ui.d_h') }}</h2>
+<p class="lede">{{ t('ui.d_lede') }}</p>
+{% if not c.owner %}
+<p class="soon">{{ t('ui.d_signin') }}</p>
+{% else %}
+{% if c.accounts|length < c.free %}
+<form method="post" class="panel tool">
+  <input type="hidden" name="action" value="link">
+  <div class="fields">
+    <label>{{ t('ui.d_name') }} <input name="name" value="{{ c.form.get('name', '') }}" placeholder="Cabaran1" required></label>
+    <label>{{ t('ui.d_firm') }}<select name="firm">{% for k, p in c.packs.items() %}<option value="{{ k }}">{{ p.name }}</option>{% endfor %}</select></label>
+    <label>{{ t('ui.d_balance') }} <input name="balance" value="{{ c.form.get('balance', '') }}" placeholder="100000" required></label>
+  </div>
+  <details style="margin-top:12px"><summary class="text-muted" style="cursor:pointer;font-size:13px">Custom</summary>
+    <div class="fields" style="margin-top:10px">
+      <label>{{ t('ui.d_daily') }} <input name="daily_pct" value="5"></label>
+      <label>{{ t('ui.d_max') }} <input name="max_pct" value="10"></label>
+      <label>{{ t('ui.d_mindays') }} <input name="min_days" value="0"></label>
+      <label>{{ t('ui.d_maxlot') }} <input name="max_lot" value=""></label>
+      <label><input type="checkbox" name="trailing" style="width:auto"> {{ t('ui.d_trailing') }}</label>
+    </div>
+  </details>
+  <div class="actions"><button type="submit">{{ t('ui.d_link') }}</button></div>
+  {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+</form>
+{% else %}<p class="soon">{{ t('ui.d_free', n=c.free) }}</p>{% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}{% endif %}
+
+{% for a in c.accounts %}
+{% set ev = a.eval %}
+<h2>{{ c.icon[ev.state] }} {{ a.name }} <span class="text-muted" style="font-size:14px">· {{ a.firm }} · {{ t('ui.d_state_' ~ ev.state) }}</span></h2>
+<div class="stats">
+  <div class="stat glass"><span>{{ t('ui.d_equity') }}</span><b>${{ '{:,.0f}'.format(a.equity) }}</b><small>{{ t('ui.d_balance') }} ${{ '{:,.0f}'.format(a.initial_balance) }} · {{ a.day }}</small></div>
+  {% for r in ev.rules %}
+  <div class="stat glass {{ 'negative' if r.state == 'breach' else ('warn' if r.state == 'warn' else ('positive' if r.state == 'ok' else '')) }}">
+    <span>{{ t('sn.rule_' ~ r.key) }}</span>
+    {% if r.key == 'days' %}<b>{{ ev.days_done }}/{{ r.line }}</b><small>{{ t('ui.d_state_' ~ r.state) }}</small>
+    {% elif r.key == 'lot' %}<b>{{ '%g' % r.room }}</b><small>{{ t('ui.d_line') }} {{ '%g' % r.line }}</small>
+    {% else %}<b>${{ '{:,.0f}'.format(r.room) }}</b><small>{{ t('ui.d_line') }} ${{ '{:,.0f}'.format(r.line) }} · {{ (r.room_pct * 100)|round|int }}%</small>
+    <div style="height:6px;border-radius:3px;background:rgba(255,255,255,.06);margin-top:8px"><div style="height:6px;border-radius:3px;width:{{ (r.room_pct * 100)|round|int }}%;background:{{ 'var(--loss)' if r.state == 'breach' else ('var(--gold)' if r.state == 'warn' else 'var(--win)') }}"></div></div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+<div class="halves" style="margin-top:14px">
+  <form method="post" class="panel tool">
+    <input type="hidden" name="action" value="update"><input type="hidden" name="id" value="{{ a.id }}">
+    <div class="fields">
+      <label>{{ t('ui.d_equity') }} <input name="equity" value="{{ '%g' % a.equity }}" required></label>
+      <label>{{ t('ui.d_balance') }} <input name="balance" placeholder="{{ '%g' % a.day_start_balance }}"></label>
+      <label>{{ t('ui.d_lots') }} <input name="lots" value="{{ '%g' % a.open_lots }}"></label>
+    </div>
+    <div class="actions"><button type="submit">{{ t('ui.d_update') }}</button>
+      <button type="submit" name="action" value="newday" class="ghost">{{ t('ui.d_newday') }}</button>
+      <button type="submit" name="action" value="delete" class="ghost">{{ t('ui.d_del') }}</button></div>
+  </form>
+  <div class="panel">
+    <b>{{ t('ui.d_ping') }}</b>
+    <p class="mono" style="font-size:12px;word-break:break-all">{{ c.ping(a.token) }}?equity=99200&lots=1</p>
+    <p class="text-muted" style="font-size:12px">{{ t('ui.d_ping_hint') }}</p>
+  </div>
+</div>
+<h3>{{ t('ui.d_log') }}</h3>
+{% if a.history %}
+<table class="flags"><thead><tr><th>{{ t('ui.when') }}</th><th>{{ t('ui.d_equity') }}</th><th>{{ t('ui.verdict') }}</th><th></th></tr></thead>
+<tbody>{% for h in a.history %}<tr><td class="mono">{{ h.at|utc }}</td><td class="mono">${{ '{:,.0f}'.format(h.equity) }}</td><td>{{ c.icon[h.state] }} {{ t('ui.d_state_' ~ h.state) }}</td><td class="text-muted">{{ h.note or '' }}</td></tr>{% endfor %}</tbody></table>
+{% else %}<p class="lede">{{ t('ui.d_nolog') }}</p>{% endif %}
+{% endfor %}
+{% endif %}
+
+<h3>{{ t('ui.d_packs', date=c.pack_date) }}</h3>
+<table class="flags"><thead><tr><th>{{ t('ui.d_firm') }}</th><th>{{ t('ui.d_daily') }}</th><th>{{ t('ui.d_max') }}</th><th>{{ t('ui.d_trailing') }}</th><th>{{ t('ui.d_mindays') }}</th></tr></thead>
+<tbody>{% for k, p in c.packs.items() if k != 'custom' %}<tr><td><b>{{ p.name }}</b></td><td class="mono">{{ p.daily_pct }}%</td><td class="mono">{{ p.max_pct }}%</td><td>{{ '✓' if p.trailing else '—' }}</td><td class="mono">{{ p.min_days }}</td></tr>{% endfor %}</tbody></table>

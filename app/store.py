@@ -728,3 +728,95 @@ def link_events_for(owner, since_ts=0.0):
     return [dict(r) for r in db().execute(
         "SELECT e.link_id, e.stage, e.count, e.at FROM link_events e JOIN links l ON l.id = e.link_id"
         " WHERE l.owner = ? AND e.at >= ?", (str(owner), since_ts))]
+
+
+# --------------------------------------------------------------------------- #
+# #14 Drawdown sentinel: linked accounts (self-reported equity) and their log.
+# --------------------------------------------------------------------------- #
+
+SENTINEL_SCHEMA = """
+CREATE TABLE IF NOT EXISTS sentinel_accounts (
+    id                INTEGER PRIMARY KEY,
+    owner             TEXT NOT NULL,
+    name              TEXT NOT NULL,
+    firm              TEXT NOT NULL,
+    pack              TEXT NOT NULL,       -- JSON rule pack
+    token             TEXT NOT NULL UNIQUE,
+    initial_balance   REAL NOT NULL,
+    day_start_balance REAL NOT NULL,
+    day               TEXT NOT NULL,
+    equity            REAL NOT NULL,
+    peak_equity       REAL NOT NULL,
+    open_lots         REAL NOT NULL DEFAULT 0,
+    started           TEXT NOT NULL,
+    last_state        TEXT NOT NULL DEFAULT 'ok',
+    updated_at        REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sentinel_log (
+    id         INTEGER PRIMARY KEY,
+    account_id INTEGER NOT NULL,
+    at         REAL NOT NULL,
+    equity     REAL NOT NULL,
+    state      TEXT NOT NULL,
+    note       TEXT
+);
+CREATE INDEX IF NOT EXISTS sentinel_log_acc ON sentinel_log(account_id, at);
+"""
+SCHEMA += SENTINEL_SCHEMA
+
+
+def add_sentinel(owner, name, firm, pack, token, balance, today):
+    import json
+    cur = db().execute(
+        "INSERT INTO sentinel_accounts (owner, name, firm, pack, token, initial_balance, day_start_balance, day, equity, peak_equity, open_lots, started, updated_at)"
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)",
+        (str(owner), name, firm, json.dumps(pack), token, float(balance), float(balance), today, float(balance), float(balance), today, time.time()))
+    db().commit()
+    return cur.lastrowid
+
+
+def _sentinel_row(row):
+    import json
+    if row:
+        row["pack"] = json.loads(row["pack"])
+    return row
+
+
+def sentinels_for(owner):
+    return [_sentinel_row(dict(r)) for r in db().execute("SELECT * FROM sentinel_accounts WHERE owner = ? ORDER BY id", (str(owner),))]
+
+
+def sentinel_by_token(token):
+    return _sentinel_row(_row(db().execute("SELECT * FROM sentinel_accounts WHERE token = ?", (token,))))
+
+
+def sentinel_get(owner, account_id):
+    return _sentinel_row(_row(db().execute("SELECT * FROM sentinel_accounts WHERE id = ? AND owner = ?", (int(account_id), str(owner)))))
+
+
+def sentinel_update(account_id, **fields):
+    import json
+    if "pack" in fields:
+        fields["pack"] = json.dumps(fields["pack"])
+    fields["updated_at"] = time.time()
+    cols = ", ".join("%s = ?" % k for k in fields)
+    db().execute("UPDATE sentinel_accounts SET %s WHERE id = ?" % cols, (*fields.values(), int(account_id)))
+    db().commit()
+
+
+def sentinel_delete(owner, account_id):
+    db().execute("DELETE FROM sentinel_log WHERE account_id IN (SELECT id FROM sentinel_accounts WHERE id = ? AND owner = ?)", (int(account_id), str(owner)))
+    n = db().execute("DELETE FROM sentinel_accounts WHERE id = ? AND owner = ?", (int(account_id), str(owner))).rowcount
+    db().commit()
+    return n
+
+
+def sentinel_log(account_id, equity, state, note=None):
+    db().execute("INSERT INTO sentinel_log (account_id, at, equity, state, note) VALUES (?, ?, ?, ?, ?)",
+                 (int(account_id), time.time(), float(equity), state, note))
+    db().commit()
+
+
+def sentinel_history(account_id, limit=30):
+    return [dict(r) for r in db().execute("SELECT at, equity, state, note FROM sentinel_log WHERE account_id = ? ORDER BY at DESC LIMIT ?",
+                                          (int(account_id), limit))]

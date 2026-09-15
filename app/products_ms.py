@@ -175,7 +175,7 @@ MS = {
         "free_tier": "1 akaun pada 1 firm, alert pelanggaran tanpa had.",
         "problem": "Kebanyakan challenge gagal kerana melanggar peraturan, bukan strategi lemah — garisan dilepasi sebelum trader sedar.",
         "solution": "Pantau daily loss, trailing drawdown, blackout berita, lot maksimum dan consistency mengikut pek peraturan firm, dan beri amaran sebelum pelanggaran.",
-        "bot_commands": (("/sentinel link", "pautkan akaun dagangan"), ("/sentinel status", "jarak ke setiap garisan peraturan aktif"), ("/sentinel firm NAMA", "muat pek peraturan sesuatu firm")),
+        "bot_commands": (("/sentinel link NAMA FIRM BAKI", "pautkan akaun dagangan"), ("/sentinel status", "jarak ke setiap garisan peraturan aktif"), ("/sentinel firm NAMA", "muat pek peraturan sesuatu firm")),
         "dashboard_views": ("Pautan akaun dan pilihan pek peraturan", "Tolok jarak-ke-pelanggaran langsung setiap peraturan", "Sejarah pelanggaran dan log hampir-langgar"),
         "upsell": "Berbilang akaun serta webhook tutup-semua automatik.",
         "primary_why": "Seluruh nilainya ialah push yang tiba beberapa saat sebelum garisan dilepasi.",
