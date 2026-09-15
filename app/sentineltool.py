@@ -1,4 +1,13 @@
-"""#14 Drawdown Sentinel — bot commands, the ping endpoint, the dashboard context, the warnings."""
+"""#14 Drawdown Sentinel — bot commands, the ping endpoint, the dashboard context, the warnings.
+
+The breach warning is deliberately **not** behind a rank, and should stay that
+way. Everything else the ranks sell is convenience — a remembered level, a
+digest, a bigger cap — but this one line is the difference between a trader
+noticing they are two hundred dollars from a breach and losing a funded
+account. The scale here is already sold honestly by the account cap: one
+linked account free, ten on A-Team, fifty on Rambo. Charging for the warning
+itself would buy a little revenue and cost the thing the brand is for.
+"""
 
 import datetime as dt
 import secrets

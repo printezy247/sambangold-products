@@ -525,6 +525,21 @@ saving $38, $98 and $258.
 > — the saved run, the armed alert, the export — not the answer itself, which
 > stays open to Awam with no account at all.
 
+**Where the line sits.** Convenience is charged for; safety is not.
+
+| Behaviour | Rank | Why |
+|:--|:--|:--|
+| Arming a price alert | General | A remembered level is the memory the rank sells |
+| The 30-minute calendar reminder | General | Same thing: reading `/calendar` is free, being reminded is not |
+| Run history, CSV export | General | The chat log cannot be scrolled for last month |
+| **Drawdown breach warning** | **Free** | The difference between noticing and losing a funded account |
+| **Over-exposure warning** | **Free** | A risk line, not a convenience |
+
+The two risk warnings are deliberately ungated and the reasoning is written into
+`sentineltool.py` so it does not get tidied away later. Scale on those products
+is sold honestly by the account cap instead: one linked account free, ten on
+A-Team, fifty on Rambo.
+
 > [!IMPORTANT]
 > A rank never unlocks a *product*. It unlocks the **memory, automation and
 > scale** around products whose free tier is already open to everybody. The gate

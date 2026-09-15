@@ -6,11 +6,13 @@
     <a class="btn small" href="?y={{ c.next[0] }}&m={{ c.next[1] }}">→</a>
     <a class="btn btn-gold small" href="{{ url_for('views.gold_calendar_pdf') }}" download>⬇ PDF Q{{ c.quarter }}</a>
   </div>
-  {% if c.owner %}
+  {% if c.owner and c.may_subscribe %}
   <form method="post" class="inline">
     <input type="hidden" name="action" value="{{ 'cal_off' if c.subscribed else 'cal_on' }}">
     <button class="btn small {{ 'btn-ghost' if c.subscribed else 'btn-gold' }}" type="submit">{{ t('cal.btn_off' if c.subscribed else 'cal.btn_on') }}</button>
   </form>
+  {% elif c.owner %}
+  <a class="btn small" href="{{ url_for('views.pricing', want='alerts') }}" title="{{ c.upgrade }}">{{ t('cal.btn_on') }} · {{ rank_label('free') }}</a>
   {% else %}
   <span class="text-muted" style="font-size:13px">{{ t('product.signin') }}</span>
   {% endif %}
