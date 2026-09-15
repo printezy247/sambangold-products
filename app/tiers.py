@@ -5,11 +5,15 @@ labels, prices and broker doors. The keys never change; only the labels do.
 One person carries one rank across the signals site and this tool site, so the
 two tables must not drift.
 
-What differs here, deliberately: on the tools side **General is free**, because
-CLAUDE.md forbids paywalling a product at the door. The signals site charges
-for General because it sells a different thing. Paid ranks here sell scale and
-automation only — every one of the eighteen tools keeps its full free tier for
-a visitor who never signs in.
+What differs here, deliberately: General is **$19 rather than $9**, because it
+covers a different thing. On the signals site General buys signals; here it
+buys the memory around the tools — saved history, armed alerts, export — for a
+trader on their own broker. Anyone trading under Sam's broker gets the same
+rank for nothing through the broker door.
+
+CLAUDE.md's rule still holds: no product is paywalled at the door. Every one of
+the eighteen tools answers in full for a visitor who never signs in. What the
+paid ranks sell is the memory, the automation and the scale around them.
 """
 
 from dataclasses import dataclass
@@ -80,16 +84,27 @@ def limit_label(key, lang="ms"):
     return row.get(lang) or row.get("ms") or key
 
 
+FREE_MONTHS = 2      # pay for a year, get twelve months for the price of ten
+
+
 @dataclass(frozen=True)
 class Tier:
     key: str
     rank: int
     price_month_cents: int
-    price_year_cents: int
     ib_min_deposit_usd: int | None   # None = no broker door; 0 = an account with no deposit
     features: tuple = ()
     popular: bool = False
     seats: int = 0                   # extra people this rank may carry, beyond the holder
+
+    @property
+    def price_year_cents(self):
+        """Derived, never typed twice — the annual price cannot drift from the monthly one."""
+        return self.price_month_cents * (12 - FREE_MONTHS)
+
+    @property
+    def year_saving_cents(self):
+        return self.price_month_cents * FREE_MONTHS
 
     @property
     def label(self):
@@ -104,10 +119,10 @@ class Tier:
 
 
 TIERS = (
-    Tier("public", 0, 0, 0, None, PUBLIC_F),
-    Tier("free", 1, 0, 0, 0, FREE_F),
-    Tier("pro", 2, 4900, 49000, 100, PRO_F, popular=True),
-    Tier("elite", 3, 12900, 129000, 500, ELITE_F, seats=10),
+    Tier("public", 0, 0, None, PUBLIC_F),
+    Tier("free", 1, 1900, 0, FREE_F),
+    Tier("pro", 2, 4900, 100, PRO_F, popular=True),
+    Tier("elite", 3, 12900, 500, ELITE_F, seats=10),
 )
 
 BY_KEY = {t.key: t for t in TIERS}

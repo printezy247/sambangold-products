@@ -26,7 +26,6 @@ from flask import (Blueprint, abort, current_app, redirect, render_template, req
 
 from . import mailer, store
 from .brand import DEFAULT_LANG, LANGS, normalise_lang, t
-from .tiers import higher_tier
 
 bp = Blueprint("auth", __name__)
 
@@ -88,10 +87,14 @@ def session_user(user):
 
 
 def rank_for(user):
-    """Signing in is General; grants lift from there; the admin is always Rambo."""
+    """A rank is a grant, never a side effect of signing in. The admin is always Rambo.
+
+    Signing in used to floor at General. It no longer does: General is paid for,
+    or earned through the broker door, and a rank nobody paid for is not a rank.
+    """
     if _is_admin(user):
         return "elite"
-    return higher_tier("free", store.effective_tier(store.owner_key(user)))
+    return store.effective_tier(store.owner_key(user))
 
 
 def sign_in(user):

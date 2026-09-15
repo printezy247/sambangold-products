@@ -48,7 +48,7 @@ def owner_of_widget(token):
 def set_widget(owner, tool, name, tier=None):
     """Mint or update the holder's widget. (widget, error_key)."""
     owner = str(owner)
-    tier = tier or owner_tier(owner, signed_in=True)
+    tier = tier or owner_tier(owner)
     if not allows(tier, WIDGET_FEATURE):
         return None, "wl.need"
     if tool not in WIDGETS:
@@ -83,7 +83,7 @@ def hook_of(owner):
 def set_hook(owner, url, tier=None):
     """Register an endpoint. (hook, error_key). https only, and a fresh secret."""
     owner = str(owner)
-    tier = tier or owner_tier(owner, signed_in=True)
+    tier = tier or owner_tier(owner)
     if not allows(tier, HOOK_FEATURE):
         return None, "wh.need"
     url = (url or "").strip()
@@ -110,7 +110,7 @@ def deliver(owner, event, payload, post=None):
     endpoint must not cost them that.
     """
     hook = hook_of(owner)
-    if not hook or not allows(owner_tier(str(owner), signed_in=True), HOOK_FEATURE):
+    if not hook or not allows(owner_tier(str(owner)), HOOK_FEATURE):
         return None
     body = json.dumps({"event": event, "at": time.time(), "owner": str(owner), "data": payload},
                       sort_keys=True, default=str)
@@ -133,7 +133,7 @@ def bot_widget(args, chat_id=None, lang=DEFAULT_LANG, **_):
     from flask import current_app
     if not chat_id:
         return t("wl.usage", lang, tools=", ".join(WIDGETS))
-    tier = owner_tier(str(chat_id), signed_in=True)
+    tier = owner_tier(str(chat_id))
     if not allows(tier, WIDGET_FEATURE):
         from .gate import upgrade_line
         return "%s\n\n%s" % (upgrade_line(WIDGET_FEATURE, lang), t("gate.where", lang))
@@ -157,7 +157,7 @@ def bot_hook(args, chat_id=None, lang=DEFAULT_LANG, **_):
     """`/webhook https://...` registers an endpoint; `/webhook off` removes it."""
     if not chat_id:
         return t("wh.usage", lang)
-    tier = owner_tier(str(chat_id), signed_in=True)
+    tier = owner_tier(str(chat_id))
     if not allows(tier, HOOK_FEATURE):
         from .gate import upgrade_line
         return "%s\n\n%s" % (upgrade_line(HOOK_FEATURE, lang), t("gate.where", lang))

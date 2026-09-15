@@ -51,6 +51,7 @@ def test_watch_usage_and_unknown_pair(app):
 
 def test_watch_arm_list_clear_round_trip(app):
     with app.app_context():
+        store.grant_entitlement("7", "free", source="manual")    # arming is what General buys
         assert "Alert #1 armed" in reply_for("/watch XAUUSD above 2450", chat_id=7, lang="en")
         assert "#2 armed" in reply_for("/watch gold below 2380", chat_id=7, lang="en")
         listing = reply_for("/watch list", chat_id=7, lang="en")
@@ -97,7 +98,7 @@ def test_dashboard_shows_price_without_login(client):
 
 
 def test_dashboard_arm_edit_disarm_export_share_the_bot_list(app, client):
-    login(client, "42")
+    login(client, "42", rank="free")   # arming and history are what General buys
     body = client.post("/p/gold-watch", data={"action": "arm", "direction": "above", "level": "2450"}).get_data(as_text=True)
     assert "Alert #1 dipasang" in body and "2450" in body
 

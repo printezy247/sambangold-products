@@ -507,18 +507,31 @@ The ladder, the labels and the broker doors come from Sam's site
 (`printezy247/website_sam`), so one person carries one rank across both
 properties. `app/tiers.py` is the copy that this app reads.
 
-| Rank | Price | HFM door | What it adds |
+| Rank | Own broker | Broker under Sam | What it adds |
 |:--|--:|:--|:--|
-| 🪪 **Awam** / Public | Free | — | All 18 tools, full free tier, no sign-in |
-| 🎫 **General** | Free | Account, any deposit | Saved run history, CSV export, armed alerts |
-| ⚙️ **A-Team** | $49 / mo | Deposit $100+ | Continuous monitoring, daily alerts, bulk CSV, scheduled PDF reports, your own universe |
-| 🎖️ **Rambo** | $129 / mo | Deposit $500+ | Multiple seats, unlimited clients and client reports, white-label widget, outbound webhooks, priority support |
+| 🪪 **Awam** / Public | Free | Free | All 18 tools, full free tier, no sign-in |
+| 🎫 **General** | $19 / mo | Free — any account | Saved run history, CSV export, armed alerts |
+| ⚙️ **A-Team** | $49 / mo | Free — deposit $100+ | Continuous monitoring, daily alerts, bulk CSV, scheduled reports, your own universe |
+| 🎖️ **Rambo** | $129 / mo | Free — deposit $500+ | Multiple seats, unlimited clients and client reports, white-label widget, outbound webhooks, priority support |
+
+Annual is twelve months for the price of ten, **derived from the monthly price
+rather than typed twice**, so the two can never drift: $190, $490 and $1,290,
+saving $38, $98 and $258.
+
+> [!NOTE]
+> A rank is never a side effect of signing in. Signing in is free and grants
+> nothing; a rank is paid for, earned at the broker door, given by an admin, or
+> carried as a team seat. What the price buys is the **memory** around the tools
+> — the saved run, the armed alert, the export — not the answer itself, which
+> stays open to Awam with no account at all.
 
 > [!IMPORTANT]
-> A rank never unlocks a *product*. It unlocks **scale and automation** on
-> products whose free tier is already open to everybody. The gate in `app/gate.py`
-> enforces that: a blocked call answers with the free result plus one line naming
-> the rank, never an error page.
+> A rank never unlocks a *product*. It unlocks the **memory, automation and
+> scale** around products whose free tier is already open to everybody. The gate
+> in `app/gate.py` enforces that: a blocked call answers with the free result
+> plus one line naming the rank, never an error page. Ask `/watch` for the gold
+> price without an account and it answers; ask it to *remember* a level and it
+> names the rank.
 
 A rank is an **entitlement row**, not a column on the user: source (`ib`,
 `stripe`, `crypto`, `manual`), an optional expiry, and a unique external id that
@@ -591,7 +604,7 @@ site, where they are how people actually reach a paid rank.
 
 | Door | Costs | What you get |
 |:--|:--|:--|
-| 🏦 **Broker account** | Nothing | An HFM account under Sam. Deposit $100 opens A-Team, $500 opens Rambo, any account opens General. Thirty days, renewed while the account stays active. |
+| 🏦 **Broker account** | Nothing | An HFM account under Sam. Any account opens General, deposit $100 opens A-Team, $500 opens Rambo. Thirty days, renewed while the account stays active. This is why General is $19 only for a trader on their own broker. |
 | 🤝 **Referral** | Nothing | Bring one person in. When they reach a paid rank or the broker door, you move up one rank for seven days. Once per person; never reaches Rambo. |
 | 💳 **Subscription** | $49 or $129 a month | The same ranks, month to month or annually. |
 

@@ -73,7 +73,7 @@ def test_telegram_login_creates_account_and_session(app, client):
     assert r.status_code == 302 and r.headers["Location"].endswith("/dashboard")
     with client.session_transaction() as s:
         assert s["user"]["telegram_id"] == "42" and s["user"]["owner"] == "42"
-        assert s["user"]["is_admin"] is False and s["user"]["rank"] == "free"
+        assert s["user"]["is_admin"] is False and s["user"]["rank"] == "public"
     with app.app_context():
         assert store.user_by_telegram("42")["username"] == "ada"
 

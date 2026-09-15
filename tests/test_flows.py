@@ -26,6 +26,7 @@ def test_prop_flow_by_buttons_ends_in_the_same_answer_as_the_command(app):
 
 def test_watch_flow_validates_numbers_and_arms_the_alert(app):
     with app.app_context():
+        store.grant_entitlement("7", "free", source="manual")    # arming is what General buys
         handle_update(msg("/start", lang_code="ms"))
         handle_update(tap("run_gold-watch"))
         prompt = _last_send(handle_update(tap("fl_o:above")))

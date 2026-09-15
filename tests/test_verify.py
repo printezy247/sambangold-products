@@ -81,7 +81,7 @@ def test_dashboard_single_batch_history_and_share_page(client, fake_candles):
     assert client.get("/p/signal-verifier/s/1").status_code == 200
     assert client.get("/p/signal-verifier/s/99").status_code == 404
     assert client.get("/p/red-flag-scanner/s/1").status_code == 404        # a verdict is not a scan
-    login(client, "42")
+    login(client, "42", rank="free")   # the saved history is what General buys
     body = client.post("/p/signal-verifier", data={"action": "batch", "claims": "2431.5 2026-09-14 14:30\n2500 2026-09-14\n\nabc"}).get_data(as_text=True)
     assert body.count("IMPOSSIBLE") >= 1 and "REAL" in body and "mesti nombor" in body
     page = client.get("/p/signal-verifier").get_data(as_text=True)

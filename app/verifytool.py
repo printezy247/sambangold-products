@@ -94,7 +94,9 @@ def dashboard_verify(request, user=None):
         r["id"] = store.save_scan(r, owner=owner)
         ctx["results"].append(r)
     if owner:
-        ctx["history"] = store.scans_for(owner, "signal-verifier")
+        from .gate import allows, user_tier
+        if allows(user_tier(user), "history"):    # keeping a run is what General buys
+            ctx["history"] = store.scans_for(owner, "signal-verifier")
     return ctx
 
 

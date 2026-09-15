@@ -41,7 +41,7 @@
       {% if tier.price_month_cents %}
         <p class="amt">{{ fmt_usd(tier.price_month_cents) }}</p>
         <p class="per">{{ t('price.month') }} · {{ fmt_usd(tier.price_year_cents) }} {{ t('price.year') }}</p>
-        <p class="per text-gold">{{ t('price.yearly_save', usd=fmt_usd(tier.price_month_cents * 12 - tier.price_year_cents)) }}</p>
+        <p class="per text-gold">{{ t('price.yearly_save', usd=fmt_usd(tier.year_saving_cents)) }}</p>
       {% else %}
         <p class="amt text-gold">{{ t('price.free') }}</p>
         <p class="per">{{ t('price.month') }}</p>
@@ -52,9 +52,6 @@
       <div class="go">
         {% if tier.key == 'public' %}
           <a class="btn" href="{{ url_for('views.index') }}#tools">{{ t('price.cta_free') }}</a>
-        {% elif tier.key == 'free' %}
-          {% if user %}<span class="chip win">{{ t('price.current') }}</span>
-          {% else %}<a class="btn btn-gold" href="{{ url_for('auth.signin') }}">{{ t('price.cta_signin') }}</a>{% endif %}
         {% else %}
           <a class="holo-btn" href="#pintu">{{ t('price.cta_pay', rank=rank_label(tier.key)) }}</a>
         {% endif %}
@@ -63,6 +60,7 @@
     {% endfor %}
   </div>
   <p class="lede" style="margin-top:14px">{{ t('price.year_note') }}</p>
+  <p class="lede">{{ t('price.g_note', usd=fmt_usd(tier_by_key('free').price_month_cents)) }}</p>
 </section>
 
 <section class="wrap" id="percuma">
@@ -102,7 +100,7 @@
   <p class="notice">{{ t('price.soon') }}</p>
   <div class="scroll">
     <table class="doors">
-      <tr><th>{{ t('price.title') }}</th><th>{{ t('price.ib_h') }}</th><th>{{ t('price.month') }}</th></tr>
+      <tr><th>{{ t('price.title') }}</th><th>{{ t('price.sam_broker') }}</th><th>{{ t('price.own_broker') }}</th></tr>
       {% for tier in tiers %}
       <tr>
         <td><b>{{ rank_label(tier.key) }}</b></td>

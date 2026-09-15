@@ -211,7 +211,7 @@ def run_due(send, now=None, cadences=("daily", "weekly", "monthly")):
             continue
         period = PERIOD[cadence](now)
         for owner in store.owners_by_setting(slug, SETTING, "on"):
-            if not allows(owner_tier(owner, signed_in=True), feature):
+            if not allows(owner_tier(owner), feature):
                 skipped += 1
                 continue
             if store.get_setting(slug, owner, "ap_sent") == period:
@@ -261,7 +261,7 @@ def bot_autopilot(args, chat_id=None, lang=DEFAULT_LANG, **_):
     for slug in DAILY:
         key = "ap.list_on" if subscribed(chat_id, slug) else "ap.list_off"
         lines.append("%s  <code>%s</code>" % (t(key, lang, name=_name(slug, lang)), slug))
-    reports = [s for s in REPORTS if allows(owner_tier(str(chat_id), signed_in=True), REPORT_FEATURE)]
+    reports = [s for s in REPORTS if allows(owner_tier(str(chat_id)), REPORT_FEATURE)]
     if reports:
         lines += ["", t("rp.head", lang)]
         for slug in reports:
