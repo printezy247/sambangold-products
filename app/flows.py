@@ -38,6 +38,10 @@ FLOWS = {
     "gold-calendar": [],
     "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
     "churn-radar": [],
+    "link-attribution": [
+        S("channel", "flow.lk_channel"),
+        S("url", "flow.lk_url", optional=True),
+    ],
     "broker-comparator": [
         S("lots", "flow.bc_lots", number=True, options=(("0.1", "0.1"), ("0.5", "0.5"), ("1", "1"), ("5", "5"))),
         S("nights", "flow.bc_nights", number=True, options=(("0", "0"), ("1", "1"), ("5", "5"), ("20", "20"))),
@@ -81,6 +85,8 @@ def build(slug, a):
         return "/ibchurn"
     if slug == "broker-comparator":
         return "/goldspread %s %s" % (a["lots"], a["nights"])
+    if slug == "link-attribution":
+        return ("/newlink %s %s" % (a["channel"], a.get("url") or "")).strip()
     if slug == "bot-scam-detector":
         return ("/audit %s %s" % (a["handle"], a.get("text") or "")).strip()
     if slug == "copy-trade-audit":

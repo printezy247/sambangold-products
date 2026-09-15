@@ -263,13 +263,13 @@ PRODUCTS = (
     ),
     Product(
         number=13, slug="link-attribution", name="IB Link Attribution & Funnel Tracker",
-        vertical="Gold IB", emoji="🥇", status="proposed", primary="dashboard",
+        vertical="Gold IB", emoji="🥇", status="shipped", primary="dashboard",
         primary_why="Link management and a funnel need a page; the bot mints links and reports daily.",
         free_tier="3 tracked links, full funnel view.",
         problem="Broker portals report signups but never where they came from, so the IB cannot tell which channel pays.",
         solution="Per-channel short links tracking post, click, signup, first deposit and first lot.",
         bot_commands=(
-            ("/newlink CHANNEL", "mint a tracked short link"),
+            ("/newlink CHANNEL [URL]", "mint a tracked short link"),
             ("/funnel", "today's clicks, signups, deposits, first lots"),
         ),
         dashboard_views=(

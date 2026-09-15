@@ -1,0 +1,82 @@
+{% set c = tool %}
+<h2>{{ t('ui.k_h') }}</h2>
+<p class="lede">{{ t('ui.k_lede') }}</p>
+{% if not c.owner %}
+<p class="soon">{{ t('ui.k_signin') }}</p>
+{% else %}
+<form method="post" class="panel tool">
+  <input type="hidden" name="action" value="create">
+  <div class="fields">
+    <label>{{ t('ui.k_channel') }} <input name="channel" value="{{ c.form.get('channel', '') }}" placeholder="telegram" required></label>
+    <label>{{ t('ui.k_url') }} <input name="url" value="{{ c.form.get('url', c.default_url) }}" placeholder="https://broker.example/?refid=12345"></label>
+  </div>
+  <div class="actions"><button type="submit">{{ t('ui.k_make') }}</button></div>
+  {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+  {% if c.links|length >= c.free %}<p class="soon">{{ t('ui.k_free', n=c.free) }}</p>{% endif %}
+</form>
+
+{% if c.links %}
+<table class="flags">
+  <thead><tr><th>{{ t('ui.k_channel') }}</th><th>{{ t('ui.k_short') }}</th><th>→</th><th></th></tr></thead>
+  <tbody>
+  {% for l in c.links %}
+    <tr><td><b>{{ l.channel }}</b></td><td class="mono"><a href="{{ c.short(l.code) }}">{{ c.short(l.code) }}</a></td>
+        <td class="text-muted" style="font-size:12px;word-break:break-all">{{ l.url }}</td>
+        <td><form method="post" class="inline"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ l.id }}"><button class="ghost small" type="submit">{{ t('ui.k_del') }}</button></form></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="lede">{{ t('ui.k_nolinks') }}</p>{% endif %}
+
+{% if c.funnel %}
+{% set f = c.funnel %}
+<h2>{{ t('ui.k_funnel') }} <span class="text-muted" style="font-size:13px">· {{ t('ui.k_range') }}:
+  {% for r in c.ranges %}<a href="?range={{ r }}" {% if r|int == c.days %}style="color:var(--gold)"{% endif %}>{{ t('ui.k_days', n=r) }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</span></h2>
+<div class="stats">
+  <div class="stat glass"><span>{{ t('ui.k_clicks') }}</span><b>{{ f.total.click }}</b><small>{{ t('ui.k_days', n=c.days) }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.k_signups') }}</span><b>{{ f.total.signup }}</b><small>→ {{ t('ui.k_deposits')|lower }} {{ f.total.deposit }}</small></div>
+  <div class="stat glass positive"><span>{{ t('ui.k_lots') }}</span><b>{{ f.total.first_lot }}</b><small>{{ t('ui.k_conv') }}: {% if f.total.click_to_lot is not none %}{{ '%.1f' % (f.total.click_to_lot * 100) }}%{% else %}—{% endif %}</small></div>
+  <div class="stat glass warn"><span>{{ t('ui.k_best') }}</span><b style="font-size:18px">{% if f.rows and (f.rows[0].first_lot or f.rows[0].deposit or f.rows[0].signup or f.rows[0].click) %}{{ f.rows[0].channel }}{% else %}{{ t('ui.k_none') }}{% endif %}</b><small>{% if f.rows %}{{ f.rows[0].click }}/{{ f.rows[0].signup }}/{{ f.rows[0].deposit }}/{{ f.rows[0].first_lot }}{% endif %}</small></div>
+</div>
+
+{% if f.rows %}
+<h3>{{ t('ui.k_table') }}</h3>
+<table class="flags">
+  <thead><tr><th>{{ t('ui.k_channel') }}</th><th>{{ t('ui.k_clicks') }}</th><th>{{ t('ui.k_signups') }}</th><th>{{ t('ui.k_deposits') }}</th><th>{{ t('ui.k_lots') }}</th><th>{{ t('ui.k_ctr1') }}</th><th>{{ t('ui.k_ctr2') }}</th><th>{{ t('ui.k_ctr3') }}</th><th>{{ t('ui.k_conv') }}</th></tr></thead>
+  <tbody>
+  {% for r in f.rows %}
+    <tr><td><b>{{ r.channel }}</b></td><td class="mono">{{ r.click }}</td><td class="mono">{{ r.signup }}</td><td class="mono">{{ r.deposit }}</td><td class="mono"><b>{{ r.first_lot }}</b></td>
+        {% for k in ('ctr_signup','ctr_deposit','ctr_lot','click_to_lot') %}<td class="mono">{% if r[k] is not none %}{{ '%.0f' % (r[k] * 100) }}%{% else %}—{% endif %}</td>{% endfor %}</tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<div class="halves" style="margin-top:28px">
+  <div class="lux" style="padding:22px">
+    <h3 style="margin-top:0">{{ t('ui.k_log_h') }}</h3>
+    <p class="text-muted" style="font-size:14px">{{ t('ui.k_log_lede') }}</p>
+    <form method="post">
+      <input type="hidden" name="action" value="stage">
+      <div class="fields">
+        <label>{{ t('ui.k_channel') }}<select name="channel">{% for l in c.links %}<option value="{{ l.channel }}">{{ l.channel }}</option>{% endfor %}</select></label>
+        <label>{{ t('ui.k_stage') }}<select name="stage">{% for s in c.stages %}<option value="{{ s }}">{{ t('ui.k_s_' ~ s) }}</option>{% endfor %}</select></label>
+        <label>{{ t('ui.k_count') }} <input name="count" value="1"></label>
+      </div>
+      <div class="actions"><button type="submit">{{ t('ui.k_log') }}</button></div>
+    </form>
+    {% if c.notice == 'logged' %}<p class="soon">✓</p>{% endif %}
+  </div>
+  <div class="lux" style="padding:22px">
+    <h3 style="margin-top:0">{{ t('ui.k_csv_h') }}</h3>
+    <p class="text-muted" style="font-size:14px">{{ t('ui.k_csv_lede') }}</p>
+    <form method="post">
+      <input type="hidden" name="action" value="import">
+      <textarea name="report" rows="5" placeholder="{{ t('ui.k_csv_ph') }}"></textarea>
+      <div class="actions"><button type="submit">{{ t('ui.k_import') }}</button></div>
+    </form>
+    {% if c.notice and c.notice not in ('created', 'logged') %}<p class="soon">{{ c.notice }}</p>{% endif %}
+  </div>
+</div>
+{% endif %}
+{% endif %}

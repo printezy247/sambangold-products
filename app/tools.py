@@ -15,6 +15,7 @@ from .caltool import bot_calendar, bot_calendar_alert, dashboard_calendar
 from .scantool import (bot_audit, bot_copyaudit, bot_influencer, bot_scan, dashboard_botscam,
                        dashboard_copyaudit, dashboard_influencer, dashboard_redflag)
 from .brokertool import bot_goldspread, dashboard_brokers
+from .linktool import bot_funnel, bot_newlink, dashboard_links
 from .churntool import bot_ibchurn, dashboard_churn
 from .rebatetool import bot_rebateaudit, bot_rebatestatus, dashboard_rebate
 from .verifytool import bot_verify, dashboard_verify
@@ -141,9 +142,11 @@ BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc,
        "calendar": bot_calendar, "calendar_alert": bot_calendar_alert,
        "audit": bot_audit, "copyaudit": bot_copyaudit, "scan": bot_scan, "influencer": bot_influencer,
        "verify": bot_verify, "rebateaudit": bot_rebateaudit, "rebatestatus": bot_rebatestatus,
-       "ibchurn": bot_ibchurn, "goldspread": bot_goldspread}
+       "ibchurn": bot_ibchurn, "goldspread": bot_goldspread,
+       "newlink": bot_newlink, "funnel": bot_funnel}
 DASHBOARD = {"gold-watch": dashboard_watch, "gold-calendar": dashboard_calendar,
              "prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib,
              "bot-scam-detector": dashboard_botscam, "copy-trade-audit": dashboard_copyaudit,
              "red-flag-scanner": dashboard_redflag, "influencer-audit": dashboard_influencer,
-             "signal-verifier": dashboard_verify, "rebate-auditor": dashboard_rebate, "churn-radar": dashboard_churn, "broker-comparator": dashboard_brokers}
+             "signal-verifier": dashboard_verify, "rebate-auditor": dashboard_rebate, "churn-radar": dashboard_churn, "broker-comparator": dashboard_brokers,
+             "link-attribution": dashboard_links}

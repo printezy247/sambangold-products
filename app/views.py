@@ -6,10 +6,10 @@ import io
 import os
 import time
 
-from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
+from flask import (Blueprint, Response, abort, current_app, jsonify, redirect, render_template, request,
                    send_from_directory, session)
 
-from . import brokertool, caltool, feeds, rebatetool, scan, scantool, store, telegram, verifytool, watch
+from . import brokertool, caltool, feeds, linktool, rebatetool, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -135,6 +135,15 @@ def influencer_loss_report():
                             f.get("date", ""), f.get("story", ""), f.get("broker", ""))
     return Response(body, mimetype="text/plain",
                     headers={"Content-Disposition": "attachment; filename=scam-loss-report.txt"})
+
+
+@bp.route("/l/<code>")
+def short_link(code):
+    """Tracked short link: count the click, send them on."""
+    target = linktool.redirect_target(code)
+    if not target:
+        abort(404)
+    return redirect(target, code=302)
 
 
 @bp.route("/p/broker-comparator/card/<code>")
