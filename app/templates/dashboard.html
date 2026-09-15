@@ -1,6 +1,18 @@
 {% extends "base.html" %}
 {% block title %}{{ t('dash.title') }}{% endblock %}
 {% block body %}
+{% macro ap_row(slug) %}
+        <tr>
+          <td><b>{{ ap.name(slug) }}</b></td>
+          <td>{% if ap.subs.get(slug) %}<span class="chip win">{{ t('ui.ap_on') }}</span>
+              {% else %}<span class="chip">{{ t('ui.ap_off') }}</span>{% endif %}</td>
+          <td><form method="post" action="{{ url_for('views.dashboard') }}#autopilot">
+            <input type="hidden" name="slug" value="{{ slug }}">
+            <button class="btn small" type="submit">{% if ap.subs.get(slug) %}{{ t('ui.ap_off') }}{% else %}{{ t('ui.ap_on') }}{% endif %}</button>
+          </form></td>
+        </tr>
+{% endmacro %}
+
 <div class="wrap" style="padding-top:56px">
   <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
     <div>
@@ -50,18 +62,15 @@
       <a class="btn btn-gold" href="{{ url_for('views.pricing', want='autopilot') }}">{{ t('price.cta_pay', rank=rank_label('pro')) }}</a>
     {% else %}
       <table class="flags">
-        {% for slug in ap.slugs %}
-        <tr>
-          <td><b>{{ by_slug[slug].view(lang).emoji }} {{ by_slug[slug].view(lang).name }}</b></td>
-          <td>{% if ap.subs.get(slug) %}<span class="chip win">{{ t('ui.ap_on') }}</span>
-              {% else %}<span class="chip">{{ t('ui.ap_off') }}</span>{% endif %}</td>
-          <td><form method="post" action="{{ url_for('views.dashboard') }}#autopilot">
-            <input type="hidden" name="slug" value="{{ slug }}">
-            <button class="btn small" type="submit">{% if ap.subs.get(slug) %}{{ t('ui.ap_off') }}{% else %}{{ t('ui.ap_on') }}{% endif %}</button>
-          </form></td>
-        </tr>
-        {% endfor %}
+        {% for slug in ap.slugs %}{{ ap_row(slug) }}{% endfor %}
       </table>
+      <h4 style="margin:22px 0 4px">📄 {{ t('ui.rp_h') }}</h4>
+      <p class="text-muted" style="margin:0 0 12px">{{ t('ui.rp_sub') }}</p>
+      {% if ap.reports_ok %}
+      <table class="flags">
+        {% for slug in ap.reports %}{{ ap_row(slug) }}{% endfor %}
+      </table>
+      {% else %}<p class="text-muted">{{ t('ui.rp_need') }}</p>{% endif %}
     {% endif %}
   </div>
 

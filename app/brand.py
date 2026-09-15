@@ -82,6 +82,16 @@ STRINGS = {
         "land.h1_h": "Buka bot, tekan /start", "land.h1_b": "Pilih bahasa sekali. Menu alat muncul sebagai butang.",
         "land.h2_h": "Jawab dengan butang", "land.h2_b": "Bot tanya satu perkara pada satu masa — yuran, saiz akaun, ticker — dan bina arahan sendiri.",
         "land.h3_h": "Jawapan dalam chat, sejarah di dashboard", "land.h3_b": "Alert masuk ke Telegram. Sejarah, tetapan dan eksport CSV/PDF ada di halaman alat, dengan akaun Telegram yang sama.",
+        # reports (A-Team)
+        "ap.c_weekly": "mingguan", "ap.c_monthly": "bulanan",
+        "rp.head": "📄 <b>Laporan</b> — ringkasan berkala daripada larian anda sendiri.",
+        "rp.risk": "🌐 <b>Laporan risiko mingguan</b>",
+        "rp.book": "🤝 <b>Skorkad buku mingguan</b> — {n} daripada {total} klien perlu perhatian.",
+        "rp.rebate": "💰 <b>Audit rebate mingguan</b>",
+        "rp.forecast": "📈 <b>Unjuran {month}</b>\nBersih sebulan <b>${net:,.0f}</b> · setahun <b>${year:,.0f}</b> · {clients} klien",
+        "rp.none": "Laporan membaca larian anda sendiri. Jalankan alat itu sekali dahulu.",
+        "ui.rp_h": "Laporan berjadual", "ui.rp_sub": "Ringkasan mingguan dan bulanan, dibina daripada larian terakhir anda. Tiada larian, tiada laporan.",
+        "ui.rp_need": "Laporan berjadual ialah ciri A-Team.",
         # autopilot (A-Team)
         "ap.head": "🛰️ <b>Autopilot</b> — alat yang bertanya untuk anda, sekali sehari.",
         "ap.list_on": "✅ <b>{name}</b> — hidup", "ap.list_off": "⭕ <b>{name}</b> — mati",
@@ -571,6 +581,16 @@ STRINGS = {
         "land.h1_h": "Open the bot, press /start", "land.h1_b": "Pick a language once. The tool menu appears as buttons.",
         "land.h2_h": "Answer with buttons", "land.h2_b": "The bot asks one thing at a time — fee, account size, ticker — and builds the command itself.",
         "land.h3_h": "Answer in the chat, history on the dashboard", "land.h3_b": "Alerts land in Telegram. History, settings and CSV/PDF export live on the tool's page, under the same Telegram account.",
+        # reports (A-Team)
+        "ap.c_weekly": "weekly", "ap.c_monthly": "monthly",
+        "rp.head": "📄 <b>Reports</b> — periodic summaries built from your own runs.",
+        "rp.risk": "🌐 <b>Weekly risk report</b>",
+        "rp.book": "🤝 <b>Weekly book scorecard</b> — {n} of {total} clients need attention.",
+        "rp.rebate": "💰 <b>Weekly rebate audit</b>",
+        "rp.forecast": "📈 <b>{month} forecast</b>\nNet per month <b>${net:,.0f}</b> · per year <b>${year:,.0f}</b> · {clients} clients",
+        "rp.none": "A report reads your own runs. Run the tool once first.",
+        "ui.rp_h": "Scheduled reports", "ui.rp_sub": "Weekly and monthly summaries, built from your last run. No run, no report.",
+        "ui.rp_need": "Scheduled reports are an A-Team capability.",
         # autopilot (A-Team)
         "ap.head": "🛰️ <b>Autopilot</b> — the tools ask for you, once a day.",
         "ap.list_on": "✅ <b>{name}</b> — on", "ap.list_off": "⭕ <b>{name}</b> — off",

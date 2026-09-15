@@ -133,6 +133,11 @@ def dashboard_ib(request, user=None):
             "first_cash": ("%d days" % r["first_cash_days"]) if r["first_cash_days"] else "never",
         })
         ctx["saved"] = session["saves"]["ib-revenue-calculator"]
+        if user:    # a durable run, so the monthly forecast has something to read
+            from . import store
+            store.save_run("ib-revenue-calculator",
+                           {k: v for k, v in r.items() if k != "timeline"},
+                           owner=user["owner"], label=form.get("broker") or "", metric=r["net"])
     return ctx
 
 

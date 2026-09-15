@@ -549,6 +549,23 @@ answer to Telegram.
 The switch survives a lapsed rank. Pushes stop the day the rank lapses and
 resume the day it comes back, with nothing to set up again.
 
+#### 📄 Scheduled reports
+
+Four more switches on the same registry, on a slower clock. A report reads what
+you already ran; it never invents a run, so an untouched tool stays silent
+rather than reporting on nothing.
+
+| Report | Every | Built from |
+|:--|:--|:--|
+| 🌐 Weekly risk report | week | Your last exposure snapshot (#16) |
+| 🤝 Weekly book scorecard | week | Your last churn scan — only the clients at risk (#11) |
+| 💰 Weekly rebate audit | week | Your last reconciliation run (#10) |
+| 📈 Monthly forecast | month | Your last IB revenue model (#8) |
+
+Periods are ISO weeks and calendar months, so a year boundary cannot fire a
+report twice, and a period that produced nothing still counts as done. A quiet
+month cannot pile up into a burst on the day something finally happens.
+
 #### 📏 The caps a rank raises
 
 The other half of "paid ranks sell scale". Every number below was already a hard
@@ -626,7 +643,7 @@ enforces, so the page cannot promise a number the gate does not honour.
 - [x] **Rank spine** — entitlements, the gate on both surfaces, `/pricing`, admin grants
 - [x] **A-Team autopilot** — daily standing questions on five tools, on both surfaces
 - [x] **A-Team scale** — every free cap is now rank-aware, published on the ranks page
-- [ ] **A-Team reports** — weekly scorecards and scheduled PDF reports
+- [x] **A-Team reports** — weekly scorecards and a monthly forecast, on the same registry
 - [ ] **Rambo scale** — seats, client reports, white-label widget, outbound webhooks
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
