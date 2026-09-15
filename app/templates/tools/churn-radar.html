@@ -1,0 +1,77 @@
+{% set c = tool %}
+<h2>{{ t('ui.n_h') }}</h2>
+<p class="lede">{{ t('ui.n_lede') }}</p>
+<form method="post" enctype="multipart/form-data" class="panel tool">
+  <input type="hidden" name="action" value="run">
+  <div class="fields">
+    <label>{{ t('ui.n_rate') }} <input name="rate" value="{{ c.form.get('rate', 6) }}" placeholder="6"></label>
+    <label>{{ t('ui.n_asof') }} <input name="as_of" value="{{ c.form.get('as_of', '') }}" placeholder="2026-09-14"></label>
+  </div>
+  <label class="wide" style="display:block;margin-top:14px">{{ t('ui.n_log') }}
+    <textarea name="log" rows="7" placeholder="account,close_time,symbol,lots,profit,balance&#10;2001,2026-09-01 14:02,XAUUSD,1.0,40,5000">{{ c.form.get('log', '') }}</textarea>
+    <small class="text-muted">{{ t('ui.r_file') }}</small> <input type="file" name="log" accept=".csv,text/csv">
+  </label>
+  <div class="actions">
+    <button type="submit">{{ t('ui.n_run') }}</button>
+    <button type="submit" name="action" value="sample" class="ghost">{{ t('ui.n_sample') }}</button>
+  </div>
+  {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+  {% if not c.owner %}<p class="soon">{{ t('ui.n_norun') }}</p>{% endif %}
+</form>
+
+{% if c.run %}
+{% set s = c.run.summary %}
+<div class="stats">
+  <div class="stat glass"><span>{{ t('ui.n_clients') }}</span><b>{{ s.clients }}</b><small>{{ t('ui.n_bands', risk=s.risk, watch=s.watch, healthy=s.healthy) }}</small></div>
+  <div class="stat glass {{ 'negative' if s.at_risk > 0 else 'positive' }}"><span>{{ t('ui.n_at_risk') }}</span><b>${{ '{:,.0f}'.format(s.at_risk) }}</b><small>{{ t('ui.n_rev', rev=s.revenue_recent) }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.r_period') }}</span><b style="font-size:18px">{{ s.as_of }}</b><small>${{ '%g' % s.rate }} / lot</small></div>
+</div>
+
+{% if c.client %}
+{% set k = c.client %}
+<h3>{{ t('ui.n_detail') }} · <code>{{ k.account }}</code> <a class="text-muted" style="font-size:13px;margin-left:10px" href="?">{{ t('ui.n_back') }}</a></h3>
+<div class="stats">
+  <div class="stat glass {{ 'negative' if k.band == 'risk' else ('warn' if k.band == 'watch' else 'positive') }}"><span>{{ t('ui.n_prob') }}</span><b>{{ c.icon[k.band] }} {{ k.prob }}%</b><small>{{ t('chn.band_' ~ k.band) }} · ${{ '{:,.0f}'.format(k.at_risk) }}</small></div>
+  {% for sig in ('decay','dormancy','martingale','stress') %}
+  <div class="stat glass {{ 'warn' if k[sig] >= 50 else '' }}"><span>{{ t('chn.f_' ~ sig) }}</span><b>{{ k[sig] }}%</b><small>{% if sig == 'decay' %}{{ '%g' % k.lots_recent }} vs {{ '%g' % k.lots_prior }} lot{% elif sig == 'dormancy' %}{{ k.days_since }} {{ t('ui.n_days') }} · {{ k.last_at }}{% elif sig == 'martingale' %}{{ k.trades }} trades{% else %}streak {{ k.worst_streak }} · DD ${{ '{:,.0f}'.format(k.drawdown) }}{% endif %}</small></div>
+  {% endfor %}
+</div>
+{% if k.flags %}
+<ul class="tight">{% for f in k.flags %}<li><b>{{ c.interventions[f][0] }}</b> {{ c.interventions[f][1] }}</li>{% endfor %}</ul>
+{% endif %}
+{% if c.owner %}
+<h3>{{ t('ui.n_log_h') }}</h3>
+<form method="post" class="panel tool">
+  <input type="hidden" name="action" value="note"><input type="hidden" name="account" value="{{ k.account }}">
+  <label class="wide" style="display:block">{{ t('ui.n_note') }}<textarea name="note" rows="3" placeholder="{{ t('ui.n_note_ph') }}"></textarea></label>
+  <div class="actions"><button type="submit">{{ t('ui.n_add') }}</button></div>
+</form>
+{% if c.notes %}
+<table class="flags"><thead><tr><th>{{ t('ui.when') }}</th><th>{{ t('ui.n_note') }}</th></tr></thead>
+<tbody>{% for n in c.notes %}<tr><td class="mono">{{ n.created_at|utc }}</td><td>{{ n.note }}</td></tr>{% endfor %}</tbody></table>
+{% else %}<p class="lede">{{ t('ui.n_nonotes') }}</p>{% endif %}
+{% endif %}
+{% endif %}
+
+<h3>{{ t('ui.n_book') }}</h3>
+<table class="flags">
+  <thead><tr><th></th><th>{{ t('ui.r_account') }}</th><th>{{ t('ui.n_prob') }}</th><th>{{ t('ui.n_at_risk') }}</th><th>{{ t('ui.n_lots30') }}</th><th>{{ t('ui.n_since') }}</th><th>{{ t('ui.n_signals') }}</th><th></th></tr></thead>
+  <tbody>
+  {% for k in c.run.clients[:c.free] %}
+    <tr>
+      <td>{{ c.icon[k.band] }}</td><td class="mono">{{ k.account }}</td><td class="mono"><b>{{ k.prob }}%</b></td>
+      <td class="mono">${{ '{:,.0f}'.format(k.at_risk) }}</td><td class="mono">{{ '%g' % k.lots_recent }} <span class="text-muted">/ {{ '%g' % k.lots_prior }} {{ t('ui.n_prior') }}</span></td>
+      <td class="mono">{{ k.days_since }} {{ t('ui.n_days') }}</td><td>{{ c.flags(k, lang) }}</td>
+      <td><a class="btn small" href="?account={{ k.account }}">{{ t('ui.n_open') }}</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if c.run.clients|length > c.free %}<p class="soon">{{ t('ui.n_free', n=c.run.clients|length - c.free) }}</p>{% endif %}
+{% endif %}
+
+{% if c.owner and c.runs %}
+<h3>{{ t('ui.n_runs') }}</h3>
+<table class="flags"><thead><tr><th>#</th><th>{{ t('ui.r_period') }}</th><th>{{ t('ui.n_at_risk') }}</th><th>{{ t('ui.when') }}</th></tr></thead>
+<tbody>{% for r in c.runs %}<tr><td class="mono">{{ r.id }}</td><td>{{ r.label }}</td><td class="mono">${{ '{:,.0f}'.format(r.metric or 0) }}</td><td class="mono">{{ r.created_at|utc }}</td></tr>{% endfor %}</tbody></table>
+{% endif %}

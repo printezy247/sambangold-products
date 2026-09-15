@@ -45,15 +45,18 @@ half, on one Telegram account, with the same free tier on each.
 | Command | Does |
 |:--|:--|
 | `/ibchurn` | top clients at risk right now |
-| `/ibchurn @client` | single client detail and signal breakdown |
+| `/ibchurn ACCOUNT` | single client detail, the four signals, the suggested intervention |
 
 ---
 
 ## Dashboard views
 
-- Book overview ranked by 30-day blow-up probability
-- Per-client signal breakdown and history
-- Intervention log — what was tried and what it did
+- Paste or upload the client trade log (account, close time, symbol, lots, profit; balance optional), rebate rate, as-of date; one-click sample book
+- Book overview ranked by revenue at risk (probability × recent lots × rate), 10 clients on the free tier
+- Per-client signal breakdown — volume decay, dormancy, martingale, stress — with the suggested intervention per flag
+- Intervention log per client (signed in) and run history
+
+**Live.** Signals are rule-based on the trade log alone: volume decay compares the last 30 days with the 30 before; dormancy compares the quiet gap with the client's own typical gap; martingale counts lot-size steps after losing trades; stress blends the longest losing streak with the drawdown of the running P&L against balance. The probability is half the weighted blend and half the loudest signal, so one clear pattern is enough to surface a client.
 
 ## Monetization
 
@@ -64,9 +67,8 @@ half, on one Telegram account, with the same free tier on each.
 
 ## Data sources
 
-- Client trade log / volume feed
-- Account equity and margin snapshots
-- Session timestamps
+- Client trade log export from the partner portal (the only input)
+- Balance column when present, for drawdown against equity
 
 ---
 

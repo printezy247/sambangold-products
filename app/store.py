@@ -540,3 +540,76 @@ def rebate_runs_for(owner, limit=20):
 def last_rebate_run(owner):
     row = _row(db().execute("SELECT id FROM rebate_runs WHERE owner = ? ORDER BY created_at DESC LIMIT 1", (str(owner),)))
     return get_rebate_run(row["id"]) if row else None
+
+
+# --------------------------------------------------------------------------- #
+# Generic archive for dashboard-led tools (#11 onwards): one row per run,
+# plus free-text notes keyed by product + subject (the intervention log).
+# --------------------------------------------------------------------------- #
+
+RUNS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS tool_runs (
+    id         INTEGER PRIMARY KEY,
+    product    TEXT NOT NULL,
+    owner      TEXT,
+    label      TEXT,
+    metric     REAL,
+    run        TEXT NOT NULL,
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS tool_runs_owner ON tool_runs(product, owner, created_at);
+CREATE TABLE IF NOT EXISTS notes (
+    id         INTEGER PRIMARY KEY,
+    product    TEXT NOT NULL,
+    owner      TEXT NOT NULL,
+    subject    TEXT NOT NULL,
+    note       TEXT NOT NULL,
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS notes_owner ON notes(product, owner, subject, created_at);
+"""
+SCHEMA += RUNS_SCHEMA
+
+
+def save_run(product, run, owner=None, label="", metric=None):
+    import json
+    cur = db().execute("INSERT INTO tool_runs (product, owner, label, metric, run, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                       (product, str(owner) if owner else None, label, metric, json.dumps(run, default=str), time.time()))
+    db().commit()
+    return cur.lastrowid
+
+
+def get_run(run_id):
+    import json
+    row = _row(db().execute("SELECT * FROM tool_runs WHERE id = ?", (int(run_id),)))
+    if row:
+        row["run"] = json.loads(row["run"])
+    return row
+
+
+def runs_for(product, owner, limit=20):
+    return [dict(r) for r in db().execute(
+        "SELECT id, label, metric, created_at FROM tool_runs WHERE product = ? AND owner = ? ORDER BY created_at DESC LIMIT ?",
+        (product, str(owner), limit))]
+
+
+def last_run(product, owner):
+    row = _row(db().execute("SELECT id FROM tool_runs WHERE product = ? AND owner = ? ORDER BY created_at DESC LIMIT 1",
+                            (product, str(owner))))
+    return get_run(row["id"]) if row else None
+
+
+def add_note(product, owner, subject, note):
+    db().execute("INSERT INTO notes (product, owner, subject, note, created_at) VALUES (?, ?, ?, ?, ?)",
+                 (product, str(owner), subject, note.strip(), time.time()))
+    db().commit()
+
+
+def notes_for(product, owner, subject=None, limit=50):
+    if subject is None:
+        return [dict(r) for r in db().execute(
+            "SELECT subject, note, created_at FROM notes WHERE product = ? AND owner = ? ORDER BY created_at DESC LIMIT ?",
+            (product, str(owner), limit))]
+    return [dict(r) for r in db().execute(
+        "SELECT subject, note, created_at FROM notes WHERE product = ? AND owner = ? AND subject = ? ORDER BY created_at DESC LIMIT ?",
+        (product, str(owner), subject, limit))]
