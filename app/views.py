@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make_response, redirect,
                    render_template, request, send_from_directory, session, url_for)
 
-from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, linktool, mctool, perks, rebatetool, scan, scantool,
+from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, howto, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
@@ -155,7 +155,8 @@ def product(slug):
     tool = build(request, user=user) if build else None
     mine = (user or {}).get("rank") or "public"
     return render_template("product.html", p=item, tool=tool, money=money, pct=pct,
-                           mine=mine, perks=perks.for_product(slug, mine, ui_lang()))
+                           mine=mine, perks=perks.for_product(slug, mine, ui_lang()),
+                           howto=howto.for_product(slug, ui_lang()))
 
 
 @bp.route("/p/gold-watch/history.csv")

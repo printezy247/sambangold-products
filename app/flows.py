@@ -12,16 +12,47 @@ from . import store
 from .brand import DEFAULT_LANG, t
 
 
-def S(key, prompt, options=(), number=False, optional=False, text=True, when=None):
+def S(key, prompt, options=(), number=False, optional=False, text=True, when=None,
+      live=None, example=None):
+    """One question.
+
+    `live` is a callable returning buttons built from data we already have —
+    the gold price right now, say — so the commonest answers are a tap instead
+    of a number someone has to know. `example` fills the step with something
+    real, so no step is ever a blank box with no way forward.
+    """
     return {"key": key, "prompt": prompt, "options": tuple(options), "number": number,
-            "optional": optional, "text": text, "when": when}
+            "optional": optional, "text": text, "when": when, "live": live, "example": example}
+
+
+def _gold_levels():
+    """Buttons around the live gold price. Empty when the feed is down."""
+    from . import feeds
+    try:
+        mid = feeds.gold_quote()["mid"]
+    except Exception:
+        return ()
+    return tuple(("%s%d (%+d)" % ("$", round(mid + d), d) if d else "$%d (now)" % round(mid), "%d" % round(mid + d))
+                 for d in (0, 10, 25, -10, -25))
+
+
+def _gold_now():
+    from . import feeds
+    try:
+        q = feeds.gold_quote()
+    except Exception:
+        return ()
+    return (("Bid $%.2f" % q["bid"], "%.2f" % q["bid"]),
+            ("Ask $%.2f" % q["ask"], "%.2f" % q["ask"]),
+            ("Mid $%.2f" % q["mid"], "%.2f" % q["mid"]))
 
 
 FLOWS = {
     "gold-watch": [
         S("mode", "flow.watch_mode", text=False,
           options=(("flow.watch_price", "price"), ("flow.watch_above", "above"), ("flow.watch_below", "below"))),
-        S("level", "flow.watch_level", number=True, when=lambda a: a.get("mode") != "price"),
+        S("level", "flow.watch_level", number=True, live=_gold_levels, example="2450",
+          when=lambda a: a.get("mode") != "price"),   # example so a dead feed is never a blank box
     ],
     "prop-calculator": [
         S("fee", "flow.prop_fee", number=True, options=(("$100", "100"), ("$250", "250"), ("$500", "500"), ("$1,000", "1000"))),
@@ -38,7 +69,7 @@ FLOWS = {
     "gold-calendar": [],
     "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
     "churn-radar": [],
-    "exposure-monitor": [S("positions", "flow.ex_positions")],
+    "exposure-monitor": [S("positions", "flow.ex_positions", example="flow.eg_positions")],
     "tokenized-gold": [],
     "miner-divergence": [],
     "monte-carlo-sim": [
@@ -48,21 +79,24 @@ FLOWS = {
         S("firm", "flow.mc_firm", text=False, options=(("FTMO", "ftmo"), ("FundedNext", "fundednext"), ("The5ers", "the5ers"), ("MyFundedFX", "myfundedfx"), ("E8", "e8"))),
     ],
     "drawdown-sentinel": [
-        S("name", "flow.sn_name"),
+        S("name", "flow.sn_name", example="flow.eg_account",
+          options=(("flow.eg_acc1", "Akaun-1"), ("flow.eg_acc2", "Akaun-2"))),
         S("firm", "flow.sn_firm", options=(("FTMO", "ftmo"), ("FundedNext", "fundednext"), ("The5ers", "the5ers"), ("FundingPips", "fundingpips"), ("MyFundedFX", "myfundedfx"), ("E8", "e8"))),
         S("balance", "flow.sn_balance", number=True, options=(("$10k", "10000"), ("$25k", "25000"), ("$50k", "50000"), ("$100k", "100000"))),
     ],
     "link-attribution": [
-        S("channel", "flow.lk_channel"),
-        S("url", "flow.lk_url", optional=True),
+        S("channel", "flow.lk_channel", example="telegram",
+          options=(("Telegram", "telegram"), ("WhatsApp", "whatsapp"), ("TikTok", "tiktok"),
+                   ("Instagram", "instagram"), ("YouTube", "youtube"))),
+        S("url", "flow.lk_url", optional=True, example="https://sambanggold.com"),
     ],
     "broker-comparator": [
         S("lots", "flow.bc_lots", number=True, options=(("0.1", "0.1"), ("0.5", "0.5"), ("1", "1"), ("5", "5"))),
         S("nights", "flow.bc_nights", number=True, options=(("0", "0"), ("1", "1"), ("5", "5"), ("20", "20"))),
     ],
     "bot-scam-detector": [
-        S("handle", "flow.audit_handle"),
-        S("text", "flow.audit_text", optional=True),
+        S("handle", "flow.audit_handle", example="@gold_ea_bot"),
+        S("text", "flow.audit_text", optional=True, example="flow.eg_pitch"),
     ],
     "copy-trade-audit": [
         S("broker", "flow.copy_broker",
@@ -70,15 +104,18 @@ FLOWS = {
         S("spread", "flow.copy_spread", number=True, optional=True, options=(("1 pip", "1"), ("2 pip", "2"), ("3 pip", "3"))),
         S("lots", "flow.copy_lots", number=True, optional=True, options=(("5 lot", "5"), ("10 lot", "10"), ("30 lot", "30"))),
     ],
-    "red-flag-scanner": [S("text", "flow.scan_text")],
+    "red-flag-scanner": [S("text", "flow.scan_text", example="flow.eg_pitch")],
     "signal-verifier": [
-        S("price", "flow.ver_price", number=True),
-        S("date", "flow.ver_date", optional=True),
-        S("time", "flow.ver_time", optional=True, when=lambda a: bool(a.get("date"))),
+        S("price", "flow.ver_price", number=True, live=_gold_now, example="2400"),
+        S("date", "flow.ver_date", optional=True, example="flow.eg_date",
+          options=(("flow.eg_today", "today"), ("flow.eg_yesterday", "yesterday"))),
+        S("time", "flow.ver_time", optional=True, example="14:30",
+          options=(("09:00", "09:00"), ("14:30", "14:30"), ("20:30", "20:30")),
+          when=lambda a: bool(a.get("date"))),
     ],
     "influencer-audit": [
-        S("handle", "flow.inf_handle"),
-        S("text", "flow.inf_text", optional=True),
+        S("handle", "flow.inf_handle", example="@gold_guru_my"),
+        S("text", "flow.inf_text", optional=True, example="flow.eg_pitch"),
     ],
 }
 
@@ -137,16 +174,24 @@ def _parse_number(raw):
     return ("%d" % value) if value == int(value) else ("%g" % value)
 
 
+def options_for(step):
+    """The buttons for this step — live ones first, then the fixed list."""
+    live = step["live"]() if step["live"] else ()
+    return tuple(live) + tuple(step["options"])
+
+
 def _keyboard(step, lang):
     from .telegram import btn, kb
     rows, row = [], []
-    for label, value in step["options"]:
+    for label, value in options_for(step):
         row.append(btn(_label(label, lang), "fl_o:%s" % value))
         if len(row) == 3:
             rows.append(row)
             row = []
     if row:
         rows.append(row)
+    if step["example"]:
+        rows.append([btn(t("flow.use_eg", lang), "fl_eg")])
     tail = []
     if step["optional"]:
         tail.append(btn(t("flow.skip", lang), "fl_skip"))
@@ -157,8 +202,10 @@ def _keyboard(step, lang):
 
 def _prompt(step, lang):
     text = t(step["prompt"], lang)
-    if step["options"] and step["text"]:
+    if options_for(step) and step["text"]:
         text += "\n" + t("flow.typed", lang)
+    if step["example"] and not options_for(step):
+        text += "\n" + t("flow.eg_hint", lang, eg=_label(str(step["example"]), lang)[:60])
     return text
 
 
@@ -215,7 +262,7 @@ def on_text(text, chat_id, lang=DEFAULT_LANG):
 
 
 def on_callback(data, chat_id, message_id, lang=DEFAULT_LANG):
-    """A tapped flow button: fl_cancel, fl_skip, or fl_o:<value>."""
+    """A tapped flow button: fl_cancel, fl_skip, fl_eg, or fl_o:<value>."""
     from .telegram import menu_keyboard
     state = store.tg_state(chat_id)
     if data == "fl_cancel" or not state or state["slug"] not in FLOWS:
@@ -225,10 +272,16 @@ def on_callback(data, chat_id, message_id, lang=DEFAULT_LANG):
     if data == "fl_skip":
         state["answers"][step["key"]] = None
         shown = t("flow.skip", lang)
+    elif data == "fl_eg":
+        # The example is filled in for them. Long ones never fit in callback
+        # data, so the button carries no value and the step supplies it.
+        value = _label(str(step["example"]), lang)
+        state["answers"][step["key"]] = value
+        shown = value[:60] + ("…" if len(value) > 60 else "")
     else:
         value = data[len("fl_o:"):]
         state["answers"][step["key"]] = value
-        shown = next((_label(l, lang) for l, v in step["options"] if v == value), value)
+        shown = next((_label(l, lang) for l, v in options_for(step) if v == value), value)
     actions = [("edit", chat_id, message_id, t("flow.chosen", lang, prompt=t(step["prompt"], lang), value=shown), None)]
     return actions + _advance(state, chat_id, lang, from_index=state["step"] + 1)
 

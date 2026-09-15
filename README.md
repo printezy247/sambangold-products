@@ -554,6 +554,27 @@ upgrade.
 > to a Rambo holder. The guard is a test: every line a page can show must resolve
 > from the wiring, and a rank is never offered when it would add nothing.
 
+#### 🧭 Written for someone who has never used it
+
+Two changes aimed at the same thing: nobody should ever face a blank box.
+
+**On the bot**, the tools menu asks *who you are* first — four rooms instead of
+eighteen buttons — and every question in a guided flow offers something to press.
+Where a number is wanted, the buttons are built from the price **right now**:
+asking `/watch` for a level offers the live mid and four steps either side, so
+the commonest answer is a tap rather than a figure you have to know. Where a
+sentence is wanted, a **Use an example** button fills in real text. A step can
+never be empty: `test_howto` asserts that every free-text step still offers an
+example even with the price feed dead.
+
+**On the dashboard**, every tool page opens with three short steps in plain
+language and a concrete example. Where the form reads its values from the URL,
+the example is a link that fills the page in. Where it cannot be, the example is
+printed to copy.
+
+The map lives in `app/howto.py` and a test requires an entry for all eighteen, so
+a new product cannot ship as an unexplained form.
+
 #### 👁️ Group auto-scan
 
 The last promise on those scanner pages, now built. The scanners answer one
@@ -885,6 +906,7 @@ sambangold-products/
 │   ├── seats.py                        Rambo carrying a team on one rank
 │   ├── whitelabel.py                   the branded card and the signed webhook out
 │   ├── groups.py                       group auto-scan — the bot watches a room
+│   ├── howto.py                        three plain steps and an example, per tool
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

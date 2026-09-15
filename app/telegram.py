@@ -21,7 +21,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 from . import flows, store
 from .brand import DEFAULT_LANG, normalise_lang, t
-from .products import PRODUCTS, command_index
+from .products import BY_SLUG, PRODUCTS, command_index
 from .tools import BOT
 
 bp = Blueprint("telegram", __name__)
@@ -182,18 +182,41 @@ def menu_keyboard(lang):
     return kb(rows)
 
 
+# Eighteen buttons in one list is a wall. The same three audiences the landing
+# page speaks to sort them into rooms small enough to read.
+PATHS = (
+    ("p1", "🧑\u200d💻", ("signal-verifier", "bot-scam-detector", "red-flag-scanner",
+                          "influencer-audit", "copy-trade-audit", "gold-watch", "gold-calendar")),
+    ("p2", "🏦", ("prop-calculator", "monte-carlo-sim", "drawdown-sentinel", "exposure-monitor")),
+    ("p3", "🤝", ("ib-revenue-calculator", "rebate-auditor", "churn-radar",
+                  "broker-comparator", "link-attribution")),
+    ("p4", "🪙", ("tokenized-gold", "miner-divergence")),
+)
+BY_PATH = {key: slugs for key, _, slugs in PATHS}
+
+
 def tools_keyboard(lang):
-    live = [p for p in PRODUCTS if p.slug in SAMPLES]
+    """Pick who you are first. Four buttons beats eighteen."""
+    rows = [[btn("%s %s" % (icon, t("bot.path_" + key, lang)), "path_%s" % key)] for key, icon, _ in PATHS]
+    rows.append([btn(t("bot.btn_more", lang), "menu_queued")])
+    rows.append([btn(t("bot.btn_menu", lang), "menu_main")])
+    return kb(rows)
+
+
+def path_keyboard(key, lang):
+    """The tools for one audience, two to a row."""
     rows, row = [], []
-    for p in live:
-        row.append(btn("%s %s" % (p.emoji, p.name), "tool_%s" % p.slug))
+    for slug in BY_PATH.get(key, ()):
+        p = BY_SLUG.get(slug)
+        if not p or slug not in SAMPLES:
+            continue
+        row.append(btn("%s %s" % (p.emoji, p.view(lang).name), "tool_%s" % slug))
         if len(row) == 2:
             rows.append(row)
             row = []
     if row:
         rows.append(row)
-    rows.append([btn(t("bot.btn_more", lang), "menu_queued")])
-    rows.append([btn(t("bot.btn_menu", lang), "menu_main")])
+    rows.append([btn(t("bot.btn_tools", lang), "menu_tools"), btn(t("bot.btn_menu", lang), "menu_main")])
     return kb(rows)
 
 
@@ -404,6 +427,10 @@ def _handle_callback(query):
         actions.append(("edit", chat_id, message_id, t("bot.menu", lang), menu_keyboard(lang)))
     elif data == "menu_tools":
         actions.append(("edit", chat_id, message_id, t("bot.tools", lang), tools_keyboard(lang)))
+    elif data.startswith("path_"):
+        key = data[5:]
+        actions.append(("edit", chat_id, message_id, t("bot.path_head", lang, who=t("bot.path_" + key, lang)),
+                        path_keyboard(key, lang)))
     elif data == "menu_queued":
         actions.append(("edit", chat_id, message_id, queued_text(lang), back_keyboard(lang, "menu_tools")))
     elif data == "menu_faq":
