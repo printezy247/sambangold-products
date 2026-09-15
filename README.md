@@ -617,6 +617,29 @@ correctly without knowing seats exist. Two things fall out for free: a seat
 carries the holder's own expiry, so it cannot outlive the rank behind it, and a
 seat is granted at the holder's tier, so it can never outrank them.
 
+#### 🏷️ White-label and 🔗 webhooks
+
+The last two Rambo capabilities answer one request: *let my people see this under
+my name, and let my own systems see it at all.*
+
+`/widget gold-watch Sam Flip Seribu` mints a card at `/w/<token>` carrying one
+tool's live answer under the holder's name. It is public and embeddable, because
+the people looking at it are the holder's audience, not ours. Editing the card
+keeps its token, so a live embed never breaks on a rename, and the card goes dark
+the day the rank paying for it lapses.
+
+> [!IMPORTANT]
+> White-label renames the wrapper, never the disclaimer. The risk strip and the
+> data sources stay on every card.
+
+`/webhook https://...` registers an endpoint. Every autopilot push and scheduled
+report the holder receives is also POSTed there, signed
+`HMAC-SHA256(body, secret)` in `X-Sambanggold-Signature` so the receiver can
+prove where it came from. The endpoint must be https, the secret survives a URL
+change so the receiver keeps verifying, and delivery is best-effort: a dead
+endpoint never delays or swallows the Telegram message, which is the one a human
+actually reads.
+
 <div align="center">
 
 | # | Product | 🤖 Telegram | 🌐 Dashboard | Primary | Free tier |
@@ -679,7 +702,7 @@ seat is granted at the holder's tier, so it can never outrank them.
 - [x] **A-Team reports** — weekly scorecards and a monthly forecast, on the same registry
 - [x] **Free doors** — the broker account and referral credit, both surfaces
 - [x] **Rambo seats** — ten team members on one rank, with the expiry that pays for them
-- [ ] **Rambo extras** — white-label widget and outbound webhooks
+- [x] **Rambo extras** — the white-label widget and signed outbound webhooks
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -788,6 +811,7 @@ sambangold-products/
 │   ├── autopilot.py                    the daily standing questions behind A-Team
 │   ├── doors.py                        the two free ways up — broker account, referral
 │   ├── seats.py                        Rambo carrying a team on one rank
+│   ├── whitelabel.py                   the branded card and the signed webhook out
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>
