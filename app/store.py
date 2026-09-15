@@ -315,3 +315,96 @@ def tg_set_lang(telegram_id, lang):
     db().execute("UPDATE tg_users SET lang = ? WHERE telegram_id = ?", (lang, str(telegram_id)))
     db().execute("UPDATE users SET locale = ? WHERE telegram_id = ?", (lang, str(telegram_id)))
     db().commit()
+
+
+# --------------------------------------------------------------------------- #
+# #5 Gold Calendar: alert subscriptions, dedup, and the measured spread log.
+# --------------------------------------------------------------------------- #
+
+CALENDAR_SCHEMA = """
+CREATE TABLE IF NOT EXISTS calendar_subs (
+    owner      TEXT PRIMARY KEY,
+    active     INTEGER NOT NULL DEFAULT 1,
+    created_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS calendar_sent (
+    event_key TEXT NOT NULL,
+    owner     TEXT NOT NULL,
+    sent_at   REAL NOT NULL,
+    PRIMARY KEY (event_key, owner)
+);
+CREATE TABLE IF NOT EXISTS spread_log (
+    ts     REAL PRIMARY KEY,
+    bid    REAL NOT NULL,
+    ask    REAL NOT NULL,
+    spread REAL,
+    source TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS event_spreads (
+    title    TEXT NOT NULL,
+    event_at REAL NOT NULL,
+    ts       REAL NOT NULL,
+    spread   REAL,
+    PRIMARY KEY (title, event_at, ts)
+);
+"""
+SCHEMA += CALENDAR_SCHEMA
+
+
+def calendar_toggle(owner, active=None):
+    """Flip (or set) the 30-minute-before subscription. Returns the new state."""
+    row = _row(db().execute("SELECT active FROM calendar_subs WHERE owner = ?", (str(owner),)))
+    new = (not row["active"]) if (active is None and row) else (True if active is None else bool(active))
+    db().execute("INSERT INTO calendar_subs (owner, active, created_at) VALUES (?, ?, ?)"
+                 " ON CONFLICT(owner) DO UPDATE SET active = excluded.active",
+                 (str(owner), 1 if new else 0, time.time()))
+    db().commit()
+    return new
+
+
+def calendar_subscribed(owner):
+    row = _row(db().execute("SELECT active FROM calendar_subs WHERE owner = ?", (str(owner),)))
+    return bool(row and row["active"])
+
+
+def calendar_subscribers():
+    return [r["owner"] for r in db().execute("SELECT owner FROM calendar_subs WHERE active = 1")]
+
+
+def calendar_mark_sent(event_key, owner):
+    """True the first time; False if this owner already got this event."""
+    try:
+        db().execute("INSERT INTO calendar_sent (event_key, owner, sent_at) VALUES (?, ?, ?)",
+                     (event_key, str(owner), time.time()))
+        db().commit()
+        return True
+    except Exception:  # noqa: BLE001 — primary-key clash means already sent
+        return False
+
+
+def log_spread(quote, event=None):
+    """One sample per checker run; tagged with the red event it sits inside, if any."""
+    now = time.time()
+    db().execute("INSERT OR REPLACE INTO spread_log (ts, bid, ask, spread, source) VALUES (?, ?, ?, ?, ?)",
+                 (now, quote["bid"], quote["ask"], quote["spread"], quote["source"]))
+    db().execute("DELETE FROM spread_log WHERE ts < ?", (now - 30 * 86400,))
+    if event is not None:
+        db().execute("INSERT OR REPLACE INTO event_spreads (title, event_at, ts, spread) VALUES (?, ?, ?, ?)",
+                     (event["title"], event["at"].timestamp(), now, quote["spread"]))
+    db().commit()
+
+
+def baseline_spread():
+    rows = [r[0] for r in db().execute("SELECT spread FROM spread_log WHERE spread IS NOT NULL")]
+    if not rows:
+        return None
+    rows.sort()
+    return rows[len(rows) // 2]
+
+
+def event_spread_history(limit=12):
+    """Per event title: how many past occurrences were measured and the worst spread seen."""
+    return [dict(r) for r in db().execute(
+        "SELECT title, COUNT(DISTINCT event_at) AS occurrences, MAX(spread) AS worst, AVG(spread) AS mean"
+        " FROM event_spreads WHERE spread IS NOT NULL GROUP BY title ORDER BY occurrences DESC, worst DESC LIMIT ?",
+        (limit,))]

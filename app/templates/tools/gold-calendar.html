@@ -1,0 +1,80 @@
+{% set c = tool %}
+<h2>{{ c.month_name }} {{ c.year }}</h2>
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+  <div class="actions" style="margin:0">
+    <a class="btn small" href="?y={{ c.prev[0] }}&m={{ c.prev[1] }}">←</a>
+    <a class="btn small" href="?y={{ c.next[0] }}&m={{ c.next[1] }}">→</a>
+    <a class="btn btn-gold small" href="{{ url_for('views.gold_calendar_pdf') }}" download>⬇ PDF Q{{ c.quarter }}</a>
+  </div>
+  {% if c.owner %}
+  <form method="post" class="inline">
+    <input type="hidden" name="action" value="{{ 'cal_off' if c.subscribed else 'cal_on' }}">
+    <button class="btn small {{ 'btn-ghost' if c.subscribed else 'btn-gold' }}" type="submit">{{ t('cal.btn_off' if c.subscribed else 'cal.btn_on') }}</button>
+  </form>
+  {% else %}
+  <span class="text-muted" style="font-size:13px">{{ t('product.signin') }}</span>
+  {% endif %}
+</div>
+
+<div class="stats">
+  <div class="stat glass {{ 'positive' if c.this_month.avg_return >= 0 else 'negative' }}"><span>{{ t('cal.season', n=c.this_month.n) }}</span><b>{{ '%+.1f' % c.this_month.avg_return }}%</b><small>{{ t('cal.season_line', ret=c.this_month.avg_return, rng=c.this_month.avg_range) }} · {{ c.season.source }}</small></div>
+  <div class="stat glass"><span>{{ t('cal.next') }}</span><b style="font-size:18px">{% if c.upcoming %}{{ c.upcoming[0].title }}{% else %}—{% endif %}</b><small>{% if c.upcoming %}{{ c.fmt_myt(c.upcoming[0].at) }} MYT{% else %}{{ t('cal.none') }}{% endif %}</small></div>
+  <div class="stat glass warn"><span>{{ t('cal.holiday') }}</span><b style="font-size:18px">{% if c.holiday %}{{ c.holiday.at.strftime('%d %b') }}{% else %}—{% endif %}</b><small>{% if c.holiday %}{{ c.holiday.title }}{% endif %}</small></div>
+  <div class="stat glass"><span>Baseline spread</span><b>{% if c.baseline is not none %}{{ '{:,.2f}'.format(c.baseline) }}{% else %}—{% endif %}</b><small>{{ t('cal.spread_note') }}</small></div>
+</div>
+
+<div class="panel" style="margin-top:18px;overflow-x:auto">
+  <table class="flags" style="margin-top:0;table-layout:fixed;min-width:640px">
+    <thead><tr>{% for d in ('Mon','Tue','Wed','Thu','Fri','Sat','Sun') %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for week in c.weeks %}
+      <tr>
+      {% for cell in week %}
+        <td style="height:84px;vertical-align:top;{% if not cell.in_month %}opacity:.35;{% endif %}{% if cell.weekend %}background:rgba(255,255,255,.02);{% endif %}{% if cell.today %}box-shadow:inset 0 0 0 1px var(--gold);{% endif %}">
+          <div class="mono" style="font-size:12px;{% if cell.today %}color:var(--gold){% else %}color:var(--muted){% endif %}">{{ cell.date.day }}</div>
+          {% for h in cell.holidays %}<div class="chip gold" style="display:block;margin-top:4px;font-size:10px;white-space:normal">{{ h.title.split('— ')[-1] }}</div>{% endfor %}
+          {% for e in cell.events %}<div class="chip" style="display:block;margin-top:4px;font-size:10px;white-space:normal;color:var(--loss);border-color:color-mix(in oklab,var(--loss) 40%,transparent)">● {{ e.at.astimezone(e.at.tzinfo).strftime('') }}{{ c.fmt_myt(e.at)[-5:] }} {{ e.title }}</div>{% endfor %}
+        </td>
+      {% endfor %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h3>{{ t('cal.next') }}</h3>
+{% if c.upcoming %}
+<table class="flags">
+  <thead><tr><th>MYT</th><th>UTC</th><th>Event</th><th>Forecast</th><th>Previous</th><th>Source</th></tr></thead>
+  <tbody>
+  {% for e in c.upcoming %}
+    <tr><td class="mono">{{ c.fmt_myt(e.at) }}</td><td class="mono">{{ c.fmt_utc(e.at) }}</td><td><b>{{ e.title }}</b></td><td>{{ e.forecast or '—' }}</td><td>{{ e.previous or '—' }}</td><td class="text-muted">{{ e.source }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="lede">{{ t('cal.none') }}</p>{% endif %}
+
+<h3>Seasonality · 12 months</h3>
+<div class="panel" style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:140px">
+  {% for m in range(1, 13) %}{% set s = c.season[m] %}
+  <div style="display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%">
+    <span class="mono" style="font-size:10px;color:{{ 'var(--win)' if s.avg_return >= 0 else 'var(--loss)' }}">{{ '%+.1f' % s.avg_return }}</span>
+    <div style="width:70%;height:{{ (s.avg_return|abs * 18)|round|int + 4 }}px;border-radius:4px;background:{{ 'var(--win)' if s.avg_return >= 0 else 'var(--loss)' }};opacity:{{ '1' if m == c.month else '.45' }}"></div>
+    <span class="text-muted" style="font-size:10px">{{ ['J','F','M','A','M','J','J','A','S','O','N','D'][m-1] }}</span>
+  </div>
+  {% endfor %}
+</div>
+<p class="text-muted" style="font-size:12px">{{ c.season.source }} · average monthly return; bar height is the size of the move.</p>
+
+<h3>What the spread did last time</h3>
+{% if c.history %}
+<table class="flags">
+  <thead><tr><th>Event</th><th>Measured</th><th>Worst spread</th><th>Mean</th><th>vs baseline</th></tr></thead>
+  <tbody>
+  {% for h in c.history %}
+    <tr><td><b>{{ h.title }}</b></td><td>{{ h.occurrences }}×</td><td class="mono">{{ '{:,.2f}'.format(h.worst) }}</td><td class="mono">{{ '{:,.2f}'.format(h.mean) }}</td>
+        <td class="mono">{% if c.baseline %}{{ '%.1f' % (h.worst / c.baseline) }}×{% else %}—{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="lede">{{ t('cal.spread_note') }}</p>{% endif %}

@@ -33,6 +33,7 @@ SAMPLES = {
     "gold-watch": "/watch XAUUSD",
     "prop-calculator": "/propcalc 500 100000 15",
     "ib-revenue-calculator": "/ibcalc 40 7 25 5",
+    "gold-calendar": "/calendar",
 }
 
 
@@ -79,10 +80,10 @@ def set_webhook(base_url, token):
 # first screen — before the user has tapped anything.
 COMMANDS = {
     "ms": [("start", "Menu utama"), ("tools", "Cuba alat percuma"), ("watch", "Harga emas & alert"),
-           ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
+           ("calendar", "Kalendar emas & alert"), ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
            ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
     "en": [("start", "Main menu"), ("tools", "Try a free tool"), ("watch", "Gold price & alerts"),
-           ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
+           ("calendar", "Gold calendar & alerts"), ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
            ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
 }
 
@@ -162,8 +163,11 @@ def tool_keyboard(product, lang):
     ])
 
 
-def result_keyboard(product, lang):
+def result_keyboard(product, lang, chat_id=None):
     rows = []
+    if product.slug == "gold-calendar":
+        on = bool(chat_id and store.calendar_subscribed(chat_id))
+        rows.append([btn(t("cal.btn_off" if on else "cal.btn_on", lang), "cal_off" if on else "cal_on")])
     if product.slug in SAMPLES:
         rows.append([btn(t("bot.btn_again", lang), "try_%s" % product.slug)])
     rows.append([btn(t("bot.btn_open", lang), url="%s/p/%s" % (_base_url(), product.slug)),
@@ -215,7 +219,7 @@ def reply_for(text, base_url="", chat_id=None, lang=DEFAULT_LANG):
     handler = BOT.get(word)
     if handler is not None:
         return "%s <b>%s</b>\n%s\n\nDashboard: %s" % (
-            product.emoji, product.name, handler(parts[1:], chat_id=chat_id), page)
+            product.emoji, product.name, handler(parts[1:], chat_id=chat_id, lang=lang), page)
     if product.status == "shipped":
         head = "%s <b>%s</b>\n%s" % (product.emoji, product.name, product.solution)
     else:
@@ -277,7 +281,7 @@ def _handle_message(chat_id, text, user):
     product = command_index().get(word)
     if product is None:
         return [("send", chat_id, t("bot.unknown", lang), menu_keyboard(lang))]
-    return [("send", chat_id, reply_for(text, _base_url(), chat_id=chat_id, lang=lang), result_keyboard(product, lang))]
+    return [("send", chat_id, reply_for(text, _base_url(), chat_id=chat_id, lang=lang), result_keyboard(product, lang, chat_id))]
 
 
 def _handle_callback(query):
@@ -321,7 +325,12 @@ def _handle_callback(query):
         sample = SAMPLES.get(product.slug) if product else None
         if sample:
             actions.append(("send", chat_id, reply_for(sample, _base_url(), chat_id=chat_id, lang=lang),
-                            result_keyboard(product, lang)))
+                            result_keyboard(product, lang, chat_id)))
+    elif data in ("cal_on", "cal_off"):
+        store.calendar_toggle(chat_id, data == "cal_on")
+        product = _product_by_slug("gold-calendar")
+        actions.append(("edit", chat_id, message_id, reply_for("/calendar", _base_url(), chat_id=chat_id, lang=lang),
+                        result_keyboard(product, lang, chat_id)))
     return actions
 
 

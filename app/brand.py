@@ -118,6 +118,16 @@ STRINGS = {
         "bot.queued_reply": "{emoji} <b>{name}</b> — dalam giliran.\n{solution}",
         "bot.result_tail": "Simpan, eksport dan bandingkan di dashboard.",
         "bot.share_text": "Saya guna {brand} untuk emas. Cuba percuma:",
+        # calendar
+        "cal.title": "📅 <b>Kalendar emas</b>",
+        "cal.next": "Acara USD merah seterusnya", "cal.none": "Tiada acara merah dalam suapan minggu ini.",
+        "cal.fomc": "FOMC seterusnya", "cal.holiday": "Cuti CME seterusnya", "cal.season": "Bulan ini (purata {n} tahun)",
+        "cal.season_line": "pulangan {ret:+.1f}% · julat {rng:.1f}%",
+        "cal.on": "🔔 Alert 30 minit sebelum: <b>HIDUP</b>", "cal.off": "🔕 Alert 30 minit sebelum: <b>MATI</b>",
+        "cal.btn_on": "🔔 Hidupkan alert", "cal.btn_off": "🔕 Matikan alert",
+        "cal.push": "⏰ <b>{title}</b> dalam 30 minit ({when} MYT).\nSpread biasanya melebar. Pendidikan sahaja.",
+        "cal.need_chat": "Alert perlukan chat Telegram. Buka bot dan hantar /calendar_alert.",
+        "cal.spread_note": "Spread diukur setiap 5 minit; sejarah setiap acara terkumpul dari sini.",
     },
     "en": {
         "nav.products": "Tools", "nav.dashboard": "Dashboard", "nav.account": "Account",
@@ -192,6 +202,15 @@ STRINGS = {
         "bot.queued_reply": "{emoji} <b>{name}</b> — queued.\n{solution}",
         "bot.result_tail": "Save, export and compare on the dashboard.",
         "bot.share_text": "I use {brand} for gold. Try it free:",
+        "cal.title": "📅 <b>Gold calendar</b>",
+        "cal.next": "Next red USD events", "cal.none": "No red events in this week's feed.",
+        "cal.fomc": "Next FOMC", "cal.holiday": "Next CME holiday", "cal.season": "This month ({n}-year average)",
+        "cal.season_line": "return {ret:+.1f}% · range {rng:.1f}%",
+        "cal.on": "🔔 30-minute alert: <b>ON</b>", "cal.off": "🔕 30-minute alert: <b>OFF</b>",
+        "cal.btn_on": "🔔 Turn alerts on", "cal.btn_off": "🔕 Turn alerts off",
+        "cal.push": "⏰ <b>{title}</b> in 30 minutes ({when} MYT).\nSpreads usually widen. Education only.",
+        "cal.need_chat": "Alerts need a Telegram chat. Open the bot and send /calendar_alert.",
+        "cal.spread_note": "Spread is sampled every 5 minutes; per-event history builds from here.",
     },
 }
 
