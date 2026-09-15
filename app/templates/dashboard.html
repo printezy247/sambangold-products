@@ -103,6 +103,45 @@
     {% endif %}
   </div>
 
+  <div id="extras" class="lux{% if wl.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:24px">
+    <h3 style="margin-top:0">🏷️ {{ t('ui.wl_h') }} · 🔗 {{ t('ui.wh_h') }}
+      {% if not wl.allowed %}<span class="chip">{{ rank_label('elite') }}</span>{% endif %}</h3>
+    {% if not wl.allowed %}
+      <p class="text-muted" style="margin:0 0 14px">{{ t('ui.wl_need') }}</p>
+      <a class="btn btn-gold" href="{{ url_for('views.pricing', want='whitelabel') }}">{{ t('price.cta_pay', rank=rank_label('elite')) }}</a>
+    {% else %}
+      {% if wl.error %}<p class="flash bad">{{ t(wl.error, tools=wl.tools|join(', ')) }}</p>{% endif %}
+      <p class="text-muted" style="margin:0 0 12px">{{ t('ui.wl_sub') }}</p>
+      <form method="post" action="{{ url_for('views.dashboard') }}#extras" style="display:grid;gap:10px;max-width:420px">
+        <input type="hidden" name="wl_action" value="widget">
+        <label>{{ t('ui.wl_name') }}<input name="name" value="{{ wl.widget.name if wl.widget else '' }}" required></label>
+        <label>{{ t('ui.wl_tool') }}
+          <select name="tool">{% for tool in wl.tools %}
+            <option value="{{ tool }}"{% if wl.widget and wl.widget.tool == tool %} selected{% endif %}>{{ by_slug[tool].view(lang).name }}</option>
+          {% endfor %}</select></label>
+        <button class="btn btn-gold" type="submit">{{ t('ui.wl_btn') }}</button>
+      </form>
+      {% if wl.widget %}
+      <p class="mono" style="word-break:break-all;margin-top:10px"><a href="{{ wl.url }}">{{ wl.url }}</a></p>
+      <form method="post" action="{{ url_for('views.dashboard') }}#extras"><input type="hidden" name="wl_action" value="widget_off">
+        <button class="btn small" type="submit">{{ t('ui.wl_off') }}</button></form>
+      {% endif %}
+
+      <h4 style="margin:22px 0 4px">🔗 {{ t('ui.wh_h') }}</h4>
+      <p class="text-muted" style="margin:0 0 12px">{{ t('ui.wh_sub') }}</p>
+      <form method="post" action="{{ url_for('views.dashboard') }}#extras" style="display:grid;gap:10px;max-width:420px">
+        <input type="hidden" name="wl_action" value="hook">
+        <label>{{ t('ui.wh_url') }}<input name="url" value="{{ wl.hook.url if wl.hook else '' }}" placeholder="https://" required></label>
+        <button class="btn btn-gold" type="submit">{{ t('ui.wh_btn') }}</button>
+      </form>
+      {% if wl.hook %}
+      <p class="text-muted" style="margin-top:10px">{{ t('ui.wh_secret') }}: <code class="mono">{{ wl.hook.secret }}</code></p>
+      <form method="post" action="{{ url_for('views.dashboard') }}#extras"><input type="hidden" name="wl_action" value="hook_off">
+        <button class="btn small" type="submit">{{ t('ui.wl_off') }}</button></form>
+      {% endif %}
+    {% endif %}
+  </div>
+
   <div id="upgrade" class="lux" style="padding:22px;margin-top:24px">
     <h3 style="margin-top:0">{{ rank_label('pro') }}</h3>
     <p class="text-muted" style="margin:0">{{ t('product.upsell_note') }}</p>

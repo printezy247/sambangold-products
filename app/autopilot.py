@@ -223,6 +223,8 @@ def run_due(send, now=None, cadences=("daily", "weekly", "monthly")):
                 continue
             send(owner, "%s\n\n%s" % (text, t("ap.footer", lang)))
             sent += 1
+            from . import whitelabel   # a Rambo endpoint sees the same push; never blocks this one
+            whitelabel.deliver(owner, slug, {"cadence": cadence, "period": period, "text": text})
     return {"sent": sent, "gated": skipped, "day": _day(now), "week": _week(now)}
 
 
