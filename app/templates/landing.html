@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ t('hero.title') }} {{ t('hero.title2') }}{% endblock %}
+{% block title %}{{ t('land.title') }} {{ t('land.title2') }}{% endblock %}
 {% block style %}
   .hero { position: relative; overflow: hidden; }
   .hero .field { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -20,6 +20,37 @@
   details.faq summary::after { content: "+"; color: var(--gold); transition: transform .2s; }
   details.faq[open] summary::after { transform: rotate(45deg); }
   details.faq p { color: var(--muted); margin: 8px 0 0; }
+  .trust { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 8px; }
+  .paths { display: grid; gap: 16px; margin-top: 22px; }
+  @media (min-width: 900px) { .paths { grid-template-columns: repeat(3, 1fr); } }
+  .path { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .path .who { font-family: var(--font-display); text-transform: uppercase; font-size: 26px; letter-spacing: .02em; line-height: 1; }
+  .path ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .path li { color: var(--muted); font-size: 14px; padding-left: 20px; position: relative; }
+  .path li::before { content: "✕"; position: absolute; left: 0; color: var(--loss); font-size: 12px; top: 2px; }
+  .path .solve { border-top: 1px solid var(--border); padding-top: 12px; font-size: 14px; }
+  .path .solve b { color: var(--win); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+  .row2 { display: grid; gap: 24px; align-items: center; padding: 28px 0; border-bottom: 1px solid var(--border); }
+  @media (min-width: 880px) { .row2 { grid-template-columns: 1fr 1fr; } .row2.flip > :first-child { order: 2; } }
+  .row2 h3 { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(26px, 3.4vw, 38px); letter-spacing: .02em; line-height: 1; margin: 0 0 10px; }
+  .row2 p { color: var(--muted); margin: 0; }
+  .tg { padding: 18px; border-radius: 16px; position: relative; }
+  .tg .cmd { display: inline-block; font-family: var(--font-mono); font-size: 13px; background: color-mix(in oklab, var(--gold) 14%, transparent); color: var(--gold-2); border-radius: 12px 12px 2px 12px; padding: 8px 12px; margin-left: auto; float: right; }
+  .tg .out { clear: both; margin-top: 12px; font-size: 14px; line-height: 1.5; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px 12px 12px 2px; padding: 12px 14px; }
+  .tg .tag { position: absolute; top: -10px; right: 14px; }
+  .steps { display: grid; gap: 16px; margin-top: 22px; counter-reset: step; }
+  @media (min-width: 760px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step { padding: 22px; }
+  .step::before { counter-increment: step; content: counter(step, decimal-leading-zero); font-family: var(--font-display); font-size: 40px; line-height: 1; display: block; color: var(--gold); }
+  .step b { display: block; margin: 10px 0 6px; font-size: 17px; }
+  .step p { color: var(--muted); margin: 0; font-size: 14px; }
+  .ranks { display: grid; gap: 12px; margin-top: 22px; }
+  @media (min-width: 760px) { .ranks { grid-template-columns: repeat(4, 1fr); } }
+  .rank { padding: 18px; }
+  .rank .nm { font-family: var(--font-display); text-transform: uppercase; font-size: 24px; letter-spacing: .03em; }
+  .rank p { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+  .final { text-align: center; padding: 64px 20px; margin-top: 64px; border-top: 1px solid var(--border); position: relative; overflow: hidden; }
+  .final h2 { font-family: var(--font-display); text-transform: uppercase; font-size: clamp(38px, 6vw, 72px); line-height: .95; margin: 0; }
 {% endblock %}
 {% block body %}
 <section class="hero">
@@ -28,14 +59,14 @@
   <div class="halo"></div>
   <div class="wrap inner">
     <div>
-      <span class="badge">{{ t('hero.badge') }}</span>
-      <h1><span class="text-chrome">{{ t('hero.title') }}</span> <span class="text-goldgrad">{{ t('hero.title2') }}</span></h1>
-      <p class="lede" style="margin-top:22px">{{ t('hero.subtitle') }}</p>
+      <span class="badge">{{ t('land.eyebrow') }}</span>
+      <h1><span class="text-chrome">{{ t('land.title') }}</span> <span class="text-goldgrad">{{ t('land.title2') }}</span></h1>
+      <p class="lede" style="margin-top:22px">{{ t('land.sub') }}</p>
       <div class="actions" style="margin-top:28px">
-        {% if bot_link %}<a class="btn btn-gold" href="{{ bot_link }}">{{ t('hero.cta_primary') }}</a>{% endif %}
-        <a class="btn" href="#tools">{{ t('hero.cta_secondary') }}</a>
+        {% if bot_link %}<a class="btn btn-gold" href="{{ bot_link }}">{{ t('land.cta') }}</a>{% endif %}
+        <a class="btn" href="#laluan">{{ t('land.cta2') }}</a>
       </div>
-      <p class="text-muted" style="font-size:12px;margin-top:14px">{{ t('hero.note') }}</p>
+      <p class="text-muted" style="font-size:12px;margin-top:14px">{{ t('land.note') }}</p>
     </div>
     <div class="side">
       <div class="mascot">
@@ -57,29 +88,70 @@
   </div>
 </section>
 
-<section class="wrap stats" style="margin-top:-8px">
-  <div class="stat glass"><span>{{ t('stats.products') }}</span><b>{{ products|length }}</b><small>🤖 + 🌐</small></div>
-  <div class="stat glass positive"><span>{{ t('stats.live') }}</span><b>{{ live|length }}</b><small>{{ t('grid.live') }}</small></div>
-  <div class="stat glass warn"><span>{{ t('stats.free') }}</span><b>{{ products|length }}/{{ products|length }}</b><small>{{ t('faq.q1') }} — {{ t('faq.a1').split('.')[0] }}.</small></div>
-  <div class="stat glass"><span>{{ t('stats.since') }}</span><b>{{ BRAND.since }}</b><small>{{ BRAND.person }} · {{ BRAND.group }}</small></div>
+<section class="wrap stats trust" style="margin-top:-8px">
+  <div class="stat glass"><span>{{ t('land.s_tools') }}</span><b>{{ products|length }}</b><small>🤖 + 🌐</small></div>
+  <div class="stat glass positive"><span>{{ t('land.s_live') }}</span><b>{{ live|length }}</b><small>{{ t('grid.live') }}</small></div>
+  <div class="stat glass warn"><span>{{ t('land.s_free') }}</span><b>{{ products|length }}/{{ products|length }}</b><small>{{ t('faq.a1').split('.')[1] }}.</small></div>
+  <div class="stat glass"><span>{{ t('land.s_lang') }}</span><b>{{ t('land.s_lang_v') }}</b><small>{{ BRAND.person }} · {{ BRAND.group }} · {{ BRAND.since }}</small></div>
+</section>
+
+<section class="wrap" id="laluan">
+  <h2>{{ t('land.path_h') }}</h2>
+  <p class="lede">{{ t('land.path_sub') }}</p>
+  <div class="paths">
+    {% for key, icon, slugs in paths %}
+    <div class="lux{% if loop.first %} lux-gold{% endif %} path">
+      <div><span class="chip gold">{{ icon }} {{ t('land.%s_tag' % key) }}</span></div>
+      <div class="who">{{ t('land.%s_h' % key) }}</div>
+      <ul><li>{{ t('land.%s_a' % key) }}</li><li>{{ t('land.%s_b' % key) }}</li><li>{{ t('land.%s_c' % key) }}</li></ul>
+      <div class="solve"><b>✓ {{ t('land.p_solve_h') }}</b>{{ t('land.%s_solve' % key) }}</div>
+      <div class="chips">{% for s in slugs %}{% set p = by_slug[s] %}<a class="chip bot" href="{{ url_for('views.product', slug=s) }}">{{ p.emoji }} {{ p.bot_commands[0][0].split()[0] }}</a>{% endfor %}</div>
+      {% if bot_link %}<a class="btn{% if loop.first %} btn-gold{% endif %}" style="margin-top:auto" href="{{ bot_link }}">{{ t('land.p_cta') }}</a>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
 </section>
 
 <section class="wrap">
-  <h2>{{ t('doors.title') }}</h2>
-  <p class="lede">{{ t('doors.subtitle') }}</p>
-  <div class="doors">
-    <div class="lux lux-gold" style="padding:24px">
-      <div class="text-gold" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em">A</div>
-      <div style="font-size:20px;font-weight:600;margin-top:4px">{{ t('doors.a_title') }}</div>
-      <p class="text-muted" style="margin:8px 0 0">{{ t('doors.a_body') }}</p>
-      {% if bot_link %}<a class="btn btn-gold" style="margin-top:18px" href="{{ bot_link }}">{{ t('doors.a_cta') }}</a>{% endif %}
+  <h2>{{ t('land.prob_h') }}</h2>
+  <p class="lede">{{ t('land.prob_sub') }}</p>
+  {% for key, slugs in rows %}
+  <div class="row2{% if loop.index is even %} flip{% endif %}">
+    <div>
+      <h3 class="text-goldgrad">{{ t('land.%s_h' % key) }}</h3>
+      <p>{{ t('land.%s_b' % key) }}</p>
+      <div class="chips" style="margin-top:14px"><span class="text-muted" style="font-size:12px">{{ t('land.r_tools') }}:</span>
+        {% for s in slugs %}{% set p = by_slug[s] %}<a class="chip{% if s in live|map(attribute='slug')|list %} win{% endif %}" href="{{ url_for('views.product', slug=s) }}">{{ p.emoji }} {{ p.number }} · {{ p.name }}</a>{% endfor %}
+      </div>
     </div>
-    <div class="lux" style="padding:24px">
-      <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em">B</div>
-      <div style="font-size:20px;font-weight:600;margin-top:4px">{{ t('doors.b_title') }}</div>
-      <p class="text-muted" style="margin:8px 0 0">{{ t('doors.b_body') }}</p>
-      <a class="btn" style="margin-top:18px" href="{{ url_for('views.dashboard') if user else url_for('auth.signin') }}">{{ t('doors.b_cta') }}</a>
+    <div class="lux glass tg">
+      <span class="chip tag">{{ t('land.r_example') }}</span>
+      <span class="cmd">{{ t('land.%s_cmd' % key) }}</span>
+      <div class="out">{{ t('land.%s_out' % key)|safe }}</div>
     </div>
+  </div>
+  {% endfor %}
+</section>
+
+<section class="wrap">
+  <h2>{{ t('land.how_h') }}</h2>
+  <p class="lede">{{ t('land.how_sub') }}</p>
+  <div class="steps">
+    {% for i in (1, 2, 3) %}<div class="lux{% if i == 2 %} lux-gold{% endif %} step"><b>{{ t('land.h%d_h' % i) }}</b><p>{{ t('land.h%d_b' % i) }}</p></div>{% endfor %}
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>{{ t('land.rank_h') }}</h2>
+  <p class="lede">{{ t('land.rank_sub') }}</p>
+  <div class="ranks">
+    {% for rk, i in (('public', 1), ('free', 2), ('pro', 3), ('elite', 4)) %}
+    <div class="lux{% if i == 2 %} lux-gold{% endif %} rank">
+      <div class="nm {% if i == 2 %}text-goldgrad{% else %}text-chrome{% endif %}">{{ rank_label(rk) }}</div>
+      {% if i > 2 %}<span class="chip">{{ t('land.rk_soon') }}</span>{% else %}<span class="chip win">{{ t('product.free') }}</span>{% endif %}
+      <p>{{ t('land.rk%d' % i) }}</p>
+    </div>
+    {% endfor %}
   </div>
 </section>
 
@@ -92,11 +164,32 @@
   </div>
 </section>
 
+<section class="wrap">
+  <h2>{{ t('land.trust_h') }}</h2>
+  <p class="lede">{{ t('land.trust_sub') }}</p>
+  <div class="steps" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    {% for i in (1, 2, 3, 4) %}<div class="glass step" style="border-radius:var(--radius)"><b>{{ t('land.t%d_h' % i) }}</b><p>{{ t('land.t%d_b' % i, person=BRAND.person, group=BRAND.group) }}</p></div>{% endfor %}
+  </div>
+</section>
+
 <section class="wrap" style="max-width:760px">
   <h2>{{ t('faq.title') }}</h2>
-  {% for i in (1, 2, 3, 4) %}
+  {% for i in (1, 5, 6, 2, 3, 4) %}
     <details class="faq"><summary>{{ t('faq.q%d' % i) }}</summary><p>{{ t('faq.a%d' % i) }}</p></details>
   {% endfor %}
+</section>
+
+<section class="final">
+  <div class="grid-bg" style="position:absolute;inset:0"></div>
+  <div style="position:relative">
+    <h2><span class="text-chrome">{{ t('land.title') }}</span> <span class="text-goldgrad">{{ t('land.title2') }}</span></h2>
+    <p class="lede" style="margin:16px auto 0">{{ t('land.final_sub') }}</p>
+    <div class="actions" style="justify-content:center;margin-top:24px">
+      {% if bot_link %}<a class="btn btn-gold" href="{{ bot_link }}">{{ t('land.cta') }}</a>{% endif %}
+      <a class="btn" href="{{ url_for('views.dashboard') if user else url_for('auth.signin') }}">{{ t('doors.b_cta') }}</a>
+    </div>
+    <p class="text-muted" style="font-size:12px;margin-top:14px">{{ t('land.note') }}</p>
+  </div>
 </section>
 {% endblock %}
 {% block script %}
