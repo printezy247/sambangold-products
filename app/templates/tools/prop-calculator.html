@@ -1,17 +1,17 @@
-<h2>Calculator</h2>
+<h2>{{ t('ui.p_calc') }}</h2>
 <form method="get" class="panel tool">
   <div class="fields">
-    <label>Firm <input name="firm" value="{{ tool.form.get('firm', '') }}" placeholder="optional"></label>
-    <label>Challenge fee $ <input name="fee" value="{{ tool.form.get('fee', '') }}" placeholder="500" required></label>
-    <label>Account size $ <input name="size" value="{{ tool.form.get('size', 100000) }}"></label>
-    <label>Your pass chance % <input name="pass_pct" value="{{ tool.form.get('pass_pct', 15) }}"></label>
-    <label>Profit target % <input name="profit_target_pct" value="{{ tool.form.get('profit_target_pct', 8) }}"></label>
-    <label>Profit split % <input name="split_pct" value="{{ tool.form.get('split_pct', 80) }}"></label>
-    <label>Resets bought <input name="resets" value="{{ tool.form.get('resets', 0) }}"></label>
+    <label>{{ t('ui.p_firm') }} <input name="firm" value="{{ tool.form.get('firm', '') }}" placeholder="{{ t('ui.optional') }}"></label>
+    <label>{{ t('ui.p_fee') }} <input name="fee" value="{{ tool.form.get('fee', '') }}" placeholder="500" required></label>
+    <label>{{ t('ui.p_size') }} <input name="size" value="{{ tool.form.get('size', 100000) }}"></label>
+    <label>{{ t('ui.p_pass') }} <input name="pass_pct" value="{{ tool.form.get('pass_pct', 15) }}"></label>
+    <label>{{ t('ui.p_target') }} <input name="profit_target_pct" value="{{ tool.form.get('profit_target_pct', 8) }}"></label>
+    <label>{{ t('ui.p_split') }} <input name="split_pct" value="{{ tool.form.get('split_pct', 80) }}"></label>
+    <label>{{ t('ui.p_resets') }} <input name="resets" value="{{ tool.form.get('resets', 0) }}"></label>
   </div>
   <div class="actions">
-    <button type="submit">Calculate</button>
-    <button type="submit" name="save" value="1" class="ghost">Calculate &amp; save</button>
+    <button type="submit">{{ t('ui.calc') }}</button>
+    <button type="submit" name="save" value="1" class="ghost">{{ t('ui.calc_save') }}</button>
   </div>
   {% if tool.error %}<p class="err">{{ tool.error }}</p>{% endif %}
 </form>
@@ -19,34 +19,34 @@
 {% if tool.result %}
 {% set r = tool.result %}
 <div class="stats">
-  <div class="stat {{ r.verdict }}"><span>Expected value</span><b>{{ money(r.ev) }}</b><small>{{ pct(r.roi) }} on {{ money(r.total_cost) }} paid</small></div>
-  <div class="stat"><span>Breakeven pass rate</span><b>{{ pct(r.breakeven_pass_rate) }}</b><small>you entered {{ pct(r.pass_rate) }}</small></div>
-  <div class="stat"><span>First payout if funded</span><b>{{ money(r.first_payout) }}</b><small>{{ pct(r.profit_target) }} target × {{ pct(r.split) }} split</small></div>
+  <div class="stat {{ r.verdict }}"><span>{{ t('ui.p_ev') }}</span><b>{{ money(r.ev) }}</b><small>{{ t('ui.p_on_paid', roi=pct(r.roi), cost=money(r.total_cost)) }}</small></div>
+  <div class="stat"><span>{{ t('ui.p_breakeven') }}</span><b>{{ pct(r.breakeven_pass_rate) }}</b><small>{{ t('ui.p_entered', p=pct(r.pass_rate)) }}</small></div>
+  <div class="stat"><span>{{ t('ui.p_first') }}</span><b>{{ money(r.first_payout) }}</b><small>{{ t('ui.p_target_split', target=pct(r.profit_target), split=pct(r.split)) }}</small></div>
 </div>
-<p class="lede">A shareable link to this exact result is the address bar. Industry pass rates sit around 10–25%; if your breakeven is above that band, the fee is priced against you.</p>
+<p class="lede">{{ t('ui.p_share') }}</p>
 {% endif %}
 
-<h2>Rule scan</h2>
+<h2>{{ t('ui.p_scan') }}</h2>
 <form method="post" class="panel tool">
   {% for key in ('firm','fee','size','pass_pct','profit_target_pct','split_pct','resets') %}
     {% if tool.form.get(key) %}<input type="hidden" name="{{ key }}" value="{{ tool.form.get(key) }}">{% endif %}
   {% endfor %}
-  <label class="wide">Paste the challenge terms
-    <textarea name="terms" rows="8" placeholder="Paste the firm's rules page or T&amp;Cs here…">{{ tool.form.get('terms', '') }}</textarea>
+  <label class="wide">{{ t('ui.p_paste') }}
+    <textarea name="terms" rows="8" placeholder="{{ t('ui.p_paste_ph') }}">{{ tool.form.get('terms', '') }}</textarea>
   </label>
-  <div class="actions"><button type="submit">Scan terms</button></div>
+  <div class="actions"><button type="submit">{{ t('ui.p_scan_btn') }}</button></div>
 </form>
 
 {% if tool.scan %}
 {% set s = tool.scan %}
 <div class="stats">
   <div class="stat {{ 'negative' if s.grade == 'red' else ('warn' if s.grade == 'yellow' else 'positive') }}">
-    <span>Verdict</span><b>{{ s.reds }} red · {{ s.yellows }} yellow</b><small>{{ s.chars }} characters scanned</small>
+    <span>{{ t('ui.verdict') }}</span><b>{{ t('ui.p_reds', r=s.reds, y=s.yellows) }}</b><small>{{ t('ui.p_chars', n=s.chars) }}</small>
   </div>
 </div>
 {% if s.flags %}
 <table class="flags">
-  <thead><tr><th></th><th>Rule</th><th>Why it fails people</th><th>Where</th></tr></thead>
+  <thead><tr><th></th><th>{{ t('ui.rule') }}</th><th>{{ t('ui.why_fail') }}</th><th>{{ t('ui.where') }}</th></tr></thead>
   <tbody>
   {% for f in s.flags %}
     <tr><td class="{{ f.flag }}">{{ '🔴' if f.flag == 'red' else '🟡' }}</td><td><b>{{ f.label }}</b></td><td>{{ f.why }}</td><td><small>…{{ f.snippet }}…</small></td></tr>
@@ -54,14 +54,14 @@
   </tbody>
 </table>
 {% else %}
-<p class="lede">None of the known failure rules matched. That is not a clean bill — read the drawdown section yourself.</p>
+<p class="lede">{{ t('ui.p_clean') }}</p>
 {% endif %}
 {% endif %}
 
-<h2>Saved comparisons</h2>
+<h2>{{ t('ui.p_saved') }}</h2>
 {% if tool.saved %}
 <table class="flags">
-  <thead><tr><th>Firm</th><th>Paid</th><th>Size</th><th>Pass</th><th>EV</th><th>Breakeven</th></tr></thead>
+  <thead><tr><th>{{ t('ui.p_firm') }}</th><th>{{ t('ui.paid') }}</th><th>{{ t('ui.size') }}</th><th>{{ t('ui.pass') }}</th><th>EV</th><th>{{ t('ui.breakeven') }}</th></tr></thead>
   <tbody>
   {% for row in tool.saved %}
     <tr class="{{ row.verdict }}"><td>{{ row.firm }}</td><td>{{ row.fee }}</td><td>{{ row.size }}</td><td>{{ row.pass }}</td><td><b>{{ row.ev }}</b></td><td>{{ row.breakeven }}</td></tr>
@@ -69,5 +69,5 @@
   </tbody>
 </table>
 {% else %}
-<p class="lede">Nothing saved yet. Use <em>Calculate &amp; save</em> to line firms up side by side. Comparisons live in this browser session.</p>
+<p class="lede">{{ t('ui.p_nosave')|safe }}</p>
 {% endif %}

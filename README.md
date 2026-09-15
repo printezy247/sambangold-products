@@ -592,6 +592,16 @@ in `ADMIN_TELEGRAM_ID` is the admin: every feature open, plus `/admin` with the
 account list and a CSV export. The 🤖 half is the same process — point Telegram
 at `POST /webhook/telegram` once `PUBLIC_BASE_URL` is reachable over HTTPS.
 
+Every surface is **Bahasa Melayu first**: the registry copy, the tool panels,
+the scanner findings and the bot replies all switch with the `EN` toggle or
+`/language`, and the trading vocabulary Malaysians already use in English
+(spread, lot, drawdown, prop firm, rebate, payout) stays as it is. In the bot,
+**▶️ Mula** on any tool card starts a guided flow — one question at a time with
+tap-to-answer buttons — so nobody has to remember `/propcalc 500 100000 15`;
+typing a bare command such as `/scan` does the same. If
+`TELEGRAM_BOT_USERNAME` is not set, the app asks the Bot API for it once and
+caches it, so the Telegram login button appears either way.
+
 | Variable | Required | Purpose |
 |:--|:--:|:--|
 | `TELEGRAM_BOT_TOKEN` | ✅ | Bot identity, and the key that signs dashboard logins |

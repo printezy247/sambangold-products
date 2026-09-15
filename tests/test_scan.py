@@ -87,7 +87,7 @@ def test_dashboard_scan_history_watchlist_and_public_share(client):
     client.post("/p/copy-trade-audit", data={"action": "scan", "subject": "exness", "spread_pips": "2", "lots": "10"})
     client.post("/p/copy-trade-audit", data={"action": "scan", "subject": "exness"})
     page = client.get("/p/copy-trade-audit").data.decode()
-    assert "Watchlist" in page and "History" in page and page.count("Exness") >= 3
+    assert "Senarai pantau" in page and "Sejarah" in page and page.count("Exness") >= 3
     assert "$2,400" in client.post("/p/copy-trade-audit", data={"action": "scan", "subject": "exness", "spread_pips": "2", "lots": "10"}).data.decode()
 
 

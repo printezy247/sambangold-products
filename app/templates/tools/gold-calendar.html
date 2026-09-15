@@ -20,7 +20,7 @@
   <div class="stat glass {{ 'positive' if c.this_month.avg_return >= 0 else 'negative' }}"><span>{{ t('cal.season', n=c.this_month.n) }}</span><b>{{ '%+.1f' % c.this_month.avg_return }}%</b><small>{{ t('cal.season_line', ret=c.this_month.avg_return, rng=c.this_month.avg_range) }} · {{ c.season.source }}</small></div>
   <div class="stat glass"><span>{{ t('cal.next') }}</span><b style="font-size:18px">{% if c.upcoming %}{{ c.upcoming[0].title }}{% else %}—{% endif %}</b><small>{% if c.upcoming %}{{ c.fmt_myt(c.upcoming[0].at) }} MYT{% else %}{{ t('cal.none') }}{% endif %}</small></div>
   <div class="stat glass warn"><span>{{ t('cal.holiday') }}</span><b style="font-size:18px">{% if c.holiday %}{{ c.holiday.at.strftime('%d %b') }}{% else %}—{% endif %}</b><small>{% if c.holiday %}{{ c.holiday.title }}{% endif %}</small></div>
-  <div class="stat glass"><span>Baseline spread</span><b>{% if c.baseline is not none %}{{ '{:,.2f}'.format(c.baseline) }}{% else %}—{% endif %}</b><small>{{ t('cal.spread_note') }}</small></div>
+  <div class="stat glass"><span>{{ t('ui.c_baseline') }}</span><b>{% if c.baseline is not none %}{{ '{:,.2f}'.format(c.baseline) }}{% else %}—{% endif %}</b><small>{{ t('cal.spread_note') }}</small></div>
 </div>
 
 <div class="panel" style="margin-top:18px;overflow-x:auto">
@@ -45,7 +45,7 @@
 <h3>{{ t('cal.next') }}</h3>
 {% if c.upcoming %}
 <table class="flags">
-  <thead><tr><th>MYT</th><th>UTC</th><th>Event</th><th>Forecast</th><th>Previous</th><th>Source</th></tr></thead>
+  <thead><tr><th>MYT</th><th>UTC</th><th>{{ t('ui.event') }}</th><th>{{ t('ui.forecast') }}</th><th>{{ t('ui.previous') }}</th><th>{{ t('ui.source') }}</th></tr></thead>
   <tbody>
   {% for e in c.upcoming %}
     <tr><td class="mono">{{ c.fmt_myt(e.at) }}</td><td class="mono">{{ c.fmt_utc(e.at) }}</td><td><b>{{ e.title }}</b></td><td>{{ e.forecast or '—' }}</td><td>{{ e.previous or '—' }}</td><td class="text-muted">{{ e.source }}</td></tr>
@@ -54,7 +54,7 @@
 </table>
 {% else %}<p class="lede">{{ t('cal.none') }}</p>{% endif %}
 
-<h3>Seasonality · 12 months</h3>
+<h3>{{ t('ui.c_season') }}</h3>
 <div class="panel" style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:140px">
   {% for m in range(1, 13) %}{% set s = c.season[m] %}
   <div style="display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%">
@@ -64,12 +64,12 @@
   </div>
   {% endfor %}
 </div>
-<p class="text-muted" style="font-size:12px">{{ c.season.source }} · average monthly return; bar height is the size of the move.</p>
+<p class="text-muted" style="font-size:12px">{{ t('ui.c_season_note', src=c.season.source) }}</p>
 
-<h3>What the spread did last time</h3>
+<h3>{{ t('ui.c_hist') }}</h3>
 {% if c.history %}
 <table class="flags">
-  <thead><tr><th>Event</th><th>Measured</th><th>Worst spread</th><th>Mean</th><th>vs baseline</th></tr></thead>
+  <thead><tr><th>{{ t('ui.event') }}</th><th>{{ t('ui.measured') }}</th><th>{{ t('ui.worst') }}</th><th>{{ t('ui.mean') }}</th><th>{{ t('ui.vs_base') }}</th></tr></thead>
   <tbody>
   {% for h in c.history %}
     <tr><td><b>{{ h.title }}</b></td><td>{{ h.occurrences }}×</td><td class="mono">{{ '{:,.2f}'.format(h.worst) }}</td><td class="mono">{{ '{:,.2f}'.format(h.mean) }}</td>

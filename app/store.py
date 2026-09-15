@@ -46,8 +46,18 @@ def db():
         conn = sqlite3.connect(path)
         conn.row_factory = sqlite3.Row
         conn.executescript(SCHEMA)
+        _migrate(conn)
         g.db = conn
     return g.db
+
+
+def _migrate(conn):
+    """Columns added after a table first shipped. Each ALTER is a no-op once applied."""
+    for table, column, ddl in (("tg_users", "state", "TEXT"),):
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(%s)" % table)]
+        if column not in cols:
+            conn.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table, column, ddl))
+    conn.commit()
 
 
 def close_db(_exc=None):
@@ -309,6 +319,20 @@ def tg_touch(telegram_id, username="", first_name="", tag=None, start=False):
 def tg_lang(telegram_id):
     row = _row(db().execute("SELECT lang FROM tg_users WHERE telegram_id = ?", (str(telegram_id),)))
     return row["lang"] if row else None
+
+
+def tg_state(telegram_id):
+    """The guided-flow state for this chat (a dict), or None."""
+    import json
+    row = _row(db().execute("SELECT state FROM tg_users WHERE telegram_id = ?", (str(telegram_id),)))
+    return json.loads(row["state"]) if row and row["state"] else None
+
+
+def tg_set_state(telegram_id, state):
+    import json
+    db().execute("UPDATE tg_users SET state = ? WHERE telegram_id = ?",
+                 (json.dumps(state) if state else None, str(telegram_id)))
+    db().commit()
 
 
 def tg_set_lang(telegram_id, lang):

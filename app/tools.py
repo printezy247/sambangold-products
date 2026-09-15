@@ -10,6 +10,7 @@ fails the surface-contract test.
 from flask import session
 
 from . import calc
+from .brand import DEFAULT_LANG, t
 from .caltool import bot_calendar, bot_calendar_alert, dashboard_calendar
 from .scantool import (bot_audit, bot_copyaudit, bot_influencer, bot_scan, dashboard_botscam,
                        dashboard_copyaudit, dashboard_influencer, dashboard_redflag)
@@ -31,31 +32,23 @@ def pct(value):
 # #3 — Prop firm challenge
 # --------------------------------------------------------------------------- #
 
-PROPCALC_USAGE = (
-    "Usage: <code>/propcalc FEE SIZE PASS%</code>\n"
-    "Example: <code>/propcalc 500 100000 15</code> — a $500 fee on a $100k "
-    "account with a 15% chance of passing."
-)
+def _ui_lang():
+    from .auth import lang
+    return lang()
 
 
-def bot_propcalc(args, **_):
+def bot_propcalc(args, lang=DEFAULT_LANG, **_):
+    usage = t("prop.usage", lang)
     if len(args) < 3:
-        return PROPCALC_USAGE
+        return usage
     try:
         r = calc.prop_ev(args[0], args[1], args[2])
     except calc.InputError as exc:
-        return "%s\n\n%s" % (exc, PROPCALC_USAGE)
+        return "%s\n\n%s" % (exc, usage)
     tone = {"positive": "✅", "breakeven": "➖", "negative": "❌"}[r["verdict"]]
-    return (
-        "%s <b>EV %s</b> on a %s fee (%s ROI)\n"
-        "First payout if funded: %s (%s target × %s split on %s)\n"
-        "Breakeven pass rate: <b>%s</b> — you said %s\n\n"
-        "Paste the firm's terms on the dashboard for the rule scan."
-    ) % (
-        tone, money(r["ev"]), money(r["total_cost"]), pct(r["roi"]),
-        money(r["first_payout"]), pct(r["profit_target"]), pct(r["split"]), money(r["size"]),
-        pct(r["breakeven_pass_rate"]), pct(r["pass_rate"]),
-    )
+    return t("prop.reply", lang, tone=tone, ev=money(r["ev"]), cost=money(r["total_cost"]), roi=pct(r["roi"]),
+             payout=money(r["first_payout"]), target=pct(r["profit_target"]), split=pct(r["split"]), size=money(r["size"]),
+             be=pct(r["breakeven_pass_rate"]), **{"pass": pct(r["pass_rate"])})
 
 
 def dashboard_prop(request, user=None):
@@ -72,7 +65,7 @@ def dashboard_prop(request, user=None):
         except calc.InputError as exc:
             ctx["error"] = str(exc)
     if form.get("terms"):
-        ctx["scan"] = calc.scan_terms(form["terms"])
+        ctx["scan"] = calc.scan_terms(form["terms"], _ui_lang())
     if ctx["result"] and form.get("save"):
         _save("prop-calculator", {
             "firm": form.get("firm") or "Unnamed firm",
@@ -91,39 +84,24 @@ def dashboard_prop(request, user=None):
 # #8 — IB revenue
 # --------------------------------------------------------------------------- #
 
-IBCALC_USAGE = (
-    "Usage: <code>/ibcalc LOTS RATE [CLIENTS] [CLAWBACK%]</code>\n"
-    "Example: <code>/ibcalc 40 7 25 5</code> — 25 clients trading 40 lots a "
-    "month at $7 a lot with 5% clawback."
-)
-
-
-def bot_ibcalc(args, **_):
+def bot_ibcalc(args, lang=DEFAULT_LANG, **_):
+    usage = t("ib.usage", lang)
     if len(args) < 2:
-        return IBCALC_USAGE
+        return usage
     try:
         r = calc.ib_revenue(args[0], args[1],
                             clients=args[2] if len(args) > 2 else 1,
                             clawback_pct=args[3] if len(args) > 3 else 0)
     except calc.InputError as exc:
-        return "%s\n\n%s" % (exc, IBCALC_USAGE)
-    return (
-        "<b>%s net per month</b> · %s a year\n"
-        "Gross %s from %d client%s × %g lots × $%g\n"
-        "Clawback %s · margin %s\n\n"
-        "Add compliance cost, payout threshold and hold period on the dashboard "
-        "to see when the first cash lands."
-    ) % (
-        money(r["net"]), money(r["annual"]),
-        money(r["gross"]), r["clients"], "" if r["clients"] == 1 else "s", r["lots"], r["rate"],
-        money(r["clawback"]), pct(r["margin"]),
-    )
+        return "%s\n\n%s" % (exc, usage)
+    return t("ib.reply", lang, net=money(r["net"]), annual=money(r["annual"]), gross=money(r["gross"]),
+             clients=r["clients"], lots=r["lots"], rate=r["rate"], claw=money(r["clawback"]), margin=pct(r["margin"]))
 
 
 def dashboard_ib(request, user=None):
     form = request.values
     ctx = {"form": form, "result": None, "error": None,
-           "checklist": calc.IB_CHECKLIST,
+           "checklist": calc.ib_checklist(_ui_lang()),
            "saved": session.get("saves", {}).get("ib-revenue-calculator", [])}
     if form.get("lots"):
         try:

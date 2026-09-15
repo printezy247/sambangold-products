@@ -36,28 +36,28 @@ def test_feed_falls_back_and_then_raises(monkeypatch):
 
 def test_watch_price_reply(app):
     with app.app_context():
-        reply = reply_for("/watch XAUUSD", chat_id=7)
+        reply = reply_for("/watch XAUUSD", chat_id=7, lang="en")
     assert "2,400.00" in reply and "bid 2,399.50" in reply and "ask 2,400.50" in reply
     assert "Long: enter 2,400.50" in reply
 
 
 def test_watch_usage_and_unknown_pair(app):
     with app.app_context():
-        assert "Usage" in reply_for("/watch", chat_id=7)
-        assert "Only gold" in reply_for("/watch EURUSD", chat_id=7)
-        assert "Usage" in reply_for("/watch XAUUSD sideways 5", chat_id=7)
-        assert "must be a number" in reply_for("/watch XAUUSD above x", chat_id=7)
+        assert "Usage" in reply_for("/watch", chat_id=7, lang="en")
+        assert "Only gold" in reply_for("/watch EURUSD", chat_id=7, lang="en")
+        assert "Usage" in reply_for("/watch XAUUSD sideways 5", chat_id=7, lang="en")
+        assert "must be a number" in reply_for("/watch XAUUSD above x", chat_id=7, lang="en")
 
 
 def test_watch_arm_list_clear_round_trip(app):
     with app.app_context():
-        assert "Alert #1 armed" in reply_for("/watch XAUUSD above 2450", chat_id=7)
-        assert "#2 armed" in reply_for("/watch gold below 2380", chat_id=7)
-        listing = reply_for("/watch list", chat_id=7)
+        assert "Alert #1 armed" in reply_for("/watch XAUUSD above 2450", chat_id=7, lang="en")
+        assert "#2 armed" in reply_for("/watch gold below 2380", chat_id=7, lang="en")
+        listing = reply_for("/watch list", chat_id=7, lang="en")
         assert "above 2,450.00" in listing and "below 2,380.00" in listing
-        assert "No alerts" in reply_for("/watch list", chat_id=8)  # other chat sees nothing
-        assert "Cleared 2" in reply_for("/watch clear", chat_id=7)
-        assert "No alerts" in reply_for("/watch list", chat_id=7)
+        assert "No alerts" in reply_for("/watch list", chat_id=8, lang="en")  # other chat sees nothing
+        assert "Cleared 2" in reply_for("/watch clear", chat_id=7, lang="en")
+        assert "No alerts" in reply_for("/watch list", chat_id=7, lang="en")
 
 
 def test_checker_fires_on_the_traded_side_and_records(app, fake_feed):
@@ -93,19 +93,19 @@ def test_cli_check_alerts(app):
 
 def test_dashboard_shows_price_without_login(client):
     body = client.get("/p/gold-watch").get_data(as_text=True)
-    assert "2,400.00" in body and "Sign in with Telegram" in body
+    assert "2,400.00" in body and "Log masuk dengan Telegram" in body
 
 
 def test_dashboard_arm_edit_disarm_export_share_the_bot_list(app, client):
     login(client, "42")
     body = client.post("/p/gold-watch", data={"action": "arm", "direction": "above", "level": "2450"}).get_data(as_text=True)
-    assert "Alert #1 armed" in body and "2450" in body
+    assert "Alert #1 dipasang" in body and "2450" in body
 
     with app.app_context():                       # the bot sees the same alert
-        assert "above 2,450.00" in reply_for("/watch list", chat_id="42")
+        assert "above 2,450.00" in reply_for("/watch list", chat_id="42", lang="en")
 
     body = client.post("/p/gold-watch", data={"action": "update", "id": "1", "level": "2460"}).get_data(as_text=True)
-    assert "Threshold updated" in body and 'value="2460"' in body
+    assert "Paras dikemas kini" in body and 'value="2460"' in body
 
     with app.app_context():
         assert store.update_alert("999", 1, level=1) == 0   # another owner cannot touch it
@@ -113,7 +113,7 @@ def test_dashboard_arm_edit_disarm_export_share_the_bot_list(app, client):
         store.record_trigger(store.alerts_for("42")[0], fake)
 
     body = client.get("/p/gold-watch").get_data(as_text=True)
-    assert "2,466.00" in body and "Export history" in body
+    assert "2,466.00" in body and "Eksport sejarah" in body
 
     csv_body = client.get("/p/gold-watch/history.csv")
     assert csv_body.status_code == 200 and csv_body.mimetype == "text/csv"
@@ -121,7 +121,7 @@ def test_dashboard_arm_edit_disarm_export_share_the_bot_list(app, client):
 
     client.post("/p/gold-watch", data={"action": "arm", "direction": "below", "level": "2300"})
     body = client.post("/p/gold-watch", data={"action": "disarm", "id": "2"}).get_data(as_text=True)
-    assert "Alert disarmed" in body
+    assert "Alert dibuang" in body
 
 
 def test_csv_export_needs_login(client):

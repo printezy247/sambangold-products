@@ -94,11 +94,11 @@ def test_every_live_product_is_live_on_both_surfaces():
 def test_bot_propcalc_answers_with_numbers_and_usage():
     assert "$460" in reply_for("/propcalc 500 100000 15")
     assert "7.8%" in reply_for("/propcalc 500 100000 15")
-    assert "Usage" in reply_for("/propcalc")
-    assert "Usage" in reply_for("/propcalc a b c")
+    assert "Guna" in reply_for("/propcalc") and "Usage" in reply_for("/propcalc", lang="en")
+    assert "Guna" in reply_for("/propcalc a b c")
 
 
 def test_bot_ibcalc_answers_with_numbers_and_usage():
     reply = reply_for("/ibcalc 40 7 25 5")
     assert "$6,650" in reply and "$79,800" in reply
-    assert "Usage" in reply_for("/ibcalc 40")
+    assert "Guna" in reply_for("/ibcalc 40")

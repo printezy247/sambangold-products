@@ -186,6 +186,21 @@ def _report(slug, subject, text, findings, base=0, extra=None):
             **(extra or {})}
 
 
+CHECKLIST_EN = (
+    "Username ends in 'bot' and matches the project's own site exactly",
+    "The bot is linked from the project's official website or channel",
+    "It never asks for a seed phrase, private key or wallet connection",
+    "It never asks for a fee, 'gas' or deposit to verify, claim or unlock",
+    "Every link goes to the project's own domain, not a shortener",
+)
+DEMANDS_EN = (
+    "A third-party verified account (Myfxbook / FX Blue), not screenshots",
+    "Twelve months of history including the losing months",
+    "Maximum drawdown and average R, not win rate",
+    "Which broker entity and regulator number the referral link goes to",
+)
+
+
 # --- #4 bot scam ------------------------------------------------------------- #
 
 def audit_bot(handle, text=""):
@@ -199,13 +214,7 @@ def audit_bot(handle, text=""):
     if not text.strip():
         base += 0
     return _report("bot-scam-detector", "@" + handle if handle else "(no handle)", text, findings, base,
-                   {"checklist": [
-                       "Username ends in 'bot' and matches the project's own site exactly",
-                       "The bot is linked from the project's official website or channel",
-                       "It never asks for a seed phrase, private key or wallet connection",
-                       "It never asks for a fee, 'gas' or deposit to verify, claim or unlock",
-                       "Every link goes to the project's own domain, not a shortener",
-                   ]})
+                   {"checklist": list(CHECKLIST_EN)})
 
 
 # --- #6 copy-trade ------------------------------------------------------------- #
@@ -259,13 +268,7 @@ def audit_influencer(handle, text=""):
     findings = run_rules(text, INFLUENCER_RULES)
     ibs = re.findall(r"https?://\S*(?:refid|ref=|/ref/|invitecode|affid)[^\s]*", text or "", re.IGNORECASE)
     return _report("influencer-audit", "@" + handle if handle else "(no handle)", text, findings, 0,
-                   {"broker_links": ibs,
-                    "demands": [
-                        "A third-party verified account (Myfxbook / FX Blue), not screenshots",
-                        "Twelve months of history including the losing months",
-                        "Maximum drawdown and average R, not win rate",
-                        "Which broker entity and regulator number the referral link goes to",
-                    ]})
+                   {"broker_links": ibs, "demands": list(DEMANDS_EN)})
 
 
 def loss_report(handle, platform, amount, currency, date, story, broker=""):
@@ -294,3 +297,82 @@ def loss_report(handle, platform, amount, currency, date, story, broker=""):
         "Educational research only. Not legal advice.",
     ]
     return "\n".join(lines)
+
+
+# --- Bahasa Melayu ------------------------------------------------------------- #
+# Findings are stored in English (the canonical report); the surfaces localise
+# them at render time. Keyed by the English label.
+
+MS = {
+    "Guaranteed returns": ("Untung dijamin", "Tiada siapa boleh jamin hasil pasaran. Ini penanda scam paling boleh dipercayai."),
+    "Fee to withdraw": ("Yuran untuk keluarkan duit", "Broker sah tak pernah caj anda untuk terima duit anda sendiri."),
+    "Wallet / key request": ("Minta wallet / private key", "Tiada servis perlukan key anda atau transfer ke alamat untuk 'sahkan' apa-apa."),
+    "Urgency": ("Desakan masa", "Tarikh akhir rekaan wujud untuk halang anda daripada menyemak."),
+    "Screenshot as proof": ("Screenshot sebagai bukti", "Screenshot boleh diedit dalam beberapa saat. Minta rekod langsung yang disahkan."),
+    "Lifestyle bait": ("Umpan gaya hidup", "Imej mewah jual impian, bukan kaedah."),
+    "Move to private chat": ("Ajak ke chat peribadi", "Chat peribadi buang orang ramai yang boleh beri amaran kepada anda."),
+    "Paid VIP tier": ("Tier VIP berbayar", "Bukan scam dengan sendirinya, tetapi di sinilah duit diminta."),
+    "Double / multiply": ("Gandakan modal", "Dakwaan kompaun tanpa drawdown tak wujud."),
+    "Referral / IB link": ("Pautan rujukan / IB", "Pitch ini dibayar broker setiap deposit. Tak salah — tetapi itulah model bisnesnya."),
+    "Verified track record link": ("Pautan rekod disahkan", "Akaun yang disahkan pihak ketiga ialah satu-satunya bukti yang tak boleh diedit."),
+    "Risk disclosure present": ("Ada pendedahan risiko", "Penjual jujur sebut. Scammer tak pernah."),
+    "Airdrop / claim": ("Airdrop / claim", "Bot airdrop wujud untuk dapatkan sambungan wallet atau 'yuran gas' daripada anda."),
+    "Verification fee": ("Yuran verifikasi", "Verifikasi tak pernah berbayar."),
+    "Shortened link": ("Pautan dipendekkan", "Pemendek pautan sembunyikan destinasi. Servis sebenar paut ke domain sendiri."),
+    "Crypto address in chat": ("Alamat crypto dalam chat", "Alamat mentah dalam mesej bot ialah permintaan hantar duit kepada orang asing."),
+    "Impersonation": ("Menyamar", "Support sebenar tak pernah mulakan chat dengan anda, dan tak pernah guna username tiruan."),
+    "Lookalike username": ("Username tiruan", "Tukar huruf yang nampak betul sekali pandang — begitulah tiruan dibuat."),
+    "Impersonation (username)": ("Menyamar (username)", "Support sebenar tak pernah mulakan chat dengan anda, dan tak pernah guna username tiruan."),
+    "Lookalike username (username)": ("Username tiruan (username)", "Tukar huruf yang nampak betul sekali pandang — begitulah tiruan dibuat."),
+    "Unregulated / offshore only": ("Tanpa lesen / offshore sahaja", "Tanpa lesen bermakna tiada tempat mengadu. SVG dan Comoros ialah alamat yang bermaksud 'tiada'."),
+    "No negative balance protection": ("Tiada negative balance protection", "Tanpa NBP, gap boleh buat anda berhutang dengan broker."),
+    "Hidden spread / markup": ("Spread / markup tersembunyi", "Copy trading selalunya percuma sebab spread ialah tempat mereka untung. Kira kosnya."),
+    "Bonus deposit": ("Bonus deposit", "Bonus datang dengan syarat volum yang kunci pengeluaran."),
+    "Negative balance protection stated": ("NBP dinyatakan", "Anda tak boleh rugi lebih daripada deposit."),
+    "Regulator number stated": ("Nombor lesen dinyatakan", "Nombor yang boleh disemak di daftar. Semaklah."),
+    "Offshore-only licences": ("Lesen offshore sahaja", "Tiada regulator tier-1 dalam jadual kami untuk broker ini. Semak daftar sebelum deposit."),
+    "Broker not in our table": ("Broker tiada dalam jadual kami", "Tak dikenali bukan bermakna buruk — tetapi anda mesti sahkan nombor lesen di daftar rasmi sendiri."),
+    "Negative balance protection (known)": ("Negative balance protection (diketahui)", "Disenaraikan menawarkan NBP pada akaun runcit. Sahkan untuk entiti anda."),
+    "Cash-out via 'course' + broker": ("Untung melalui 'kursus' + broker", "Coraknya: jual kursus, kemudian untung lagi bila anda deposit melalui pautan mereka."),
+    "Unverifiable P&L": ("P&L tak boleh disahkan", "Nombor bulat, tempoh singkat, tiada penyata akaun."),
+    "Giveaway hook": ("Umpan giveaway", "Giveaway ialah umpan untuk pautan deposit."),
+    "Deleted-losses pattern": ("Corak rugi dipadam", "Feed tanpa kerugian ialah feed yang ada pemadaman."),
+    "Losses shown": ("Kerugian ditunjukkan", "Tunjuk kerugian ialah isyarat kejujuran paling murah."),
+    "Accuracy claim": ("Dakwaan ketepatan", "Win rate tanpa R dan drawdown ialah nombor marketing, bukan prestasi."),
+    "Pips-per-week promise": ("Janji pip seminggu", "Pip bukan duit. Tanpa saiz lot dan risiko ia tak bermakna."),
+    "Free then paid": ("Percuma kemudian berbayar", "Channel percuma wujud untuk tukar anda ke yang berbayar."),
+    "Copy blindly": ("Copy membuta tuli", "'Copy je' buang satu-satunya perlindungan anda: saiz posisi anda sendiri."),
+}
+
+CHECKLIST_MS = (
+    "Username berakhir dengan 'bot' dan sama tepat dengan laman rasmi projek",
+    "Bot dipaut dari laman web atau channel rasmi projek",
+    "Ia tak pernah minta seed phrase, private key atau sambungan wallet",
+    "Ia tak pernah minta yuran, 'gas' atau deposit untuk sahkan, claim atau buka",
+    "Setiap pautan ke domain projek sendiri, bukan pemendek pautan",
+)
+DEMANDS_MS = (
+    "Akaun yang disahkan pihak ketiga (Myfxbook / FX Blue), bukan screenshot",
+    "Dua belas bulan sejarah termasuk bulan yang rugi",
+    "Drawdown maksimum dan purata R, bukan win rate",
+    "Entiti broker dan nombor regulator mana yang pautan rujukan itu tuju",
+)
+
+
+def localise(findings, lang="ms"):
+    """Copies of the findings with label and reason in `lang`."""
+    if lang != "ms":
+        return findings
+    out = []
+    for f in findings:
+        label, why = MS.get(f["label"], (f["label"], f["why"]))
+        out.append({**f, "label": label, "why": why})
+    return out
+
+
+def checklist(lang="ms"):
+    return list(CHECKLIST_MS) if lang == "ms" else list(CHECKLIST_EN)
+
+
+def demands(lang="ms"):
+    return list(DEMANDS_MS) if lang == "ms" else list(DEMANDS_EN)

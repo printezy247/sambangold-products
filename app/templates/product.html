@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ p.number }} · {{ p.name }}{% endblock %}
 {% block body %}
+{% set p = p.view(lang) %}
 <div class="wrap" style="padding-top:48px">
   <p style="margin:0"><a class="text-muted" href="{{ url_for('views.index') }}#tools">← {{ t('product.back') }}</a></p>
   <div style="display:flex;align-items:center;gap:18px;margin-top:14px;flex-wrap:wrap">
@@ -9,7 +10,7 @@
       <h1 style="margin:0">{{ p.emoji }} {{ p.number }} · {{ p.name }}</h1>
       <div class="chips" style="margin-top:8px">
         <span class="chip">{{ p.vertical }}</span>
-        <span class="chip bot">{{ p.primary_label }}</span>
+        <span class="chip bot">{{ p.primary_text(lang) }}</span>
         <span class="chip win">{{ t('product.free') }} — {{ p.free_tier }}</span>
         {% if tool %}<span class="chip gold">● {{ t('grid.live') }}</span>{% endif %}
       </div>

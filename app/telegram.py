@@ -13,12 +13,13 @@ UX rules, carried over from Sam's other bots:
 * every ``/start`` is logged with its deep-link tag for attribution
 """
 
+import time
 from urllib.parse import quote
 
 import requests
 from flask import Blueprint, current_app, jsonify, request
 
-from . import store
+from . import flows, store
 from .brand import DEFAULT_LANG, normalise_lang, t
 from .products import PRODUCTS, command_index
 from .tools import BOT
@@ -120,8 +121,33 @@ def _base_url():
     return current_app.config["PUBLIC_BASE_URL"].rstrip("/")
 
 
-def _bot_link():
+USERNAME_RETRY_SECONDS = 300
+
+
+def bot_username():
+    """The bot's @username: from config, else asked of the Bot API once and cached on the app."""
     username = current_app.config["TELEGRAM_BOT_USERNAME"]
+    if username:
+        return username
+    token = current_app.config["TELEGRAM_BOT_TOKEN"]
+    if not token or current_app.testing:
+        return ""
+    cache = current_app.extensions.setdefault("sambanggold", {})
+    hit = cache.get("bot_username")
+    if hit and (hit[0] or time.time() - hit[1] < USERNAME_RETRY_SECONDS):
+        return hit[0]
+    name = ""
+    try:
+        body = requests.get(API % (token, "getMe"), timeout=TIMEOUT).json()
+        name = (body.get("result") or {}).get("username") or ""
+    except (requests.RequestException, ValueError):
+        current_app.logger.warning("getMe failed; the Telegram login button stays hidden until it succeeds.")
+    cache["bot_username"] = (name, time.time())
+    return name
+
+
+def _bot_link():
+    username = bot_username()
     return "https://t.me/%s" % username if username else _base_url()
 
 
@@ -163,7 +189,7 @@ def tools_keyboard(lang):
 
 def tool_keyboard(product, lang):
     return kb([
-        [btn(t("bot.btn_try", lang), "try_%s" % product.slug)],
+        [btn(t("flow.start", lang), "run_%s" % product.slug), btn(t("flow.example", lang), "try_%s" % product.slug)],
         [btn(t("bot.btn_open", lang), url="%s/p/%s" % (_base_url(), product.slug))],
         [btn(t("bot.btn_back", lang), "menu_tools"), btn(t("bot.btn_menu", lang), "menu_main")],
     ])
@@ -174,7 +200,9 @@ def result_keyboard(product, lang, chat_id=None):
     if product.slug == "gold-calendar":
         on = bool(chat_id and store.calendar_subscribed(chat_id))
         rows.append([btn(t("cal.btn_off" if on else "cal.btn_on", lang), "cal_off" if on else "cal_on")])
-    if product.slug in SAMPLES:
+    if product.slug in flows.FLOWS:
+        rows.append([btn(t("bot.btn_again", lang), "run_%s" % product.slug)])
+    elif product.slug in SAMPLES:
         rows.append([btn(t("bot.btn_again", lang), "try_%s" % product.slug)])
     rows.append([btn(t("bot.btn_open", lang), url="%s/p/%s" % (_base_url(), product.slug)),
                  btn(t("bot.btn_share", lang), url=_share_url(lang))])
@@ -191,22 +219,23 @@ def back_keyboard(lang, to="menu_main"):
 def help_text(lang=DEFAULT_LANG):
     lines = [t("bot.help", lang), ""]
     for product in PRODUCTS:
-        command = product.bot_commands[0][0]
+        command = product.view(lang).bot_commands[0][0]
         lines.append("%s %s — <code>%s</code>" % (product.emoji, product.name, command))
     lines += ["", t("bot.help_tail", lang)]
     return "\n".join(lines)
 
 
 def tool_card(product, lang):
-    return t("bot.tool_card", lang, emoji=product.emoji, name=product.name, solution=product.solution,
-             free=product.free_tier, command=product.bot_commands[0][0])
+    v = product.view(lang)
+    return t("bot.tool_card", lang, emoji=v.emoji, name=v.name, solution=v.solution,
+             free=v.free_tier, command=v.bot_commands[0][0])
 
 
 def queued_text(lang):
     lines = [t("bot.queued", lang), ""]
     for p in PRODUCTS:
         if p.slug not in SAMPLES:
-            lines.append("%s %s — <code>%s</code>" % (p.emoji, p.name, p.bot_commands[0][0]))
+            lines.append("%s %s — <code>%s</code>" % (p.emoji, p.name, p.view(lang).bot_commands[0][0]))
     return "\n".join(lines)
 
 
@@ -226,11 +255,12 @@ def reply_for(text, base_url="", chat_id=None, lang=DEFAULT_LANG):
     if handler is not None:
         return "%s <b>%s</b>\n%s\n\nDashboard: %s" % (
             product.emoji, product.name, handler(parts[1:], chat_id=chat_id, lang=lang), page)
+    v = product.view(lang)
     if product.status == "shipped":
-        head = "%s <b>%s</b>\n%s" % (product.emoji, product.name, product.solution)
+        head = "%s <b>%s</b>\n%s" % (v.emoji, v.name, v.solution)
     else:
-        head = t("bot.queued_reply", lang, emoji=product.emoji, name=product.name, solution=product.solution)
-    return "%s\n\n%s: %s\nDashboard: %s" % (head, t("product.free", lang), product.free_tier, page)
+        head = t("bot.queued_reply", lang, emoji=v.emoji, name=v.name, solution=v.solution)
+    return "%s\n\n%s: %s\nDashboard: %s" % (head, t("product.free", lang), v.free_tier, page)
 
 
 # --- update handling --------------------------------------------------------- #
@@ -277,6 +307,11 @@ def _handle_message(chat_id, text, user):
         return [("send", chat_id, t("bot.pick_lang"), lang_keyboard())]
 
     lang = lang or DEFAULT_LANG
+    if not text.strip().startswith("/"):
+        answered = flows.on_text(text, chat_id, lang)
+        if answered is not None:
+            return answered
+    flows.cancel(chat_id)   # a fresh command ends any open flow
     if word == "tools":
         return [("send", chat_id, t("bot.tools", lang), tools_keyboard(lang))]
     if word == "dashboard":
@@ -287,6 +322,8 @@ def _handle_message(chat_id, text, user):
     product = command_index().get(word)
     if product is None:
         return [("send", chat_id, t("bot.unknown", lang), menu_keyboard(lang))]
+    if len(parts) == 1 and product.slug in flows.FLOWS and flows.FLOWS[product.slug] and word == product.bot_commands[0][0].split()[0].lstrip("/"):
+        return flows.start(product.slug, chat_id, lang)   # `/scan` alone: ask, don't lecture
     return [("send", chat_id, reply_for(text, _base_url(), chat_id=chat_id, lang=lang), result_keyboard(product, lang, chat_id))]
 
 
@@ -326,6 +363,10 @@ def _handle_callback(query):
         product = _product_by_slug(data[5:])
         if product:
             actions.append(("edit", chat_id, message_id, tool_card(product, lang), tool_keyboard(product, lang)))
+    elif data.startswith("run_"):
+        actions += flows.start(data[4:], chat_id, lang)
+    elif data.startswith("fl_"):
+        actions += flows.on_callback(data, chat_id, message_id, lang)
     elif data.startswith("try_"):
         product = _product_by_slug(data[4:])
         sample = SAMPLES.get(product.slug) if product else None

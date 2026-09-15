@@ -1,18 +1,18 @@
-<h2>Revenue model</h2>
+<h2>{{ t('ui.i_model') }}</h2>
 <form method="get" class="panel tool">
   <div class="fields">
-    <label>Broker <input name="broker" value="{{ tool.form.get('broker', '') }}" placeholder="optional"></label>
-    <label>Lots per client / month <input name="lots" value="{{ tool.form.get('lots', '') }}" placeholder="40" required></label>
-    <label>Rebate $ per lot <input name="rate" value="{{ tool.form.get('rate', 7) }}"></label>
-    <label>Active clients <input name="clients" value="{{ tool.form.get('clients', 1) }}"></label>
-    <label>Clawback % <input name="clawback_pct" value="{{ tool.form.get('clawback_pct', 0) }}"></label>
-    <label>Compliance cost $ / month <input name="compliance_cost" value="{{ tool.form.get('compliance_cost', 0) }}"></label>
-    <label>Payout threshold $ <input name="payout_threshold" value="{{ tool.form.get('payout_threshold', 0) }}"></label>
-    <label>Hold period days <input name="hold_days" value="{{ tool.form.get('hold_days', 30) }}"></label>
+    <label>{{ t('ui.i_broker') }} <input name="broker" value="{{ tool.form.get('broker', '') }}" placeholder="{{ t('ui.optional') }}"></label>
+    <label>{{ t('ui.i_lots') }} <input name="lots" value="{{ tool.form.get('lots', '') }}" placeholder="40" required></label>
+    <label>{{ t('ui.i_rate') }} <input name="rate" value="{{ tool.form.get('rate', 7) }}"></label>
+    <label>{{ t('ui.i_clients') }} <input name="clients" value="{{ tool.form.get('clients', 1) }}"></label>
+    <label>{{ t('ui.i_claw') }} <input name="clawback_pct" value="{{ tool.form.get('clawback_pct', 0) }}"></label>
+    <label>{{ t('ui.i_comp') }} <input name="compliance_cost" value="{{ tool.form.get('compliance_cost', 0) }}"></label>
+    <label>{{ t('ui.i_thresh') }} <input name="payout_threshold" value="{{ tool.form.get('payout_threshold', 0) }}"></label>
+    <label>{{ t('ui.i_hold') }} <input name="hold_days" value="{{ tool.form.get('hold_days', 30) }}"></label>
   </div>
   <div class="actions">
-    <button type="submit">Calculate</button>
-    <button type="submit" name="save" value="1" class="ghost">Calculate &amp; save</button>
+    <button type="submit">{{ t('ui.calc') }}</button>
+    <button type="submit" name="save" value="1" class="ghost">{{ t('ui.calc_save') }}</button>
   </div>
   {% if tool.error %}<p class="err">{{ tool.error }}</p>{% endif %}
 </form>
@@ -20,24 +20,24 @@
 {% if tool.result %}
 {% set r = tool.result %}
 <div class="stats">
-  <div class="stat {{ 'positive' if r.net > 0 else 'negative' }}"><span>Net per month</span><b>{{ money(r.net) }}</b><small>{{ money(r.annual) }} a year · {{ pct(r.margin) }} margin</small></div>
-  <div class="stat"><span>Gross rebate</span><b>{{ money(r.gross) }}</b><small>−{{ money(r.clawback) }} clawback · −{{ money(r.compliance_cost) }} compliance</small></div>
-  <div class="stat {{ 'positive' if r.first_cash_days else 'negative' }}"><span>First cash lands</span><b>{{ ('day %d' % r.first_cash_days) if r.first_cash_days else 'never' }}</b><small>{{ money(r.payout_threshold) }} threshold + {{ r.hold_days }}-day hold</small></div>
+  <div class="stat {{ 'positive' if r.net > 0 else 'negative' }}"><span>{{ t('ui.i_net') }}</span><b>{{ money(r.net) }}</b><small>{{ t('ui.i_net_note', annual=money(r.annual), margin=pct(r.margin)) }}</small></div>
+  <div class="stat"><span>{{ t('ui.i_gross') }}</span><b>{{ money(r.gross) }}</b><small>{{ t('ui.i_gross_note', claw=money(r.clawback), comp=money(r.compliance_cost)) }}</small></div>
+  <div class="stat {{ 'positive' if r.first_cash_days else 'negative' }}"><span>{{ t('ui.i_first') }}</span><b>{{ t('ui.i_day', d=r.first_cash_days) if r.first_cash_days else t('ui.never') }}</b><small>{{ t('ui.i_first_note', thresh=money(r.payout_threshold), days=r.hold_days) }}</small></div>
 </div>
 
-<h3>Payout timeline</h3>
+<h3>{{ t('ui.i_timeline') }}</h3>
 <table class="flags">
-  <thead><tr><th>Month</th><th>Earned</th><th>Paid out</th><th>Held back</th><th>Cumulative paid</th></tr></thead>
+  <thead><tr><th>{{ t('ui.month') }}</th><th>{{ t('ui.earned') }}</th><th>{{ t('ui.paid_out') }}</th><th>{{ t('ui.held') }}</th><th>{{ t('ui.cumulative') }}</th></tr></thead>
   <tbody>
   {% for m in r.timeline %}
     <tr><td>{{ m.month }}</td><td>{{ money(m.earned) }}</td><td>{% if m.paid %}<b>{{ money(m.paid) }}</b>{% else %}—{% endif %}</td><td>{{ money(m.held) }}</td><td>{{ money(m.cumulative) }}</td></tr>
   {% endfor %}
   </tbody>
 </table>
-<p class="lede">Shareable link to this exact model: the address bar. The payout threshold and hold period are the two numbers to confirm in writing before you refer a single client.</p>
+<p class="lede">{{ t('ui.i_share') }}</p>
 {% endif %}
 
-<h2>Compliance checklist</h2>
+<h2>{{ t('ui.i_checklist') }}</h2>
 <div class="halves">
   {% for section, items in tool.checklist %}
   <div class="panel">
@@ -46,12 +46,12 @@
   </div>
   {% endfor %}
 </div>
-<p><a href="{{ url_for('views.ib_checklist') }}" download>⬇ Download the checklist (.txt)</a></p>
+<p><a href="{{ url_for('views.ib_checklist') }}" download>{{ t('ui.i_download') }}</a></p>
 
-<h2>Saved scenarios</h2>
+<h2>{{ t('ui.i_saved') }}</h2>
 {% if tool.saved %}
 <table class="flags">
-  <thead><tr><th>Broker</th><th>Rate</th><th>Clients</th><th>Net / month</th><th>Annual</th><th>First cash</th></tr></thead>
+  <thead><tr><th>{{ t('ui.i_broker') }}</th><th>{{ t('ui.rate') }}</th><th>{{ t('ui.clients') }}</th><th>{{ t('ui.net_month') }}</th><th>{{ t('ui.annual') }}</th><th>{{ t('ui.first_cash') }}</th></tr></thead>
   <tbody>
   {% for row in tool.saved %}
     <tr><td>{{ row.broker }}</td><td>{{ row.rate }}</td><td>{{ row.clients }}</td><td><b>{{ row.net }}</b></td><td>{{ row.annual }}</td><td>{{ row.first_cash }}</td></tr>
@@ -59,5 +59,5 @@
   </tbody>
 </table>
 {% else %}
-<p class="lede">Nothing saved yet. Use <em>Calculate &amp; save</em> to line brokers up side by side. Scenarios live in this browser session.</p>
+<p class="lede">{{ t('ui.i_nosave')|safe }}</p>
 {% endif %}

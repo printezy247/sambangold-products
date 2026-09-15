@@ -1,10 +1,11 @@
+{% set pv = p.view(lang) %}
 <a class="lux card{% if is_live %} lux-gold{% endif %}" href="{{ url_for('views.product', slug=p.slug) }}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start">
     <img src="{{ url_for('views.assets', filename='icons/ic-%02d.svg'|format(p.number)) }}" alt="">
     {% if is_live %}<span class="chip win">● {{ t('grid.live') }}</span>{% elif p.status == 'shipped' %}<span class="chip gold">{{ t('product.soon').split('.')[0] }}</span>{% else %}<span class="chip">{{ t('grid.queued') }}</span>{% endif %}
   </div>
   <div class="name">{{ p.emoji }} {{ p.number }} · {{ p.name }}</div>
-  <div class="free">{{ p.free_tier }}</div>
+  <div class="free">{{ pv.free_tier }}</div>
   <div class="chips">
     <span class="chip bot">🤖 {{ p.bot_commands[0][0] }}</span>
     <span class="chip">{{ p.vertical }}</span>
