@@ -492,3 +492,51 @@ def public_scans(product, subject, limit=10):
     return [dict(r) for r in db().execute(
         "SELECT id, score, verdict, created_at FROM scans WHERE product = ? AND subject = ? ORDER BY created_at DESC LIMIT ?",
         (product, subject, limit))]
+
+
+# --------------------------------------------------------------------------- #
+# #10 Rebate auditor: one row per reconciliation run.
+# --------------------------------------------------------------------------- #
+
+REBATE_SCHEMA = """
+CREATE TABLE IF NOT EXISTS rebate_runs (
+    id         INTEGER PRIMARY KEY,
+    owner      TEXT,
+    broker     TEXT,
+    period     TEXT,
+    shortfall  REAL NOT NULL,
+    run        TEXT NOT NULL,     -- JSON: rate card, summary, findings
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS rebate_owner ON rebate_runs(owner, created_at);
+"""
+SCHEMA += REBATE_SCHEMA
+
+
+def save_rebate_run(run, owner=None):
+    import json
+    cur = db().execute(
+        "INSERT INTO rebate_runs (owner, broker, period, shortfall, run, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (str(owner) if owner else None, run.get("broker") or "", run.get("period") or "",
+         run["summary"]["shortfall"], json.dumps(run, default=str), time.time()))
+    db().commit()
+    return cur.lastrowid
+
+
+def get_rebate_run(run_id):
+    import json
+    row = _row(db().execute("SELECT * FROM rebate_runs WHERE id = ?", (int(run_id),)))
+    if row:
+        row["run"] = json.loads(row["run"])
+    return row
+
+
+def rebate_runs_for(owner, limit=20):
+    return [dict(r) for r in db().execute(
+        "SELECT id, broker, period, shortfall, created_at FROM rebate_runs WHERE owner = ? ORDER BY created_at DESC LIMIT ?",
+        (str(owner), limit))]
+
+
+def last_rebate_run(owner):
+    row = _row(db().execute("SELECT id FROM rebate_runs WHERE owner = ? ORDER BY created_at DESC LIMIT 1", (str(owner),)))
+    return get_rebate_run(row["id"]) if row else None

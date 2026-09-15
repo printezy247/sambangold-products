@@ -255,6 +255,11 @@ def quarter_pdf(year, quarter, events, season, brand="SAMBANGGOLD"):
         lines += ["", "Educational research only. Not financial advice. Verify every price with your broker."]
         pages.append(lines)
 
+    return simple_pdf(pages)
+
+
+def simple_pdf(pages):
+    """A plain Courier PDF from a list of pages, each a list of text lines. No dependencies."""
     objs = []
     font_id = 3 + 2 * len(pages)
     kids = []

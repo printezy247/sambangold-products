@@ -85,7 +85,7 @@
 
 <section class="wrap" id="tools">
   <h2>{{ t('grid.title') }}</h2>
-  <p class="lede">{{ t('grid.subtitle') }}</p>
+  <p class="lede">{{ t('grid.subtitle', live=live|length, queued=rest|length) }}</p>
   <div class="grid" style="margin-top:20px">
     {% for p in live %}{% set is_live = true %}{% include "_card.html" %}{% endfor %}
     {% for p in rest %}{% set is_live = false %}{% include "_card.html" %}{% endfor %}
