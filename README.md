@@ -3,12 +3,12 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-banner-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/hero-banner-light.svg">
-  <img src="assets/hero-banner-dark.svg" alt="Sambangold — trading intelligence stack: 9 shipped, 9 proposed" width="100%">
+  <img src="assets/hero-banner-dark.svg" alt="SAMBANGGOLD — 18 gold tools, a Telegram bot and a dashboard for every one" width="100%">
 </picture>
 
 <br><br>
 
-<img src="assets/badges-strip.svg" alt="9 shipped / 9 proposed · Telegram + Web · free tier on all 18 · Python 3.12 / Flask · MIT">
+<img src="assets/badges-strip.svg" alt="3 live · 9 shipped · 9 proposed · Telegram + dashboard · free tier on all 18 · Python 3.12 / Flask · MIT">
 
 <br><br>
 
@@ -20,7 +20,7 @@
 
 <br><br>
 
-<img src="assets/stack-ticker.svg" alt="Python 3.12 · Flask · Telegram Bot API · Binance · Yahoo Finance · Stripe · Fly.io · USDT" width="100%">
+<img src="assets/stack-ticker.svg" alt="Python 3.12 · Flask · Telegram Bot API · Binance · Yahoo Finance · SQLite · Fly.io · GitHub Actions" width="100%">
 
 </div>
 
