@@ -41,7 +41,31 @@
     {% for p in rest %}{% set is_live = false %}{% include "_card.html" %}{% endfor %}
   </div>
 
-  <div id="upgrade" class="lux" style="padding:22px;margin-top:48px">
+  <div id="autopilot" class="lux{% if ap.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:48px">
+    <h3 style="margin-top:0">🛰️ {{ t('ui.ap_h') }}
+      {% if not ap.allowed %}<span class="chip">{{ rank_label('pro') }}</span>{% endif %}</h3>
+    <p class="text-muted" style="margin:0 0 14px">{{ t('ui.ap_sub') }}</p>
+    {% if not ap.allowed %}
+      <p class="text-muted" style="margin:0 0 14px">{{ t('ui.ap_need') }}</p>
+      <a class="btn btn-gold" href="{{ url_for('views.pricing', want='autopilot') }}">{{ t('price.cta_pay', rank=rank_label('pro')) }}</a>
+    {% else %}
+      <table class="flags">
+        {% for slug in ap.slugs %}
+        <tr>
+          <td><b>{{ by_slug[slug].view(lang).emoji }} {{ by_slug[slug].view(lang).name }}</b></td>
+          <td>{% if ap.subs.get(slug) %}<span class="chip win">{{ t('ui.ap_on') }}</span>
+              {% else %}<span class="chip">{{ t('ui.ap_off') }}</span>{% endif %}</td>
+          <td><form method="post" action="{{ url_for('views.dashboard') }}#autopilot">
+            <input type="hidden" name="slug" value="{{ slug }}">
+            <button class="btn small" type="submit">{% if ap.subs.get(slug) %}{{ t('ui.ap_off') }}{% else %}{{ t('ui.ap_on') }}{% endif %}</button>
+          </form></td>
+        </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+  </div>
+
+  <div id="upgrade" class="lux" style="padding:22px;margin-top:24px">
     <h3 style="margin-top:0">{{ rank_label('pro') }}</h3>
     <p class="text-muted" style="margin:0">{{ t('product.upsell_note') }}</p>
   </div>
