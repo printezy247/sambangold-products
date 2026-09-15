@@ -20,6 +20,20 @@ bp = Blueprint("views", __name__)
 ASSETS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
 
 
+# Landing page: who the page speaks to, and which tools answer which loss.
+LANDING_PATHS = (
+    ("p1", "🧑‍💻", ("signal-verifier", "bot-scam-detector", "red-flag-scanner", "influencer-audit", "gold-watch", "gold-calendar")),
+    ("p2", "🏦", ("prop-calculator", "monte-carlo-sim", "drawdown-sentinel", "exposure-monitor")),
+    ("p3", "🤝", ("ib-revenue-calculator", "rebate-auditor", "churn-radar", "broker-comparator", "link-attribution")),
+)
+LANDING_ROWS = (
+    ("r1", ("signal-verifier", "bot-scam-detector", "copy-trade-audit", "red-flag-scanner", "influencer-audit")),
+    ("r2", ("prop-calculator", "monte-carlo-sim", "drawdown-sentinel", "exposure-monitor")),
+    ("r3", ("ib-revenue-calculator", "rebate-auditor", "churn-radar", "broker-comparator", "link-attribution")),
+    ("r4", ("gold-watch", "gold-calendar", "tokenized-gold", "miner-divergence")),
+)
+
+
 def _split():
     """Live tools first (they have a dashboard handler), then the rest in order."""
     live = [p for p in PRODUCTS if p.slug in DASHBOARD]
@@ -34,7 +48,7 @@ def index():
         quote = feeds.gold_quote()
     except feeds.FeedError:
         quote = None
-    return render_template("landing.html", products=PRODUCTS, live=live, rest=rest, quote=quote)
+    return render_template("landing.html", products=PRODUCTS, live=live, rest=rest, quote=quote, by_slug=BY_SLUG, paths=LANDING_PATHS, rows=LANDING_ROWS)
 
 
 @bp.route("/dashboard")
