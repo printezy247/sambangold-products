@@ -184,7 +184,7 @@ MS = {
         "free_tier": "1,000 simulasi setiap larian, larian tanpa had.",
         "problem": "Satu nombor expected value menyembunyikan hakikat bahawa set peraturan, bukan edge, yang menggagalkan orang.",
         "solution": "Simulasi laluan ekuiti terhadap set peraturan sebenar untuk kebarangkalian lulus dan kos-hingga-funded yang realistik.",
-        "bot_commands": (("/simulate WINRATE RR RISIKO%", "kad ringkasan dengan kebarangkalian lulus dan kos dijangka"),),
+        "bot_commands": (("/simulate WINRATE RR RISIKO% [FIRM]", "kad ringkasan dengan kebarangkalian lulus dan kos dijangka"),),
         "dashboard_views": ("Carta kipas laluan ekuiti merentas simulasi", "Pemilih pek peraturan — daily DD, trailing DD, hari minimum, consistency", "Eksport PDF larian"),
         "upsell": "100k simulasi, pustaka pek peraturan penuh dan eksport PDF.",
         "primary_why": "Carta kipas dan PDF perlukan halaman; bot pulangkan kad ringkasan.",

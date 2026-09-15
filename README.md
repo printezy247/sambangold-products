@@ -390,7 +390,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Problem** — Product #3 gives a static EV number, which hides the thing that actually kills accounts: path risk. A profitable edge still breaches a trailing drawdown on a bad sequence.
 
-**Solution** — Simulate N equity paths against the *real* rule set — daily DD, trailing DD, minimum trading days, consistency rule — from the trader's own win rate, RR, and variance. Return a realistic pass probability and the expected total cost-to-funded across retries.
+**Solution** — Simulate N equity paths against the *real* rule set — daily DD, trailing DD, minimum trading days, consistency rule — from the trader's own win rate, RR, and variance. Return a realistic pass probability and the expected total cost-to-funded across retries. Fan chart, failure share per rule, PDF per run. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/simulate WINRATE RR RISK%` &nbsp;·&nbsp; 🌐 `/p/monte-carlo-sim` — Equity-path fan chart across the simulated runs · Rule-pack picker · PDF export of the run.
 
@@ -553,7 +553,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 - [x] **Phase 0 — the spine** — one Flask app, a page per product, one Telegram identity across bot and dashboard
 - [x] **Vault I** — 9 products shipped
 - [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution ✅
-- [ ] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim, #16 Overexposure Monitor
+- [ ] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor
 - [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
 - [ ] One billing spine (Stripe + USDT) across all eighteen
 

@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, jsonify, redirect, render_template, request,
                    send_from_directory, session)
 
-from . import brokertool, caltool, feeds, linktool, rebatetool, sentineltool, scan, scantool, store, telegram, verifytool, watch
+from . import brokertool, caltool, feeds, linktool, mctool, rebatetool, sentineltool, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -135,6 +135,16 @@ def influencer_loss_report():
                             f.get("date", ""), f.get("story", ""), f.get("broker", ""))
     return Response(body, mimetype="text/plain",
                     headers={"Content-Disposition": "attachment; filename=scam-loss-report.txt"})
+
+
+@bp.route("/p/monte-carlo-sim/run/<int:run_id>.pdf")
+def mc_pdf(run_id):
+    user = current_user()
+    name, body = mctool.pdf_for(run_id, owner=user["owner"] if user else None, lang=ui_lang(),
+                                brand=current_app.config.get("BRAND_NAME", "SAMBANGGOLD"))
+    if body is None:
+        abort(404)
+    return Response(body, mimetype="application/pdf", headers={"Content-Disposition": "attachment; filename=%s" % name})
 
 
 @bp.route("/p/drawdown-sentinel/ping/<token>", methods=["GET", "POST"])

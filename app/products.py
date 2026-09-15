@@ -300,13 +300,13 @@ PRODUCTS = (
     ),
     Product(
         number=15, slug="monte-carlo-sim", name="Monte Carlo Challenge Simulator",
-        vertical="Prop firm", emoji="🏛", status="proposed", primary="dashboard",
+        vertical="Prop firm", emoji="🏛", status="shipped", primary="dashboard",
         primary_why="The fan chart and the PDF need a page; the bot returns the summary card.",
         free_tier="1,000 simulations per run, unlimited runs.",
         problem="A single expected-value number hides the fact that the rule set, not the edge, is what fails people.",
         solution="Simulate equity paths against the actual rule set to get a realistic pass probability and cost-to-funded.",
         bot_commands=(
-            ("/simulate WINRATE RR RISK%", "summary card with pass probability and expected cost"),
+            ("/simulate WINRATE RR RISK% [FIRM]", "summary card with pass probability and expected cost"),
         ),
         dashboard_views=(
             "Equity-path fan chart across the simulated runs",
