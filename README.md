@@ -614,6 +614,8 @@ fly deploy --remote-only
 
 `FLY_API_TOKEN` must be set as a repository secret. Never commit `.env`.
 
+Or let Fly deploy straight from GitHub (Dashboard → Launch an App from GitHub): the repo carries a `Dockerfile` and `fly.toml` (app `sambangold-products`, port 8080, a 1 GB volume at `/data` for SQLite). After the first deploy, set the secrets with `fly secrets set` and run `fly ssh console -C "flask --app wsgi set-webhook"` once so Telegram knows where to send updates.
+
 </details>
 
 <img src="assets/divider-flow.svg" alt="" width="100%">
@@ -633,6 +635,8 @@ sambangold-products/
 │   ├── badges-strip.svg                self-hosted badges
 │   ├── nav/                            clickable section chips
 │   └── icons/ic-01..18.svg             3D product icons
+├── Dockerfile                          Fly.io build — python:3.12-slim + gunicorn on 8080
+├── fly.toml                            app sambangold-products, 1 GB volume at /data
 ├── app/
 │   ├── products.py                     the registry — 18 products, both halves
 │   ├── auth.py                         Telegram Login Widget → web session

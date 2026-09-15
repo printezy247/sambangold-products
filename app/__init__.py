@@ -34,4 +34,12 @@ def create_app(config_object=Config):
         import json
         click.echo(json.dumps(watch.check_alerts(telegram.send_message)))
 
+    @app.cli.command("set-webhook")
+    def set_webhook_command():
+        """Point Telegram at PUBLIC_BASE_URL/webhook/telegram. Run once after deploy."""
+        base, token = app.config["PUBLIC_BASE_URL"], app.config["TELEGRAM_BOT_TOKEN"]
+        if not token:
+            raise click.ClickException("TELEGRAM_BOT_TOKEN is not set.")
+        click.echo(telegram.set_webhook(base, token).text)
+
     return app

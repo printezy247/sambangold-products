@@ -125,6 +125,7 @@ assets/          self-hosted animated SVGs (hero, dividers, icons, nav chips, ch
 products/        product-01..18.md — one spec per product
 scripts/         check-readme.sh, auto-commit.sh, auto-deploy.sh
 wsgi.py          gunicorn entry point
+Dockerfile       Fly.io build; fly.toml — app name, port 8080, /data volume for SQLite
 .github/         CI/CD workflow
 ```
 
