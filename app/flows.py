@@ -36,6 +36,7 @@ FLOWS = {
         S("claw", "flow.ib_claw", number=True, options=(("0%", "0"), ("5%", "5"), ("10%", "10"))),
     ],
     "gold-calendar": [],
+    "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
     "bot-scam-detector": [
         S("handle", "flow.audit_handle"),
         S("text", "flow.audit_text", optional=True),
@@ -69,6 +70,8 @@ def build(slug, a):
         return "/ibcalc %s %s %s %s" % (a["lots"], a["rate"], a["clients"], a["claw"])
     if slug == "gold-calendar":
         return "/calendar"
+    if slug == "rebate-auditor":
+        return "/rebateaudit"
     if slug == "bot-scam-detector":
         return ("/audit %s %s" % (a["handle"], a.get("text") or "")).strip()
     if slug == "copy-trade-audit":

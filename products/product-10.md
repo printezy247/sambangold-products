@@ -40,20 +40,23 @@ half, on one Telegram account, with the same free tier on each.
 3. Diff expected against paid. Surface three failure classes: **shortfall** (paid less than owed), **missing account** (traded but absent from the statement), **silent rate change** (effective rate differs from the schedule).
 4. Export a dispute-ready PDF with the per-account arithmetic shown.
 
+**Live.** Headers are matched loosely (account/login/client, symbol/instrument, lots/volume, rebate/paid), delimiters are sniffed, and the rate card takes a default rate, per-symbol overrides (`XAUUSD=8`) and volume tiers (`100:7.5, 500:8`) applied on the account's month total. Each line is classified as shortfall, missing account, silent rate change (same lots, lower implied rate), excluded symbol (traded, paid nothing), overpaid, or exact. A sample dataset loads with one click. Runs are archived per account; the bot reads the last one back.
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/rebateaudit` | run the last uploaded reconciliation and return the summary |
+| `/rebateaudit` | summary of your last reconciliation, or `/rebateaudit LOTS RATE PAID` for a one-line check |
 | `/rebatestatus` | show shortfall total for the current period |
 
 ---
 
 ## Dashboard views
 
-- CSV upload for the broker statement and the client trade log
-- Sortable diff table — shortfall, missing account, silent rate change
-- Dispute PDF with the per-account arithmetic shown
+- CSV paste or upload for the broker statement and the client trade log; rate card with per-symbol rates and volume tiers; sample data loader
+- Sortable diff table — shortfall, missing account, silent rate change, excluded symbol, overpaid, exact — with the implied rate per line
+- Dispute PDF with the per-account arithmetic shown, downloadable per run
+- Run history per account (signed in)
 
 ## Monetization
 

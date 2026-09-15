@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
                    send_from_directory, session)
 
-from . import caltool, feeds, scan, scantool, store, telegram, verifytool, watch
+from . import caltool, feeds, rebatetool, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -135,6 +135,16 @@ def influencer_loss_report():
                             f.get("date", ""), f.get("story", ""), f.get("broker", ""))
     return Response(body, mimetype="text/plain",
                     headers={"Content-Disposition": "attachment; filename=scam-loss-report.txt"})
+
+
+@bp.route("/p/rebate-auditor/dispute/<int:run_id>.pdf")
+def rebate_pdf(run_id):
+    user = current_user()
+    name, body = rebatetool.pdf_for(run_id, owner=user["owner"] if user else None,
+                                    brand=current_app.config.get("BRAND_NAME", "SAMBANGGOLD"))
+    if body is None:
+        abort(404)
+    return Response(body, mimetype="application/pdf", headers={"Content-Disposition": "attachment; filename=%s" % name})
 
 
 @bp.route("/p/ib-revenue-calculator/checklist.txt")

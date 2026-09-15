@@ -1,0 +1,74 @@
+{% set c = tool %}
+<h2>{{ t('ui.r_h') }}</h2>
+<p class="lede">{{ t('ui.r_lede') }}</p>
+<form method="post" enctype="multipart/form-data" class="panel tool">
+  <input type="hidden" name="action" value="run">
+  <div class="fields">
+    <label>{{ t('ui.r_broker') }} <input name="broker" value="{{ c.form.get('broker', '') }}" placeholder="{{ t('ui.optional') }}"></label>
+    <label>{{ t('ui.r_period') }} <input name="period" value="{{ c.form.get('period', '') }}" placeholder="2026-08"></label>
+    <label>{{ t('ui.r_rate') }} <input name="rate" value="{{ c.form.get('rate', '') }}" placeholder="6" required></label>
+    <label>{{ t('ui.r_overrides') }} <input name="overrides" value="{{ c.form.get('overrides', '') }}" placeholder="{{ t('ui.r_overrides_ph') }}"></label>
+    <label>{{ t('ui.r_tiers') }} <input name="tiers" value="{{ c.form.get('tiers', '') }}" placeholder="{{ t('ui.r_tiers_ph') }}"></label>
+  </div>
+  <div class="halves" style="margin-top:14px">
+    <label class="wide">{{ t('ui.r_stmt') }}
+      <textarea name="statement" rows="7" placeholder="account,symbol,lots,rebate&#10;1001,XAUUSD,42.5,340.00">{{ c.form.get('statement', '') }}</textarea>
+      <small class="text-muted">{{ t('ui.r_file') }}</small> <input type="file" name="statement" accept=".csv,text/csv">
+    </label>
+    <label class="wide">{{ t('ui.r_log') }}
+      <textarea name="log" rows="7" placeholder="login,instrument,volume&#10;1001,XAUUSD,42.5">{{ c.form.get('log', '') }}</textarea>
+      <small class="text-muted">{{ t('ui.r_file') }}</small> <input type="file" name="log" accept=".csv,text/csv">
+    </label>
+  </div>
+  <div class="actions">
+    <button type="submit">{{ t('ui.r_run') }}</button>
+    <button type="submit" name="action" value="sample" class="ghost">{{ t('ui.r_sample') }}</button>
+  </div>
+  {% for e in c.errors %}<p class="err">{{ e }}</p>{% endfor %}
+  {% if not c.owner %}<p class="soon">{{ t('product.signin') }}</p>{% endif %}
+</form>
+
+{% if c.run %}
+{% set s = c.run.summary %}
+<div class="stats">
+  <div class="stat glass"><span>{{ t('ui.r_expected') }}</span><b>${{ '{:,.2f}'.format(s.expected) }}</b><small>{{ t('ui.r_accounts', n=s.accounts) }} · {{ s.lines }} × {{ t('ui.r_account')|lower }}/symbol</small></div>
+  <div class="stat glass"><span>{{ t('ui.r_paid') }}</span><b>${{ '{:,.2f}'.format(s.paid) }}</b><small>{% if s.overpaid %}{{ t('ui.r_overpaid', n=s.overpaid) }}{% else %}—{% endif %}</small></div>
+  <div class="stat glass {{ 'negative' if s.shortfall > 0 else 'positive' }}"><span>{{ t('ui.r_shortfall') }}</span><b>${{ '{:,.2f}'.format(s.shortfall) }}</b><small>{{ t('ui.r_lines', n=s.flagged) }}</small></div>
+</div>
+<div class="actions" style="margin-top:12px">
+  {% if c.run_id %}<a class="btn btn-gold" href="{{ url_for('views.rebate_pdf', run_id=c.run_id) }}" download>{{ t('ui.r_pdf') }}</a>{% endif %}
+  <span class="text-muted" style="font-size:12px">{{ t('ui.r_sort') }}:
+    {% for k in ('diff','account','symbol','lots','kind') %}<a href="?sort={{ k }}" onclick="document.forms[0].action='?sort={{ k }}';document.forms[0].submit();return false;">{{ k }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</span>
+</div>
+
+<h3>{{ t('ui.r_diff') }}</h3>
+<table class="flags">
+  <thead><tr><th>{{ t('ui.r_kind') }}</th><th>{{ t('ui.r_account') }}</th><th>Symbol</th><th>{{ t('ui.r_lots') }}</th><th>{{ t('ui.r_ratecol') }}</th><th>{{ t('ui.r_expected') }}</th><th>{{ t('ui.r_paid') }}</th><th>{{ t('ui.r_implied') }}</th><th>Diff</th></tr></thead>
+  <tbody>
+  {% for f in c.findings %}
+    <tr>
+      <td><span class="chip {{ 'win' if f.kind == 'ok' else ('gold' if f.kind == 'overpaid' else '') }}" {% if f.kind not in ('ok','overpaid') %}style="color:var(--loss);border-color:color-mix(in oklab,var(--loss) 40%,transparent)"{% endif %}>{{ t('ui.r_k_' ~ f.kind) }}</span></td>
+      <td class="mono">{{ f.account }}</td><td>{{ f.symbol }}</td><td class="mono">{{ '%g' % f.lots }}</td><td class="mono">{% if f.rate is not none %}${{ '%g' % f.rate }}{% else %}—{% endif %}</td>
+      <td class="mono">${{ '{:,.2f}'.format(f.expected) }}</td><td class="mono">${{ '{:,.2f}'.format(f.paid) }}</td>
+      <td class="mono">{% if f.implied_rate is not none %}${{ '%.2f' % f.implied_rate }}{% else %}—{% endif %}</td>
+      <td class="mono" style="color:{{ 'var(--loss)' if f.diff > 0.01 else ('var(--gold)' if f.diff < -0.01 else 'var(--win)') }}"><b>{{ '{:+,.2f}'.format(f.diff) }}</b></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if c.owner %}
+<h3>{{ t('ui.r_runs') }}</h3>
+{% if c.runs %}
+<table class="flags">
+  <thead><tr><th>#</th><th>{{ t('ui.r_broker') }}</th><th>{{ t('ui.r_period') }}</th><th>{{ t('ui.r_shortfall') }}</th><th>{{ t('ui.when') }}</th><th></th></tr></thead>
+  <tbody>
+  {% for r in c.runs %}
+    <tr><td class="mono">{{ r.id }}</td><td>{{ r.broker or '—' }}</td><td>{{ r.period or '—' }}</td><td class="mono">${{ '{:,.2f}'.format(r.shortfall) }}</td><td class="mono">{{ r.created_at|utc }}</td>
+        <td><a class="btn small" href="{{ url_for('views.rebate_pdf', run_id=r.id) }}" download>PDF</a></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="lede">{{ t('ui.r_norun') }}</p>{% endif %}
+{% endif %}

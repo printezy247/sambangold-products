@@ -36,6 +36,7 @@ SAMPLES = {
     "ib-revenue-calculator": "/ibcalc 40 7 25 5",
     "gold-calendar": "/calendar",
     "signal-verifier": "/verify GOLD 2431.5",
+    "rebate-auditor": "/rebateaudit 42.5 8 300",
     "bot-scam-detector": "/audit @wallet_verify_b0t send your seed phrase to claim the airdrop",
     "copy-trade-audit": "/copyaudit exness 2 10",
     "red-flag-scanner": "/scan 100% accuracy guaranteed, no risk, only 3 VIP spots left, DM me",
@@ -88,11 +89,11 @@ COMMANDS = {
     "ms": [("start", "Menu utama"), ("tools", "Cuba alat percuma"), ("watch", "Harga emas & alert"),
            ("calendar", "Kalendar emas & alert"), ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
            ("verify", "Sahkan harga signal"), ("scan", "Imbas pitch signal"), ("audit", "Semak bot Telegram"), ("copyaudit", "Semak broker copy-trade"),
-           ("influencer", "Audit influencer"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
+           ("influencer", "Audit influencer"), ("rebateaudit", "Audit rebate IB"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
     "en": [("start", "Main menu"), ("tools", "Try a free tool"), ("watch", "Gold price & alerts"),
            ("calendar", "Gold calendar & alerts"), ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
            ("verify", "Verify a signal price"), ("scan", "Scan a signal pitch"), ("audit", "Check a Telegram bot"), ("copyaudit", "Check a copy-trade broker"),
-           ("influencer", "Audit an influencer"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
+           ("influencer", "Audit an influencer"), ("rebateaudit", "IB rebate audit"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
 }
 
 
