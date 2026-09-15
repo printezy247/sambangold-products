@@ -411,7 +411,7 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Problem** — "Five open trades" is often one leveraged bet. XAUUSD, silver, DXY, USDJPY, and miners move together, and the account finds out during the drawdown.
 
-**Solution** — Cluster open positions into a single true-risk figure, and surface swap-rollover and session-spread cost alongside it.
+**Solution** — Cluster open positions into a single true-risk figure, and surface swap-rollover and session-spread cost alongside it. Structural currency-leg clustering, a heat-map, and push warnings. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/exposure`, `/exposure warn` &nbsp;·&nbsp; 🌐 `/p/exposure-monitor` — Correlation heat-map of the open book · True-risk figure with the cluster decomposition · Rollover and session-spread cost projection.
 
@@ -553,7 +553,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 - [x] **Phase 0 — the spine** — one Flask app, a page per product, one Telegram identity across bot and dashboard
 - [x] **Vault I** — 9 products shipped
 - [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution ✅
-- [ ] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor
+- [x] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor ✅
 - [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
 - [ ] One billing spine (Stripe + USDT) across all eighteen
 

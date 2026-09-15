@@ -193,7 +193,7 @@ MS = {
         "free_tier": "Snapshot atas permintaan, tanpa had.",
         "problem": "Lima trade terbuka selalunya satu pertaruhan berleverage, dan akaun tahu tepat ketika kluster itu bergerak.",
         "solution": "Kelompokkan posisi terbuka kepada satu angka risiko sebenar, termasuk kos rollover dan spread sesi.",
-        "bot_commands": (("/exposure", "kluster semasa dan angka risiko sebenar"), ("/exposure warn", "hidupkan push amaran pendedahan berlebihan")),
+        "bot_commands": (("/exposure [POSISI]", "kluster semasa dan angka risiko sebenar"), ("/exposure warn", "hidupkan push amaran pendedahan berlebihan")),
         "dashboard_views": ("Peta haba korelasi buku terbuka", "Angka risiko sebenar dengan pecahan kluster", "Unjuran kos rollover dan spread sesi"),
         "upsell": "Pemantauan langsung dengan had pendedahan yang sedar peraturan prop.",
         "primary_why": "Pendedahan berlebihan ialah amaran yang perlu segera; peta haba menerangkannya kemudian.",

@@ -39,20 +39,24 @@ half, on one Telegram account, with the same free tier on each.
 2. Warn when effective risk exceeds the stated per-trade risk because positions are stacked on one factor.
 3. Surface swap-rollover cost and session-spread cost on the same view, since both scale with the same concentration.
 
+**Live.** No free feed gives rolling correlations across every pair a retail book holds, so the clustering is structural: each position is decomposed into its currency legs (EURUSD buy = long EUR, short USD; XAUUSD buy = long gold, short USD; silver shares the metals factor), the legs are netted per factor, and the book collapses to a true-risk figure. Flags: one factor carrying 60% or more of gross, three or more positions leaning the same way on one factor, effective leverage above 20× balance. The heat-map is +1 where two positions share a leg the same way, −1 where they oppose. Spread and swap are estimated per position from typical published values. Snapshots are archived per account; `/exposure warn` pushes every overexposed snapshot to Telegram.
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/exposure` | current cluster and true-risk figure |
+| `/exposure [POSITIONS]` | analyse `XAUUSD buy 1, EURUSD buy 1, …`, or show the last snapshot |
 | `/exposure warn` | enable overexposure push alerts |
 
 ---
 
 ## Dashboard views
 
-- Correlation heat-map of the open book
-- True-risk figure with the cluster decomposition
-- Rollover and session-spread cost projection
+- Paste the open book (one position per line), optional balance, one-click sample
+- True-risk tile, biggest factor and share, leverage; the flags in plain words
+- Cluster decomposition per factor and the structural correlation heat-map
+- Spread and swap cost projection per position, weekly total
+- Last snapshot remembered per account; push-warning toggle
 
 ## Monetization
 

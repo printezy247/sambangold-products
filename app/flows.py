@@ -38,6 +38,7 @@ FLOWS = {
     "gold-calendar": [],
     "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
     "churn-radar": [],
+    "exposure-monitor": [S("positions", "flow.ex_positions")],
     "monte-carlo-sim": [
         S("wr", "flow.mc_wr", number=True, options=(("35%", "35"), ("45%", "45"), ("55%", "55"), ("65%", "65"))),
         S("rr", "flow.mc_rr", number=True, options=(("1", "1"), ("1.5", "1.5"), ("2", "2"), ("3", "3"))),
@@ -96,6 +97,8 @@ def build(slug, a):
         return "/ibchurn"
     if slug == "broker-comparator":
         return "/goldspread %s %s" % (a["lots"], a["nights"])
+    if slug == "exposure-monitor":
+        return "/exposure " + a["positions"].replace("\n", ", ")
     if slug == "monte-carlo-sim":
         return "/simulate %s %s %s %s" % (a["wr"], a["rr"], a["risk"], a["firm"])
     if slug == "drawdown-sentinel":

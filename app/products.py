@@ -317,13 +317,13 @@ PRODUCTS = (
     ),
     Product(
         number=16, slug="exposure-monitor", name="Correlation & Overexposure Monitor",
-        vertical="Forex", emoji="💱", status="proposed", primary="bot",
+        vertical="Forex", emoji="💱", status="shipped", primary="bot",
         primary_why="Overexposure is a warning you need immediately; the heat-map explains it afterwards.",
         free_tier="On-demand snapshot, unlimited.",
         problem="Five open trades are often one leveraged bet, and the account finds out at the same moment the cluster moves.",
         solution="Cluster open positions into a single true-risk figure, with rollover and session-spread cost included.",
         bot_commands=(
-            ("/exposure", "current cluster and true-risk figure"),
+            ("/exposure [POSITIONS]", "current cluster and true-risk figure"),
             ("/exposure warn", "enable overexposure push alerts"),
         ),
         dashboard_views=(
