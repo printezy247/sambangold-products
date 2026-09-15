@@ -68,5 +68,7 @@ def create_app(config_object=Config):
         if not token:
             raise click.ClickException("TELEGRAM_BOT_TOKEN is not set.")
         click.echo(telegram.set_webhook(base, token).text)
+        for r in telegram.set_commands(token):
+            click.echo(r.text)
 
     return app
