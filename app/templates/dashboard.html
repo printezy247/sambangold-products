@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ t('dash.title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+    <div>
+      <h1>{{ t('dash.title') }}</h1>
+      <p class="lede">{{ t('dash.subtitle') }}</p>
+    </div>
+    <div class="lux lux-gold" style="padding:14px 18px;min-width:240px">
+      <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.1em">{{ t('dash.rank') }}</div>
+      <div class="font-display" style="font-size:28px;line-height:1.1" ><span class="text-goldgrad">{{ rank_label(user.rank) }}</span></div>
+      <div class="text-muted" style="font-size:12px">{{ t('dash.member_since') }} {{ since }}</div>
+      {% if not user.is_admin %}<div style="font-size:12px;margin-top:4px"><a class="text-gold" href="#upgrade">{{ t('dash.upgrade') }}</a></div>{% endif %}
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat glass warn"><span>{{ t('dash.alerts') }}</span><b>{{ counts.alerts }}</b><small>/watch</small></div>
+    <div class="stat glass positive"><span>{{ t('dash.triggers') }}</span><b>{{ counts.triggers }}</b><small>XAUUSD</small></div>
+    <div class="stat glass"><span>{{ t('dash.saved') }}</span><b>{{ counts.saved }}</b><small>#3 · #8</small></div>
+    <div class="stat glass {{ 'positive' if user.telegram_id else 'negative' }}"><span>{{ t('dash.linked') }}</span>
+      <b style="font-size:20px">{% if user.telegram_id %}@{{ user.username or user.telegram_id }}{% else %}—{% endif %}</b>
+      <small>{% if user.telegram_id %}{{ t('nav.cta') }}{% else %}{{ t('dash.not_linked') }}{% endif %}</small></div>
+  </div>
+
+  {% if not user.telegram_id or not user.email %}
+  <div class="lux" style="padding:18px 22px;margin-top:16px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+    <span class="text-muted">{% if not user.telegram_id %}{{ t('dash.link_tg') }}{% else %}{{ t('dash.link_email') }}{% endif %}</span>
+    <a class="btn small" href="{{ url_for('views.account') }}">{{ t('nav.account') }}</a>
+  </div>
+  {% endif %}
+
+  <h2>{{ t('dash.live') }}</h2>
+  <div class="grid">
+    {% for p in live %}{% set is_live = true %}{% include "_card.html" %}{% endfor %}
+  </div>
+
+  <h2>{{ t('dash.queued') }}</h2>
+  <div class="grid">
+    {% for p in rest %}{% set is_live = false %}{% include "_card.html" %}{% endfor %}
+  </div>
+
+  <div id="upgrade" class="lux" style="padding:22px;margin-top:48px">
+    <h3 style="margin-top:0">{{ rank_label('pro') }}</h3>
+    <p class="text-muted" style="margin:0">{{ t('product.upsell_note') }}</p>
+  </div>
+</div>
+{% endblock %}

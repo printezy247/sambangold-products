@@ -1,13 +1,25 @@
-"""The Telegram half of every product.
+"""The Telegram half of every product — SAMBANGGOLD voice, button-driven.
 
-A webhook-only bot needs one POST route and one outbound call, so this talks to
-the Bot API directly over HTTPS rather than pulling in an async framework that
-Flask would have to bridge.
+A webhook-only bot needs one POST route and a couple of outbound calls, so this
+talks to the Bot API directly over HTTPS rather than pulling in an async
+framework that Flask would have to bridge.
+
+UX rules, carried over from Sam's other bots:
+
+* language picker first, remembered; ``/language`` re-opens it
+* the main menu never has more than three actions
+* every screen has a way back; callbacks edit the message in place so the chat
+  stays clean
+* every ``/start`` is logged with its deep-link tag for attribution
 """
+
+from urllib.parse import quote
 
 import requests
 from flask import Blueprint, current_app, jsonify, request
 
+from . import store
+from .brand import DEFAULT_LANG, normalise_lang, t
 from .products import PRODUCTS, command_index
 from .tools import BOT
 
@@ -16,17 +28,42 @@ bp = Blueprint("telegram", __name__)
 API = "https://api.telegram.org/bot%s/%s"
 TIMEOUT = 10
 
+# The one-tap example each live tool answers with. Keys are product slugs.
+SAMPLES = {
+    "gold-watch": "/watch XAUUSD",
+    "prop-calculator": "/propcalc 500 100000 15",
+    "ib-revenue-calculator": "/ibcalc 40 7 25 5",
+}
 
-def send_message(chat_id, text, token=None):
+
+# --- Bot API --------------------------------------------------------------- #
+
+def _call(method, payload, token=None):
     token = token or current_app.config["TELEGRAM_BOT_TOKEN"]
     if not token:
-        current_app.logger.warning("TELEGRAM_BOT_TOKEN unset — message not sent.")
+        current_app.logger.warning("TELEGRAM_BOT_TOKEN unset — %s not sent.", method)
         return None
-    return requests.post(
-        API % (token, "sendMessage"),
-        json={"chat_id": chat_id, "text": text, "parse_mode": "HTML"},
-        timeout=TIMEOUT,
-    )
+    return requests.post(API % (token, method), json=payload, timeout=TIMEOUT)
+
+
+def send_message(chat_id, text, token=None, reply_markup=None):
+    payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML",
+               "link_preview_options": {"is_disabled": True}}
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    return _call("sendMessage", payload, token)
+
+
+def edit_message(chat_id, message_id, text, reply_markup=None):
+    payload = {"chat_id": chat_id, "message_id": message_id, "text": text, "parse_mode": "HTML",
+               "link_preview_options": {"is_disabled": True}}
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    return _call("editMessageText", payload)
+
+
+def answer_callback(callback_id):
+    return _call("answerCallbackQuery", {"callback_query_id": callback_id})
 
 
 def set_webhook(base_url, token):
@@ -37,26 +74,117 @@ def set_webhook(base_url, token):
     )
 
 
-def help_text():
-    lines = ["<b>Every product answers here and on the dashboard.</b>", ""]
+# --- keyboards ------------------------------------------------------------- #
+
+def kb(rows):
+    return {"inline_keyboard": rows}
+
+
+def btn(text, data=None, url=None):
+    return {"text": text, "url": url} if url else {"text": text, "callback_data": data}
+
+
+def _base_url():
+    return current_app.config["PUBLIC_BASE_URL"].rstrip("/")
+
+
+def _bot_link():
+    username = current_app.config["TELEGRAM_BOT_USERNAME"]
+    return "https://t.me/%s" % username if username else _base_url()
+
+
+def _share_url(lang):
+    text = t("bot.share_text", lang)
+    return "https://t.me/share/url?url=%s&text=%s" % (quote(_bot_link(), safe=""), quote(text, safe=""))
+
+
+def lang_keyboard():
+    return kb([[btn("🇲🇾 Bahasa Melayu", "lang_ms")], [btn("🇬🇧 English", "lang_en")]])
+
+
+def menu_keyboard(lang):
+    rows = [
+        [btn(t("bot.btn_tools", lang), "menu_tools")],
+        [btn(t("bot.btn_dash", lang), url=_base_url() + "/dashboard")],
+        [btn(t("bot.btn_faq", lang), "menu_faq")],
+    ]
+    channel = current_app.config["PUBLIC_CHANNEL_URL"]
+    if channel:
+        rows.append([btn(t("bot.btn_channel", lang), url=channel)])
+    return kb(rows)
+
+
+def tools_keyboard(lang):
+    live = [p for p in PRODUCTS if p.slug in SAMPLES]
+    rows, row = [], []
+    for p in live:
+        row.append(btn("%s %s" % (p.emoji, p.name), "tool_%s" % p.slug))
+        if len(row) == 2:
+            rows.append(row)
+            row = []
+    if row:
+        rows.append(row)
+    rows.append([btn(t("bot.btn_more", lang), "menu_queued")])
+    rows.append([btn(t("bot.btn_menu", lang), "menu_main")])
+    return kb(rows)
+
+
+def tool_keyboard(product, lang):
+    return kb([
+        [btn(t("bot.btn_try", lang), "try_%s" % product.slug)],
+        [btn(t("bot.btn_open", lang), url="%s/p/%s" % (_base_url(), product.slug))],
+        [btn(t("bot.btn_back", lang), "menu_tools"), btn(t("bot.btn_menu", lang), "menu_main")],
+    ])
+
+
+def result_keyboard(product, lang):
+    rows = []
+    if product.slug in SAMPLES:
+        rows.append([btn(t("bot.btn_again", lang), "try_%s" % product.slug)])
+    rows.append([btn(t("bot.btn_open", lang), url="%s/p/%s" % (_base_url(), product.slug)),
+                 btn(t("bot.btn_share", lang), url=_share_url(lang))])
+    rows.append([btn(t("bot.btn_menu", lang), "menu_main")])
+    return kb(rows)
+
+
+def back_keyboard(lang, to="menu_main"):
+    return kb([[btn(t("bot.btn_menu", lang), to)]])
+
+
+# --- screens ----------------------------------------------------------------- #
+
+def help_text(lang=DEFAULT_LANG):
+    lines = [t("bot.help", lang), ""]
     for product in PRODUCTS:
         command = product.bot_commands[0][0]
         lines.append("%s %s — <code>%s</code>" % (product.emoji, product.name, command))
-    lines.append("")
-    lines.append("Educational research only. Not financial advice.")
+    lines += ["", t("bot.help_tail", lang)]
     return "\n".join(lines)
 
 
-def reply_for(text, base_url="", chat_id=None):
-    """Answer for one incoming message. Pure, so the tests can call it."""
+def tool_card(product, lang):
+    return t("bot.tool_card", lang, emoji=product.emoji, name=product.name, solution=product.solution,
+             free=product.free_tier, command=product.bot_commands[0][0])
+
+
+def queued_text(lang):
+    lines = [t("bot.queued", lang), ""]
+    for p in PRODUCTS:
+        if p.slug not in SAMPLES:
+            lines.append("%s %s — <code>%s</code>" % (p.emoji, p.name, p.bot_commands[0][0]))
+    return "\n".join(lines)
+
+
+def reply_for(text, base_url="", chat_id=None, lang=DEFAULT_LANG):
+    """Answer for one typed command. Pure text, so the tests can call it."""
     parts = text.strip().split()
     word = parts[0].lstrip("/").split("@")[0] if parts else ""
     if word in ("start", "help", ""):
-        return help_text()
+        return help_text(lang)
 
     product = command_index().get(word)
     if product is None:
-        return "Unknown command. Send /help for the full list."
+        return t("bot.unknown", lang)
 
     page = "%s/p/%s" % (base_url.rstrip("/"), product.slug)
     handler = BOT.get(word)
@@ -66,20 +194,131 @@ def reply_for(text, base_url="", chat_id=None):
     if product.status == "shipped":
         head = "%s <b>%s</b>\n%s" % (product.emoji, product.name, product.solution)
     else:
-        head = (
-            "%s <b>%s</b> — queued for build.\n%s"
-            % (product.emoji, product.name, product.solution)
-        )
-    return "%s\n\nFree tier: %s\nDashboard: %s" % (head, product.free_tier, page)
+        head = t("bot.queued_reply", lang, emoji=product.emoji, name=product.name, solution=product.solution)
+    return "%s\n\n%s: %s\nDashboard: %s" % (head, t("product.free", lang), product.free_tier, page)
+
+
+# --- update handling --------------------------------------------------------- #
+
+def _lang_for(user):
+    """Stored choice → Telegram client language → None (ask)."""
+    if not user:
+        return DEFAULT_LANG
+    return store.tg_lang(user["id"]) or normalise_lang(user.get("language_code"))
+
+
+def handle_update(update):
+    """Turn one Telegram update into a list of API actions.
+
+    Actions are ("send", chat_id, text, keyboard), ("edit", chat_id, message_id,
+    text, keyboard) or ("answer", callback_id). The webhook executes them; tests
+    read them.
+    """
+    if "callback_query" in update:
+        return _handle_callback(update["callback_query"])
+    message = update.get("message") or update.get("edited_message") or {}
+    chat_id = (message.get("chat") or {}).get("id")
+    text = message.get("text", "")
+    user = message.get("from") or {}
+    if not chat_id or not text:
+        return []
+    return _handle_message(chat_id, text, user)
+
+
+def _handle_message(chat_id, text, user):
+    parts = text.strip().split()
+    word = parts[0].lstrip("/").split("@")[0].lower() if parts else ""
+    tag = parts[1] if word == "start" and len(parts) > 1 else None
+    store.tg_touch(user.get("id", chat_id), user.get("username", ""), user.get("first_name", ""),
+                   tag=tag, start=(word == "start"))
+    lang = _lang_for({"id": user.get("id", chat_id), "language_code": user.get("language_code")})
+
+    if word == "start":
+        if lang is None:
+            return [("send", chat_id, t("bot.pick_lang"), lang_keyboard())]
+        return [("send", chat_id, t("bot.welcome", lang), None),
+                ("send", chat_id, t("bot.menu", lang), menu_keyboard(lang))]
+    if word == "language":
+        return [("send", chat_id, t("bot.pick_lang"), lang_keyboard())]
+
+    lang = lang or DEFAULT_LANG
+    if word == "dashboard":
+        return [("send", chat_id, t("bot.dash", lang), kb([[btn(t("bot.btn_dash", lang), url=_base_url() + "/dashboard")]]))]
+    if word == "help":
+        return [("send", chat_id, help_text(lang), back_keyboard(lang))]
+
+    product = command_index().get(word)
+    if product is None:
+        return [("send", chat_id, t("bot.unknown", lang), menu_keyboard(lang))]
+    return [("send", chat_id, reply_for(text, _base_url(), chat_id=chat_id, lang=lang), result_keyboard(product, lang))]
+
+
+def _handle_callback(query):
+    data = query.get("data", "")
+    user = query.get("from") or {}
+    message = query.get("message") or {}
+    chat_id = (message.get("chat") or {}).get("id")
+    message_id = message.get("message_id")
+    actions = [("answer", query.get("id"))]
+    if not chat_id:
+        return actions
+    store.tg_touch(user.get("id", chat_id), user.get("username", ""), user.get("first_name", ""))
+
+    if data in ("lang_ms", "lang_en"):
+        lang = data[-2:]
+        first_pick = store.tg_lang(user.get("id", chat_id)) is None
+        store.tg_set_lang(user.get("id", chat_id), lang)
+        if first_pick:
+            actions.append(("edit", chat_id, message_id, t("bot.welcome", lang), None))
+            actions.append(("send", chat_id, t("bot.menu", lang), menu_keyboard(lang)))
+        else:
+            actions.append(("edit", chat_id, message_id, t("bot.lang_set", lang), menu_keyboard(lang)))
+        return actions
+
+    lang = _lang_for({"id": user.get("id", chat_id), "language_code": user.get("language_code")}) or DEFAULT_LANG
+
+    if data == "menu_main":
+        actions.append(("edit", chat_id, message_id, t("bot.menu", lang), menu_keyboard(lang)))
+    elif data == "menu_tools":
+        actions.append(("edit", chat_id, message_id, t("bot.tools", lang), tools_keyboard(lang)))
+    elif data == "menu_queued":
+        actions.append(("edit", chat_id, message_id, queued_text(lang), back_keyboard(lang, "menu_tools")))
+    elif data == "menu_faq":
+        actions.append(("edit", chat_id, message_id, t("bot.faq", lang), back_keyboard(lang)))
+    elif data.startswith("tool_"):
+        product = _product_by_slug(data[5:])
+        if product:
+            actions.append(("edit", chat_id, message_id, tool_card(product, lang), tool_keyboard(product, lang)))
+    elif data.startswith("try_"):
+        product = _product_by_slug(data[4:])
+        sample = SAMPLES.get(product.slug) if product else None
+        if sample:
+            actions.append(("send", chat_id, reply_for(sample, _base_url(), chat_id=chat_id, lang=lang),
+                            result_keyboard(product, lang)))
+    return actions
+
+
+def _product_by_slug(slug):
+    for p in PRODUCTS:
+        if p.slug == slug:
+            return p
+    return None
+
+
+def perform(actions):
+    for action in actions:
+        if action[0] == "send":
+            _, chat_id, text, keyboard = action
+            send_message(chat_id, text, reply_markup=keyboard)
+        elif action[0] == "edit":
+            _, chat_id, message_id, text, keyboard = action
+            edit_message(chat_id, message_id, text, reply_markup=keyboard)
+        elif action[0] == "answer":
+            answer_callback(action[1])
 
 
 @bp.route("/webhook/telegram", methods=["POST"])
 def webhook():
     update = request.get_json(silent=True) or {}
-    message = update.get("message") or update.get("edited_message") or {}
-    chat_id = (message.get("chat") or {}).get("id")
-    text = message.get("text", "")
-
-    if chat_id and text:
-        send_message(chat_id, reply_for(text, current_app.config["PUBLIC_BASE_URL"], chat_id=chat_id))
+    perform(handle_update(update))
     return jsonify(ok=True)

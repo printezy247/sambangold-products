@@ -9,7 +9,7 @@ from app.telegram import reply_for
 
 def test_index_lists_every_product(client):
     page = client.get("/").get_data(as_text=True)
-    assert page.count('class="card"') == 18
+    assert page.count("lux card") == 18
     for p in PRODUCTS:
         assert str(escape(p.name)) in page
 
@@ -42,7 +42,7 @@ def test_help_lists_every_product():
 
 
 def test_unknown_command_is_handled():
-    assert "Unknown command" in reply_for("/nope")
+    assert "/start" in reply_for("/nope")   # unknown → point at the menu, in the default language
 
 
 def test_webhook_accepts_an_update_without_a_token(client):

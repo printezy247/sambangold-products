@@ -37,26 +37,40 @@ Do not leave verified work sitting uncommitted in the working tree.
 A change is "successful" when `scripts/check-readme.sh` passes **and** `pytest`
 passes — not merely when the files were written. Both run in CI.
 
-## 3. Theme: modern, futuristic, premium
+## 3. Theme: SAMBANGGOLD — futuristic, premium, one brand across every surface
 
-Every visual surface — README, web pages, generated SVG, bot cards, PDFs —
-shares one identity.
+The dashboard, the bot and the README carry **Sam's brand**, taken from the
+website repo (`printezy247/website_sam`: `src/config/brand.ts`,
+`src/app/globals.css`, `public/brand/`). `app/brand.py` is the single source of
+truth for the name, the tokens and every user-facing string.
 
 | Token | Value | Use |
 |:--|:--|:--|
-| Background | `#060b14` → `#0d1b30` | Deep navy base, gradient ground |
-| Surface | `#0b1424` | Cards and panels |
-| Gold | `#f0b429` | Primary accent — gold products, IB, headlines |
-| Cyan | `#00e5ff` | Secondary accent — prop firm, forex |
-| Rose | `#ff4d6d` | Alerts, risk, security |
-| Violet | `#a78bfa` | Crypto |
-| Green | `#34d399` | Stocks, success, free tier |
-| Text | `#e8f0ff` / muted `#8fa3c0` | Body and secondary text |
+| Background | `#050505` | Page ground (near-black) |
+| Surface / Surface 2 | `#0b0e14` / `#11151d` | Cards, panels, risk strip |
+| Border | `#1e2330` | Hairlines |
+| Gold / Gold 2 / Gold deep | `#d4af37` / `#f5d76e` / `#7a4003` | Primary accent, gradients, CTAs |
+| Chrome | `#b7c0ce` | The "SAMBANG" half of the wordmark, secondary gradients |
+| Win / Loss | `#00c46a` / `#ff4d4f` | Success and free tier / risk and errors |
+| Text / Muted | `#f3f4f6` / `#9aa3b2` | Body and secondary text |
 
-Principles: dark-first with a light variant wherever the host supports one;
-generous spacing over dense layout; depth through isometric geometry, extruded
-faces, and soft shadow rather than skeuomorphic texture; motion that is subtle
-and looping, never distracting; every asset self-hosted.
+Type: **Anton** (OFL, self-hosted at `assets/brand/anton.woff2`) for the italic
+wordmark — chrome `SAMBANG` + gold `GOLD` — and display headings; a system sans
+stack for body; monospace for numbers. Brand kit in `assets/brand/`: wordmark,
+SBG monogram glyph (rotating gold ring), and the hammering-robot mascot (two PNG
+frames alternated by CSS).
+
+Effects, all CSS: `.glass`, `.lux` cards whose gold spotlight follows the pointer,
+`.lux-gold` with a slow conic beam, `.btn-gold`, `.holo-btn`, `.grid-bg`, a canvas
+field of drifting candles behind the hero. Dark-first; `prefers-reduced-motion`
+turns every loop off.
+
+Tone: **Bahasa Melayu first, English second.** Short sentences, no hype, the
+rank vocabulary from the site (Awam → General → A-Team → Rambo), and the risk
+strip on every surface. Product, rank and brand names are never translated.
+
+> The README's 32 SVG assets still carry the earlier navy/cyan palette. They are
+> the next thing to regenerate; do not add new assets in the old palette.
 
 ## 4. README is a product surface
 
@@ -119,8 +133,8 @@ run and the CI run never drift apart.
 ## Repo layout
 
 ```
-app/             the Flask app — products.py registry, calc.py (pure math), tools.py (bot + dashboard handlers), auth.py, telegram.py, views.py, templates/
-tests/           surface contract (both halves, all 18) + Telegram login verification
+app/             the Flask app — brand.py (tokens + BM/EN strings), products.py registry, calc.py, tools.py, watch.py, feeds.py, store.py (SQLite: alerts, users, codes), auth.py (Telegram / email code / Google placeholder), mailer.py (SMTP), telegram.py (button-driven bot), views.py, templates/
+tests/           surface contract (both halves, all 18), sign-in doors + linking, bot funnel, Gold Watch
 assets/          self-hosted animated SVGs (hero, dividers, icons, nav chips, charts)
 products/        product-01..18.md — one spec per product
 scripts/         check-readme.sh, auto-commit.sh, auto-deploy.sh

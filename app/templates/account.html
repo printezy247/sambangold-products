@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ t('account.title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="max-width:640px;padding-top:56px">
+  <h1>{{ t('account.title') }}</h1>
+  {% if user.is_admin %}<p class="notice">{{ t('account.admin') }}</p>{% endif %}
+
+  <div class="lux lux-gold" style="padding:22px;margin-top:22px">
+    <table class="flags">
+      <tr><th>{{ t('dash.rank') }}</th><td><b class="text-gold">{{ rank_label(user.rank) }}</b></td></tr>
+      <tr><th>{{ t('account.email') }}</th><td>{{ user.email or t('account.none') }}</td></tr>
+      <tr><th>{{ t('account.telegram') }}</th><td>{% if user.telegram_id %}@{{ user.username or '' }} <span class="text-muted mono">{{ user.telegram_id }}</span>{% else %}{{ t('account.none') }}{% endif %}</td></tr>
+      <tr><th>{{ t('account.lang') }}</th><td><a class="lang" href="{{ url_for('auth.set_lang', code='ms') }}">BM</a> <a class="lang" href="{{ url_for('auth.set_lang', code='en') }}">EN</a></td></tr>
+    </table>
+  </div>
+
+  {% if not user.telegram_id %}
+  <div class="lux" style="padding:22px;margin-top:16px">
+    <h3 style="margin-top:0">{{ t('dash.link_tg') }}</h3>
+    {% if bot_username %}
+      <script async src="https://telegram.org/js/telegram-widget.js?22"
+              data-telegram-login="{{ bot_username }}" data-size="large" data-request-access="write"
+              data-auth-url="{{ url_for('auth.telegram_callback', _external=True, next=url_for('views.account')) }}"></script>
+    {% else %}<p class="text-muted" style="margin:0">TELEGRAM_BOT_USERNAME is not set.</p>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if not user.email %}
+  <div class="lux" style="padding:22px;margin-top:16px">
+    <h3 style="margin-top:0">{{ t('dash.link_email') }}</h3>
+    <form method="post" action="{{ url_for('auth.email_start') }}">
+      <input type="hidden" name="next" value="{{ url_for('views.account') }}">
+      <input name="email" type="email" required placeholder="you@example.com">
+      <div class="actions"><button class="btn btn-gold" type="submit">{{ t('signin.email_cta') }}</button></div>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="actions" style="margin-top:28px">
+    <a class="btn" href="{{ url_for('views.dashboard') }}">{{ t('nav.dashboard') }}</a>
+    <a class="btn btn-ghost" href="{{ url_for('auth.logout') }}">{{ t('account.signout') }}</a>
+  </div>
+</div>
+{% endblock %}

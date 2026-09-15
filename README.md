@@ -582,9 +582,15 @@ flask --app wsgi run               # 🌐 dashboard on http://localhost:5000
 pytest -q                          # the surface contract: both halves, all 18
 ```
 
-The dashboard lists every product at `/`, and each one has its own page at
-`/p/<slug>`. The 🤖 half is the same process — point Telegram at
-`POST /webhook/telegram` once `PUBLIC_BASE_URL` is reachable over HTTPS.
+The landing page at `/` wears the **SAMBANGGOLD** brand (Bahasa Melayu first,
+`EN` toggle top right); every product has its own page at `/p/<slug>`, and
+`/dashboard` is the member home. Sign in at `/signin` three ways, no password:
+**Telegram** (Login Widget — same account the bot uses), **email** (an 8-digit
+code, ten minutes, five tries) or **Google** (placeholder until OAuth exists).
+Signing in through a second door links it to the same account. The Telegram id
+in `ADMIN_TELEGRAM_ID` is the admin: every feature open, plus `/admin` with the
+account list and a CSV export. The 🤖 half is the same process — point Telegram
+at `POST /webhook/telegram` once `PUBLIC_BASE_URL` is reachable over HTTPS.
 
 | Variable | Required | Purpose |
 |:--|:--:|:--|
@@ -594,9 +600,12 @@ The dashboard lists every product at `/`, and each one has its own page at
 | `STRIPE_API_KEY` | — | PRO tier checkout |
 | `STRIPE_WEBHOOK_SECRET` | — | Subscription state sync |
 | `USDT_ADDRESS` | — | Crypto payment path |
-| `ADMIN_TELEGRAM_ID` | ✅ | Admin commands and alert routing |
+| `ADMIN_TELEGRAM_ID` | ✅ | The admin account: every feature open, `/admin` user list and CSV export |
 | `DATABASE_PATH` | — | SQLite file for armed alerts and trigger history (default `data/sambangold.db`) |
 | `TASK_TOKEN` | — | Shared secret the scheduler sends to `POST /tasks/check-alerts` |
+| `TELEGRAM_BOT_USERNAME` | ✅ | The bot's `@username` (no `@`) — the Telegram Login Widget and every "open bot" link need it |
+| `PUBLIC_CHANNEL_URL` | — | Adds a 📢 channel button to the bot's main menu |
+| `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` `MAIL_FROM` | — | Email sign-in codes over any free SMTP relay (a Gmail app password works); unset → Telegram sign-in only |
 | `EZYAI_SITE_URL` | — | Web base URL for shareable links |
 | `SENTRY_DSN` | — | Error tracking |
 | `EZYAI_DEMO_DATA` | — | Seed demo data (`true` / `false`) |

@@ -1,13 +1,16 @@
-"""The dashboard half of every product."""
+"""The dashboard half of every product, plus the landing page and admin."""
 
-import os
-
+import csv
 import hmac
+import io
+import os
+import time
 
-from flask import Blueprint, Response, abort, current_app, jsonify, render_template, request, send_from_directory
+from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
+                   send_from_directory, session)
 
-from . import telegram, watch
-from .auth import current_user, login_required
+from . import feeds, store, telegram, watch
+from .auth import admin_required, current_user, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
 from .tools import DASHBOARD, money, pct
@@ -17,14 +20,63 @@ bp = Blueprint("views", __name__)
 ASSETS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
 
 
+def _split():
+    """Live tools first (they have a dashboard handler), then the rest in order."""
+    live = [p for p in PRODUCTS if p.slug in DASHBOARD]
+    rest = [p for p in PRODUCTS if p.slug not in DASHBOARD]
+    return live, rest
+
+
 @bp.route("/")
 def index():
-    return render_template(
-        "index.html",
-        shipped=[p for p in PRODUCTS if p.status == "shipped"],
-        proposed=[p for p in PRODUCTS if p.status == "proposed"],
-        user=current_user(),
-    )
+    live, rest = _split()
+    try:
+        quote = feeds.gold_quote()
+    except feeds.FeedError:
+        quote = None
+    return render_template("landing.html", products=PRODUCTS, live=live, rest=rest, quote=quote)
+
+
+@bp.route("/dashboard")
+@login_required
+def dashboard():
+    user = current_user()
+    live, rest = _split()
+    row = store.user_by_id(user["uid"])
+    saved = session.get("saves", {})
+    counts = {
+        "alerts": len(store.alerts_for(user["owner"])),
+        "triggers": len(store.triggers_for(user["owner"])),
+        "saved": sum(len(v) for v in saved.values()),
+    }
+    since = time.strftime("%Y-%m-%d", time.gmtime(row["created_at"])) if row else "—"
+    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since)
+
+
+@bp.route("/account")
+@login_required
+def account():
+    return render_template("account.html")
+
+
+@bp.route("/admin")
+@admin_required
+def admin():
+    return render_template("admin.html", users=store.list_users(), counts=store.user_counts())
+
+
+@bp.route("/admin/users.csv")
+@admin_required
+def admin_users_csv():
+    out = io.StringIO()
+    w = csv.writer(out)
+    w.writerow(["id", "email", "telegram_id", "username", "name", "locale", "created_utc", "last_login_utc"])
+    for u in store.list_users(limit=100000):
+        w.writerow([u["id"], u["email"] or "", u["telegram_id"] or "", u["username"] or "", u["name"] or "", u["locale"],
+                    time.strftime("%Y-%m-%d %H:%M", time.gmtime(u["created_at"])),
+                    time.strftime("%Y-%m-%d %H:%M", time.gmtime(u["last_login_at"] or u["created_at"]))])
+    return Response(out.getvalue(), mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment; filename=sambangold-users.csv"})
 
 
 @bp.route("/p/<slug>", methods=["GET", "POST"])
@@ -34,14 +86,13 @@ def product(slug):
         abort(404)
     build = DASHBOARD.get(slug)
     tool = build(request, user=current_user()) if build else None
-    return render_template("product.html", p=item, user=current_user(),
-                           tool=tool, money=money, pct=pct)
+    return render_template("product.html", p=item, tool=tool, money=money, pct=pct)
 
 
 @bp.route("/p/gold-watch/history.csv")
 @login_required
 def gold_watch_csv():
-    return Response(watch.history_csv(current_user()["id"]), mimetype="text/csv",
+    return Response(watch.history_csv(current_user()["owner"]), mimetype="text/csv",
                     headers={"Content-Disposition": "attachment; filename=gold-watch-history.csv"})
 
 
@@ -63,7 +114,7 @@ def ib_checklist():
 
 @bp.route("/assets/<path:filename>")
 def assets(filename):
-    """Serve the repository's SVG set so the dashboard and README share one look."""
+    """Serve the repository's SVG set and brand kit so every surface shares one look."""
     return send_from_directory(ASSETS, filename)
 
 

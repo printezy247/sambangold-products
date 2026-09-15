@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ t('admin.title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+    <div><h1>{{ t('admin.title') }}</h1><p class="lede">{{ t('admin.subtitle') }}</p></div>
+    <a class="btn btn-gold" href="{{ url_for('views.admin_users_csv') }}" download>⬇ {{ t('admin.export') }}</a>
+  </div>
+  <div class="stats">
+    <div class="stat glass warn"><span>{{ t('admin.users') }}</span><b>{{ counts.users }}</b></div>
+    <div class="stat glass positive"><span>{{ t('admin.emails') }}</span><b>{{ counts.emails }}</b></div>
+    <div class="stat glass"><span>{{ t('admin.telegrams') }}</span><b>{{ counts.telegrams }}</b></div>
+    <div class="stat glass"><span>{{ t('admin.starts') }}</span><b>{{ counts.starts }}</b></div>
+  </div>
+  <div class="panel" style="margin-top:24px;overflow-x:auto">
+    <table class="flags">
+      <thead><tr><th>#</th><th>{{ t('admin.col_email') }}</th><th>{{ t('admin.col_tg') }}</th><th>{{ t('admin.col_name') }}</th><th>{{ t('admin.col_lang') }}</th><th>{{ t('admin.col_created') }}</th><th>{{ t('admin.col_last') }}</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+        <tr><td class="mono">{{ u.id }}</td><td>{{ u.email or '—' }}</td>
+            <td>{% if u.telegram_id %}@{{ u.username or '' }} <span class="text-muted mono">{{ u.telegram_id }}</span>{% else %}—{% endif %}</td>
+            <td>{{ u.name or '—' }}</td><td>{{ u.locale }}</td><td class="mono">{{ u.created_at | utc }}</td><td class="mono">{{ (u.last_login_at or u.created_at) | utc }}</td></tr>
+      {% else %}
+        <tr><td colspan="7" class="text-muted">—</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
