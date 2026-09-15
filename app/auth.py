@@ -26,6 +26,7 @@ from flask import (Blueprint, abort, current_app, redirect, render_template, req
 
 from . import mailer, store
 from .brand import DEFAULT_LANG, LANGS, normalise_lang, t
+from .tiers import higher_tier
 
 bp = Blueprint("auth", __name__)
 
@@ -82,8 +83,15 @@ def session_user(user):
         "name": user.get("name") or "",
         "locale": user.get("locale") or DEFAULT_LANG,
         "is_admin": _is_admin(user),
-        "rank": "elite" if _is_admin(user) else "free",
+        "rank": rank_for(user),
     }
+
+
+def rank_for(user):
+    """Signing in is General; grants lift from there; the admin is always Rambo."""
+    if _is_admin(user):
+        return "elite"
+    return higher_tier("free", store.effective_tier(store.owner_key(user)))
 
 
 def sign_in(user):

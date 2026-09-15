@@ -6,13 +6,15 @@ import io
 import os
 import time
 
-from flask import (Blueprint, Response, abort, current_app, jsonify, redirect, render_template, request,
-                   send_from_directory, session)
+from flask import (Blueprint, Response, abort, current_app, flash, jsonify, redirect, render_template, request,
+                   send_from_directory, session, url_for)
 
 from . import brokertool, caltool, feeds, linktool, mctool, rebatetool, sentineltool, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
+from .brand import t
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
+from .tiers import BY_KEY as TIER_BY_KEY, TIERS
 from .tools import DASHBOARD, money, pct
 
 bp = Blueprint("views", __name__)
@@ -67,16 +69,43 @@ def dashboard():
     return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since)
 
 
+@bp.route("/pricing")
+def pricing():
+    """The rank ladder — prices, what each rank opens, and the broker door."""
+    user = current_user()
+    grants = store.entitlements_for(user["owner"]) if user else []
+    return render_template("pricing.html", tiers=TIERS, grants=grants,
+                           mine=(user or {}).get("rank") or "public",
+                           want=request.args.get("want", ""))
+
+
 @bp.route("/account")
 @login_required
 def account():
-    return render_template("account.html")
+    user = current_user()
+    return render_template("account.html", grants=store.entitlements_for(user["owner"]))
 
 
-@bp.route("/admin")
+@bp.route("/admin", methods=["GET", "POST"])
 @admin_required
 def admin():
-    return render_template("admin.html", users=store.list_users(), counts=store.user_counts())
+    if request.method == "POST":
+        owner = (request.form.get("owner") or "").strip()
+        tier = (request.form.get("tier") or "").strip()
+        if request.form.get("revoke"):
+            store.revoke_entitlement(entitlement_id=request.form["revoke"])
+            flash(t("adm.revoked", ui_lang()), "ok")
+        elif owner and tier in TIER_BY_KEY:
+            days = (request.form.get("days") or "").strip()
+            expires = time.time() + float(days) * 86400 if days.replace(".", "", 1).isdigit() else None
+            store.grant_entitlement(owner, tier, source="manual", expires_at=expires,
+                                    note=(request.form.get("note") or "").strip())
+            flash(t("adm.granted", ui_lang()), "ok")
+        else:
+            flash(t("adm.grant_bad", ui_lang()), "err")
+        return redirect(url_for("views.admin"))
+    return render_template("admin.html", users=store.list_users(), counts=store.user_counts(),
+                           grants=store.all_entitlements(), tiers=TIERS)
 
 
 @bp.route("/admin/users.csv")

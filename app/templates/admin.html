@@ -26,5 +26,37 @@
       </tbody>
     </table>
   </div>
+
+  <div class="panel" style="margin-top:24px">
+    <h3 style="margin-top:0">{{ t('adm.grant_h') }}</h3>
+    <form method="post" style="display:grid;gap:10px;max-width:520px">
+      <label>{{ t('adm.grant_owner') }}<input name="owner" required></label>
+      <label>{{ t('adm.grant_tier') }}
+        <select name="tier">{% for tier in tiers %}<option value="{{ tier.key }}">{{ rank_label(tier.key) }}</option>{% endfor %}</select>
+      </label>
+      <label>{{ t('adm.grant_days') }}<input name="days" inputmode="numeric"></label>
+      <label>{{ t('adm.grant_note') }}<input name="note"></label>
+      <button class="btn btn-gold" type="submit">{{ t('adm.grant_btn') }}</button>
+    </form>
+  </div>
+
+  <div class="panel" style="margin-top:24px;overflow-x:auto">
+    <h3 style="margin-top:0">{{ t('adm.grants_h') }}</h3>
+    <table class="flags">
+      <thead><tr><th>#</th><th>{{ t('adm.grant_owner') }}</th><th>{{ t('adm.grant_tier') }}</th><th>{{ t('price.source') }}</th><th>{{ t('price.expires') }}</th><th></th></tr></thead>
+      <tbody>
+      {% for g in grants %}
+        <tr><td class="mono">{{ g.id }}</td><td class="mono">{{ g.owner }}</td>
+            <td><b>{{ rank_label(g.tier_key) }}</b>{% if g.status != 'active' %} <span class="chip">{{ g.status }}</span>{% endif %}</td>
+            <td>{{ t('price.src_%s' % g.source) }}</td>
+            <td class="mono">{% if g.expires_at %}{{ g.expires_at | utc }}{% else %}{{ t('price.never') }}{% endif %}</td>
+            <td>{% if g.status == 'active' %}<form method="post"><input type="hidden" name="revoke" value="{{ g.id }}">
+                <button class="btn small" type="submit">{{ t('adm.revoke') }}</button></form>{% endif %}</td></tr>
+      {% else %}
+        <tr><td colspan="6" class="text-muted">—</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

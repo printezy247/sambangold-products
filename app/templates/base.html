@@ -74,6 +74,8 @@
   form.inline { display: inline; } form.inline input { width: auto; }
   .err { color: var(--loss); font-size: 14px; margin: 12px 0 0; }
   .notice { color: var(--win); font-size: 14px; margin: 12px 0 0; }
+  .flash { border: 1px solid color-mix(in oklab, var(--gold) 35%, transparent); background: rgba(212,175,55,.06); color: var(--fg); border-radius: 12px; padding: 12px 16px; font-size: 14px; margin: 0 0 8px; }
+  .flash.bad { border-color: color-mix(in oklab, var(--loss) 45%, transparent); background: rgba(255,77,79,.06); }
   .soon { color: var(--muted); font-size: 13px; border-left: 2px solid var(--gold); padding-left: 12px; margin-top: 14px; }
 
   /* Layout */
@@ -147,12 +149,19 @@
       {% endif %}
     </nav>
     <div style="display:flex;align-items:center;gap:8px">
+      <a href="{{ url_for('views.pricing') }}">{{ t('price.title') }}</a>
       <a class="lang" href="{{ url_for('auth.set_lang', code=('en' if lang == 'ms' else 'ms')) }}">{{ t('nav.lang') }}</a>
       {% if bot_link %}<a class="btn btn-gold small" href="{{ bot_link }}">{{ t('nav.cta') }}</a>{% endif %}
     </div>
   </div>
 </header>
 <div class="risk"><div class="wrap"><p>⚠️ {{ t('risk.strip') }}</p></div></div>
+
+{% with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}
+<div class="wrap" style="padding-top:18px">
+  {% for cat, msg in msgs %}<p class="flash{% if cat == 'err' %} bad{% endif %}">{{ msg }}</p>{% endfor %}
+</div>
+{% endif %}{% endwith %}
 
 <main>{% block body %}{% endblock %}</main>
 

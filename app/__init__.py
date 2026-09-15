@@ -30,7 +30,7 @@ def create_app(config_object=Config):
     app.config.from_object(config_object)
     app.config["MISSING"] = config_object.missing()
 
-    from . import auth, brand, store, telegram, views, watch
+    from . import auth, brand, store, telegram, tiers, views, watch
     from markupsafe import Markup
     app.register_blueprint(views.bp)
     app.register_blueprint(auth.bp)
@@ -49,6 +49,10 @@ def create_app(config_object=Config):
             "bot_username": username,
             "bot_link": ("https://t.me/%s" % username) if username else "",
             "glyph": lambda size=28: Markup(GLYPH % (size, size)),
+            "TIERS": tiers.TIERS, "tier_by_key": tiers.tier_by_key, "fmt_usd": tiers.fmt_usd,
+            "feature_rows": tiers.FEATURE_ROWS,
+            "feature_label": lambda f: tiers.feature_label(f, lang),
+            "tier_for_feature": tiers.tier_for_feature,
         }
 
     @app.template_filter("utc")
