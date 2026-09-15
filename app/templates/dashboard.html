@@ -74,6 +74,35 @@
     {% endif %}
   </div>
 
+  <div id="seats" class="lux{% if st.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:24px">
+    <h3 style="margin-top:0">👥 {{ t('ui.st_h') }}
+      {% if not st.allowed %}<span class="chip">{{ rank_label('elite') }}</span>{% endif %}</h3>
+    <p class="text-muted" style="margin:0 0 14px">{{ t('ui.st_sub') }}</p>
+    {% if not st.allowed %}
+      <p class="text-muted" style="margin:0 0 14px">{{ t('ui.st_need') }}</p>
+      <a class="btn btn-gold" href="{{ url_for('views.pricing', want='seats') }}">{{ t('price.cta_pay', rank=rank_label('elite')) }}</a>
+    {% else %}
+      {% if st.error %}<p class="flash bad">{{ t(st.error, n=st.total) }}</p>{% endif %}
+      <table class="flags">
+        {% for row in st.rows %}
+        <tr><td class="mono">{{ row.owner }}</td>
+            <td>{{ rank_label(row.tier_key) }}</td>
+            <td><form method="post" action="{{ url_for('views.dashboard') }}#seats">
+              <input type="hidden" name="seat_action" value="remove">
+              <input type="hidden" name="member" value="{{ row.owner }}">
+              <button class="btn small" type="submit">{{ t('ui.st_rm') }}</button>
+            </form></td></tr>
+        {% else %}<tr><td class="text-muted" colspan="3">{{ t('st.empty') }}</td></tr>{% endfor %}
+      </table>
+      <form method="post" action="{{ url_for('views.dashboard') }}#seats" style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <input type="hidden" name="seat_action" value="add">
+        <input name="member" placeholder="{{ t('ui.st_add') }}" inputmode="numeric" required>
+        <button class="btn btn-gold" type="submit">{{ t('ui.st_btn') }}</button>
+      </form>
+      <p class="text-muted" style="margin-top:10px">{{ t('st.head', used=st.rows|length, total=st.total)|striptags }}</p>
+    {% endif %}
+  </div>
+
   <div id="upgrade" class="lux" style="padding:22px;margin-top:24px">
     <h3 style="margin-top:0">{{ rank_label('pro') }}</h3>
     <p class="text-muted" style="margin:0">{{ t('product.upsell_note') }}</p>

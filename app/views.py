@@ -9,7 +9,8 @@ import time
 from flask import (Blueprint, Response, abort, current_app, flash, jsonify, redirect, render_template, request,
                    send_from_directory, session, url_for)
 
-from . import autopilot, brokertool, caltool, feeds, linktool, mctool, rebatetool, sentineltool, scan, scantool, store, telegram, verifytool, watch
+from . import (autopilot, brokertool, caltool, doors, feeds, linktool, mctool, rebatetool, scan, scantool, seats,
+               sentineltool, store, telegram, verifytool, watch)
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
 from .calc import ib_checklist_text
@@ -58,6 +59,7 @@ def index():
 def dashboard():
     user = current_user()
     ap = autopilot.dashboard_autopilot(request, user)
+    st = seats.dashboard_seats(request, user)
     if request.method == "POST":
         return redirect(url_for("views.dashboard") + "#autopilot")
     live, rest = _split()
@@ -69,17 +71,27 @@ def dashboard():
         "saved": sum(len(v) for v in saved.values()),
     }
     since = time.strftime("%Y-%m-%d", time.gmtime(row["created_at"])) if row else "—"
-    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, by_slug=BY_SLUG)
+    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, by_slug=BY_SLUG)
 
 
-@bp.route("/pricing")
+@bp.route("/pricing", methods=["GET", "POST"])
 def pricing():
-    """The rank ladder — prices, what each rank opens, and the broker door."""
+    """The rank ladder — prices, the two free doors, and what each rank opens."""
     user = current_user()
-    grants = store.entitlements_for(user["owner"]) if user else []
-    return render_template("pricing.html", tiers=TIERS, grants=grants,
-                           mine=(user or {}).get("rank") or "public",
-                           want=request.args.get("want", ""))
+    if request.method == "POST" and user and request.form.get("action") == "claim":
+        _, err = doors.claim(user["owner"], request.form.get("account", ""), request.form.get("deposit") or None)
+        flash(t(err, ui_lang()) if err else t("price.claim_ok", ui_lang()), "err" if err else "ok")
+        return redirect(url_for("views.pricing") + "#percuma")
+    owner = (user or {}).get("owner")
+    return render_template(
+        "pricing.html", tiers=TIERS,
+        grants=store.entitlements_for(owner) if owner else [],
+        claims=store.broker_claims_for(owner) if owner else [],
+        invite=doors.deep_link(owner, telegram.bot_username()) if owner else "",
+        invited=doors.invited(owner) if owner else [],
+        referral_days=doors.REFERRAL_DAYS,
+        mine=(user or {}).get("rank") or "public",
+        want=request.args.get("want", ""))
 
 
 @bp.route("/account")
@@ -95,7 +107,13 @@ def admin():
     if request.method == "POST":
         owner = (request.form.get("owner") or "").strip()
         tier = (request.form.get("tier") or "").strip()
-        if request.form.get("revoke"):
+        if request.form.get("approve"):
+            tier, err = doors.approve(request.form["approve"], request.form.get("deposit") or None)
+            flash(t("adm.br_ok", ui_lang()) if not err else t(err, ui_lang()), "err" if err else "ok")
+        elif request.form.get("reject"):
+            doors.reject(request.form["reject"])
+            flash(t("adm.br_no", ui_lang()), "ok")
+        elif request.form.get("revoke"):
             store.revoke_entitlement(entitlement_id=request.form["revoke"])
             flash(t("adm.revoked", ui_lang()), "ok")
         elif owner and tier in TIER_BY_KEY:
@@ -108,7 +126,7 @@ def admin():
             flash(t("adm.grant_bad", ui_lang()), "err")
         return redirect(url_for("views.admin"))
     return render_template("admin.html", users=store.list_users(), counts=store.user_counts(),
-                           grants=store.all_entitlements(), tiers=TIERS)
+                           grants=store.all_entitlements(), tiers=TIERS, claims=store.broker_claims())
 
 
 @bp.route("/admin/users.csv")

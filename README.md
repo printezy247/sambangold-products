@@ -584,6 +584,39 @@ get here, and the Public column is unchanged.
 The table is published on `/pricing`, read from the same `LIMITS` map the code
 enforces, so the page cannot promise a number the gate does not honour.
 
+#### 🎟️ Three ways up, two of them free
+
+Money is the door most members never use. Both free doors are ported from Sam's
+site, where they are how people actually reach a paid rank.
+
+| Door | Costs | What you get |
+|:--|:--|:--|
+| 🏦 **Broker account** | Nothing | An HFM account under Sam. Deposit $100 opens A-Team, $500 opens Rambo, any account opens General. Thirty days, renewed while the account stays active. |
+| 🤝 **Referral** | Nothing | Bring one person in. When they reach a paid rank or the broker door, you move up one rank for seven days. Once per person; never reaches Rambo. |
+| 💳 **Subscription** | $49 or $129 a month | The same ranks, month to month or annually. |
+
+Annual billing is twelve months for the price of ten, so A-Team saves $98 a year
+and Rambo saves $258. The saving is printed on the card rather than hidden in a
+footnote.
+
+`/broker <account>` queues an account for verification and `/invite` hands back
+your own deep link. Both also live on `/pricing`. Sam verifies a deposit from
+the admin page, which grants the rank and pays any referral credit owed in the
+same step.
+
+#### 👥 Seats — Rambo carrying a team
+
+A group lead or an IB does not want ten subscriptions. `/seats add <telegram id>`
+hands a team member your own rank, up to ten of them, and `/seats remove` takes it
+back the day they leave.
+
+A seat is not a new kind of record. It is an ordinary entitlement with
+`source="seat"` and a `granted_by` naming the holder who pays for it, so every
+question the rest of the app already asks — "what rank is this owner?" — answers
+correctly without knowing seats exist. Two things fall out for free: a seat
+carries the holder's own expiry, so it cannot outlive the rank behind it, and a
+seat is granted at the holder's tier, so it can never outrank them.
+
 <div align="center">
 
 | # | Product | 🤖 Telegram | 🌐 Dashboard | Primary | Free tier |
@@ -644,7 +677,9 @@ enforces, so the page cannot promise a number the gate does not honour.
 - [x] **A-Team autopilot** — daily standing questions on five tools, on both surfaces
 - [x] **A-Team scale** — every free cap is now rank-aware, published on the ranks page
 - [x] **A-Team reports** — weekly scorecards and a monthly forecast, on the same registry
-- [ ] **Rambo scale** — seats, client reports, white-label widget, outbound webhooks
+- [x] **Free doors** — the broker account and referral credit, both surfaces
+- [x] **Rambo seats** — ten team members on one rank, with the expiry that pays for them
+- [ ] **Rambo extras** — white-label widget and outbound webhooks
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -751,6 +786,8 @@ sambangold-products/
 │   ├── tiers.py                        the rank ladder — ported from website_sam
 │   ├── gate.py                         one gate, both surfaces — scale only, never the door
 │   ├── autopilot.py                    the daily standing questions behind A-Team
+│   ├── doors.py                        the two free ways up — broker account, referral
+│   ├── seats.py                        Rambo carrying a team on one rank
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

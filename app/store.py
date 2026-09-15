@@ -53,7 +53,7 @@ def db():
 
 def _migrate(conn):
     """Columns added after a table first shipped. Each ALTER is a no-op once applied."""
-    for table, column, ddl in (("tg_users", "state", "TEXT"),):
+    for table, column, ddl in (("tg_users", "state", "TEXT"), ("entitlements", "granted_by", "TEXT")):
         cols = [r[1] for r in conn.execute("PRAGMA table_info(%s)" % table)]
         if column not in cols:
             conn.execute("ALTER TABLE %s ADD COLUMN %s %s" % (table, column, ddl))
@@ -863,8 +863,9 @@ CREATE TABLE IF NOT EXISTS entitlements (
     id          INTEGER PRIMARY KEY,
     owner       TEXT NOT NULL,
     tier_key    TEXT NOT NULL,
-    source      TEXT NOT NULL,            -- ib | stripe | crypto | manual
-    external_id TEXT UNIQUE,              -- stripe sub id / invoice id / ib account id
+    source      TEXT NOT NULL,            -- ib | stripe | crypto | manual | seat
+    external_id TEXT UNIQUE,              -- stripe sub id / invoice id / ib account id / seat key
+    granted_by  TEXT,                     -- the member whose rank pays for this seat
     note        TEXT,
     starts_at   REAL NOT NULL,
     expires_at  REAL,
@@ -876,20 +877,18 @@ CREATE INDEX IF NOT EXISTS entitlements_owner ON entitlements(owner, status);
 SCHEMA += ENTITLEMENT_SCHEMA
 
 
-def grant_entitlement(owner, tier_key, source="manual", external_id=None, expires_at=None, note=""):
+def grant_entitlement(owner, tier_key, source="manual", external_id=None, expires_at=None, note="", granted_by=None):
     """Grant a rank. Re-running with the same external_id updates instead of duplicating."""
     now = time.time()
-    row = (str(owner), tier_key, source, external_id, note, now, expires_at, "active", now)
+    row = (str(owner), tier_key, source, external_id, note, now, expires_at, "active", now,
+           str(granted_by) if granted_by else None)
+    cols = ("INSERT INTO entitlements (owner, tier_key, source, external_id, note, starts_at, expires_at, status,"
+            " created_at, granted_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
     if external_id:
-        db().execute(
-            "INSERT INTO entitlements (owner, tier_key, source, external_id, note, starts_at, expires_at, status, created_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            " ON CONFLICT(external_id) DO UPDATE SET tier_key = excluded.tier_key, expires_at = excluded.expires_at,"
-            " note = excluded.note, status = 'active'", row)
+        db().execute(cols + " ON CONFLICT(external_id) DO UPDATE SET tier_key = excluded.tier_key,"
+                            " expires_at = excluded.expires_at, note = excluded.note, status = 'active'", row)
     else:
-        db().execute(
-            "INSERT INTO entitlements (owner, tier_key, source, external_id, note, starts_at, expires_at, status, created_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
+        db().execute(cols, row)
     db().commit()
     return entitlements_for(owner)
 
@@ -920,6 +919,16 @@ def effective_tier(owner, default="public"):
     return best
 
 
+def seats_granted_by(owner, active_only=True):
+    """The seats this member is paying for."""
+    sql = "SELECT * FROM entitlements WHERE granted_by = ? AND source = 'seat'"
+    args = [str(owner)]
+    if active_only:
+        sql += " AND status = 'active' AND (expires_at IS NULL OR expires_at > ?)"
+        args.append(time.time())
+    return [dict(r) for r in db().execute(sql + " ORDER BY created_at", args)]
+
+
 def all_entitlements(limit=500):
     return [dict(r) for r in db().execute("SELECT * FROM entitlements ORDER BY created_at DESC LIMIT ?", (limit,))]
 
@@ -930,3 +939,64 @@ def expire_due(now=None):
     cur = db().execute("UPDATE entitlements SET status = 'expired' WHERE status = 'active' AND expires_at IS NOT NULL AND expires_at <= ?", (now,))
     db().commit()
     return cur.rowcount
+
+
+# --------------------------------------------------------------------------- #
+# The broker door: an HFM account waiting to be verified, then a rank.
+# --------------------------------------------------------------------------- #
+
+BROKER_SCHEMA = """
+CREATE TABLE IF NOT EXISTS broker_claims (
+    id          INTEGER PRIMARY KEY,
+    owner       TEXT NOT NULL,
+    account     TEXT NOT NULL UNIQUE,
+    deposit     REAL,
+    status      TEXT NOT NULL DEFAULT 'pending',   -- pending | verified | rejected
+    note        TEXT,
+    created_at  REAL NOT NULL,
+    verified_at REAL
+);
+CREATE INDEX IF NOT EXISTS broker_claims_owner ON broker_claims(owner, status);
+"""
+SCHEMA += BROKER_SCHEMA
+
+
+def save_broker_claim(owner, account, deposit=None, note=""):
+    db().execute(
+        "INSERT INTO broker_claims (owner, account, deposit, status, note, created_at) VALUES (?, ?, ?, 'pending', ?, ?)"
+        " ON CONFLICT(account) DO UPDATE SET owner = excluded.owner, deposit = COALESCE(excluded.deposit, broker_claims.deposit),"
+        " note = excluded.note, status = 'pending'",
+        (str(owner), str(account), float(deposit) if deposit not in (None, "") else None, note, time.time()))
+    db().commit()
+    return broker_claim_by_account(account)
+
+
+def broker_claim(claim_id):
+    return _row(db().execute("SELECT * FROM broker_claims WHERE id = ?", (int(claim_id),)))
+
+
+def broker_claim_by_account(account):
+    return _row(db().execute("SELECT * FROM broker_claims WHERE account = ?", (str(account),)))
+
+
+def broker_claims_for(owner):
+    return [dict(r) for r in db().execute("SELECT * FROM broker_claims WHERE owner = ? ORDER BY created_at DESC", (str(owner),))]
+
+
+def broker_claims(status=None, limit=500):
+    if status:
+        return [dict(r) for r in db().execute("SELECT * FROM broker_claims WHERE status = ? ORDER BY created_at DESC LIMIT ?", (status, limit))]
+    return [dict(r) for r in db().execute("SELECT * FROM broker_claims ORDER BY created_at DESC LIMIT ?", (limit,))]
+
+
+def set_broker_claim(claim_id, status=None, deposit=None, note=None, verified_at=None):
+    sets, args = [], []
+    for col, val in (("status", status), ("deposit", deposit), ("note", note), ("verified_at", verified_at)):
+        if val is not None:
+            sets.append("%s = ?" % col)
+            args.append(val)
+    if sets:
+        args.append(int(claim_id))
+        db().execute("UPDATE broker_claims SET %s WHERE id = ?" % ", ".join(sets), args)
+        db().commit()
+    return broker_claim(claim_id)
