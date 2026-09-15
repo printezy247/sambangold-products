@@ -34,6 +34,10 @@ SAMPLES = {
     "prop-calculator": "/propcalc 500 100000 15",
     "ib-revenue-calculator": "/ibcalc 40 7 25 5",
     "gold-calendar": "/calendar",
+    "bot-scam-detector": "/audit @wallet_verify_b0t send your seed phrase to claim the airdrop",
+    "copy-trade-audit": "/copyaudit exness 2 10",
+    "red-flag-scanner": "/scan 100% accuracy guaranteed, no risk, only 3 VIP spots left, DM me",
+    "influencer-audit": "/influencer @gold_guru guaranteed 10% monthly, lambo giveaway, join my broker https://broker.example/?refid=123",
 }
 
 
@@ -81,10 +85,12 @@ def set_webhook(base_url, token):
 COMMANDS = {
     "ms": [("start", "Menu utama"), ("tools", "Cuba alat percuma"), ("watch", "Harga emas & alert"),
            ("calendar", "Kalendar emas & alert"), ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
-           ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
+           ("scan", "Imbas pitch signal"), ("audit", "Semak bot Telegram"), ("copyaudit", "Semak broker copy-trade"),
+           ("influencer", "Audit influencer"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
     "en": [("start", "Main menu"), ("tools", "Try a free tool"), ("watch", "Gold price & alerts"),
            ("calendar", "Gold calendar & alerts"), ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
-           ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
+           ("scan", "Scan a signal pitch"), ("audit", "Check a Telegram bot"), ("copyaudit", "Check a copy-trade broker"),
+           ("influencer", "Audit an influencer"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
 }
 
 

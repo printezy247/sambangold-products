@@ -408,3 +408,63 @@ def event_spread_history(limit=12):
         "SELECT title, COUNT(DISTINCT event_at) AS occurrences, MAX(spread) AS worst, AVG(spread) AS mean"
         " FROM event_spreads WHERE spread IS NOT NULL GROUP BY title ORDER BY occurrences DESC, worst DESC LIMIT ?",
         (limit,))]
+
+
+# --------------------------------------------------------------------------- #
+# Scanners (#4 #6 #7 #9): one archive for every report.
+# --------------------------------------------------------------------------- #
+
+SCAN_SCHEMA = """
+CREATE TABLE IF NOT EXISTS scans (
+    id         INTEGER PRIMARY KEY,
+    product    TEXT NOT NULL,
+    subject    TEXT NOT NULL,
+    owner      TEXT,
+    score      INTEGER NOT NULL,
+    verdict    TEXT NOT NULL,
+    report     TEXT NOT NULL,     -- JSON of the full report
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS scans_owner ON scans(owner, product, created_at);
+CREATE INDEX IF NOT EXISTS scans_subject ON scans(product, subject);
+"""
+SCHEMA += SCAN_SCHEMA
+
+
+def save_scan(report, owner=None):
+    import json
+    cur = db().execute(
+        "INSERT INTO scans (product, subject, owner, score, verdict, report, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (report["product"], report["subject"], str(owner) if owner else None, report["score"], report["verdict"],
+         json.dumps(report, default=str), time.time()))
+    db().commit()
+    return cur.lastrowid
+
+
+def get_scan(scan_id):
+    import json
+    row = _row(db().execute("SELECT * FROM scans WHERE id = ?", (int(scan_id),)))
+    if row:
+        row["report"] = json.loads(row["report"])
+    return row
+
+
+def scans_for(owner, product, limit=50):
+    return [dict(r) for r in db().execute(
+        "SELECT id, subject, score, verdict, created_at FROM scans WHERE owner = ? AND product = ? ORDER BY created_at DESC LIMIT ?",
+        (str(owner), product, limit))]
+
+
+def watchlist(owner, product):
+    """Distinct subjects this owner has scanned, with their latest score."""
+    return [dict(r) for r in db().execute(
+        "SELECT subject, MAX(created_at) AS last_at, COUNT(*) AS n,"
+        " (SELECT score FROM scans s2 WHERE s2.owner = s.owner AND s2.product = s.product AND s2.subject = s.subject ORDER BY created_at DESC LIMIT 1) AS score"
+        " FROM scans s WHERE owner = ? AND product = ? GROUP BY subject ORDER BY last_at DESC LIMIT 30",
+        (str(owner), product))]
+
+
+def public_scans(product, subject, limit=10):
+    return [dict(r) for r in db().execute(
+        "SELECT id, score, verdict, created_at FROM scans WHERE product = ? AND subject = ? ORDER BY created_at DESC LIMIT ?",
+        (product, subject, limit))]

@@ -36,17 +36,20 @@ half, on one Telegram account, with the same free tier on each.
 
 Score a bot on private-key requests, unregulated broker pushes and missing audit links.
 
+`/audit @bot_username [what the bot said]` checks the username itself (must end in `bot`, no lookalike character swaps, no fake-support words) and the pasted text against the shared red-flag rules — seed-phrase and wallet requests, claim/airdrop bait, fees to unlock. Every rule carries its own *why*, the score is 0–100 and the verdict is **HIGH RISK / CAUTION / LOW RISK**. Every scan is archived, so the dashboard shows history, a watchlist to re-scan and a public share page per scan. **Live.**
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/audit @bot_username` | scam score plus a checklist |
+| `/audit @bot_username [text]` | scam score, top findings, the 5-point checklist |
 
 ## Dashboard views
 
-- Scan history with the score breakdown per signal
-- Watchlist of bots to re-scan
-- Public scam-score page per audited bot
+- Paste form: username plus what the bot said; findings table with the flag, the reason and the matching snippet
+- Scan history with the score breakdown per signal (signed in)
+- Watchlist of bots to re-scan in one tap
+- Public scam-score page per scan at `/p/bot-scam-detector/s/<id>`, forwardable
 
 ## Monetization
 
@@ -57,8 +60,8 @@ No product is paywalled at the door. Paid tiers sell scale and automation only.
 
 ## Data sources
 
-- Telegram Bot API public profile data
-- Known-malware and scam-domain lists
+- The pasted text and the username — nothing is fetched from Telegram
+- Shared rule table in `app/scan.py` (no paid API, no ML)
 
 ---
 

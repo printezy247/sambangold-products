@@ -1,0 +1,18 @@
+{% with heading="Audit an influencer", button="Audit", text_placeholder="Paste their post, bio, pinned message or DM, links included…" %}{% include "tools/_scanner.html" %}{% endwith %}
+
+<h2>Loss-report template</h2>
+<p class="lede">Lost money already? Fill this in and download the report in the shape the FTC, CFTC, IC3, SC Malaysia and BNM forms ask for.</p>
+<form method="post" action="{{ url_for('views.influencer_loss_report') }}" class="panel tool">
+  <div class="fields">
+    <label>Influencer handle <input name="handle" placeholder="@gold_guru" required></label>
+    <label>Platform <input name="platform" placeholder="TikTok, Instagram, Telegram…"></label>
+    <label>Broker / venue promoted <input name="broker" placeholder="optional"></label>
+    <label>Amount lost <input name="amount" placeholder="5000"></label>
+    <label>Currency <input name="currency" placeholder="USD / MYR"></label>
+    <label>Date(s) <input name="date" placeholder="2026-08-01 to 2026-08-20"></label>
+  </div>
+  <label class="wide" style="display:block;margin-top:14px">What happened, in order
+    <textarea name="story" rows="6" placeholder="First contact, what was promised, what you paid, what happened after…"></textarea>
+  </label>
+  <div class="actions"><button type="submit" class="btn-gold">⬇ Download report.txt</button></div>
+</form>

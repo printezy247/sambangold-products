@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
                    send_from_directory, session)
 
-from . import caltool, feeds, store, telegram, watch
+from . import caltool, feeds, scan, scantool, store, telegram, watch
 from .auth import admin_required, current_user, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -111,6 +111,25 @@ def gold_calendar_pdf():
     name, body = caltool.quarter_pdf_bytes()
     return Response(body, mimetype="application/pdf",
                     headers={"Content-Disposition": "attachment; filename=%s" % name})
+
+
+@bp.route("/p/<slug>/s/<int:scan_id>")
+def scan_public(slug, scan_id):
+    """Public share page for one archived scan — the score, the findings, nothing about who ran it."""
+    item = BY_SLUG.get(slug)
+    page = scantool.public_page(scan_id)
+    if item is None or page is None or page["row"]["product"] != slug:
+        abort(404)
+    return render_template("scan_public.html", p=item, s=page)
+
+
+@bp.route("/p/influencer-audit/report.txt", methods=["POST"])
+def influencer_loss_report():
+    f = request.form
+    body = scan.loss_report(f.get("handle", ""), f.get("platform", ""), f.get("amount", ""), f.get("currency", ""),
+                            f.get("date", ""), f.get("story", ""), f.get("broker", ""))
+    return Response(body, mimetype="text/plain",
+                    headers={"Content-Disposition": "attachment; filename=scam-loss-report.txt"})
 
 
 @bp.route("/p/ib-revenue-calculator/checklist.txt")

@@ -133,7 +133,7 @@ run and the CI run never drift apart.
 ## Repo layout
 
 ```
-app/             the Flask app — brand.py (tokens + BM/EN strings), products.py registry, calc.py, tools.py, watch.py, goldcal.py + caltool.py (#5 calendar), feeds.py, store.py (SQLite: alerts, users, codes), auth.py (Telegram / email code / Google placeholder), mailer.py (SMTP), telegram.py (button-driven bot), views.py, templates/
+app/             the Flask app — brand.py (tokens + BM/EN strings), products.py registry, calc.py, scan.py (rule engine + broker/regulator table), scantool.py (four scanners, both surfaces), tools.py, watch.py, goldcal.py + caltool.py (#5 calendar), feeds.py, store.py (SQLite: alerts, users, codes), auth.py (Telegram / email code / Google placeholder), mailer.py (SMTP), telegram.py (button-driven bot), views.py, templates/
 tests/           surface contract (both halves, all 18), sign-in doors + linking, bot funnel, Gold Watch
 assets/          self-hosted animated SVGs (hero, dividers, icons, nav chips, charts)
 products/        product-01..18.md — one spec per product

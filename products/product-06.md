@@ -36,17 +36,20 @@ half, on one Telegram account, with the same free tier on each.
 
 Check regulation and negative-balance protection, then price the hidden spread cost.
 
+`/copyaudit exness 2 10` looks the broker up in the built-in table (18 brokers with their regulators and NBP status), flags offshore-only licensing, prices the spread at 2 pips × 10 lots a month, and scans any pasted pitch against the shared red-flag rules. Unknown brokers are not condemned — they start at CAUTION with the tier-1 registers linked so you can verify the licence yourself. **Live.**
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/copyaudit BROKER` | SAFE or HIGH RISK, with the checklist |
+| `/copyaudit BROKER [SPREAD_PIPS] [LOTS_PER_MONTH]` | regulators in our table, tier-1 or offshore, NBP, spread cost per month and year |
 
 ## Dashboard views
 
-- Audit history with the regulator links that were checked
-- Side-by-side broker comparison
-- Hidden-cost model — spread cost projected over a year
+- Audit form with spread and monthly lots; regulator table with a link to each official register
+- Audit history and a watchlist of brokers to re-check (signed in)
+- Hidden-cost model — spread cost per month and per year
+- Public share page per audit at `/p/copy-trade-audit/s/<id>`
 
 ## Monetization
 
