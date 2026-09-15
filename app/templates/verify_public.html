@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Verdict #{{ s.row.id }} · {{ p.name }}{% endblock %}
+{% block body %}
+{% set r = s.report %}
+{% set tone = 'positive' if r.verdict == 'REAL' else ('negative' if r.verdict == 'IMPOSSIBLE' else 'warn') %}
+<div class="wrap" style="padding-top:48px">
+  <p style="margin:0"><a class="text-muted" href="{{ url_for('views.product', slug=p.slug) }}">← {{ p.emoji }} {{ p.number }} · {{ p.name }}</a></p>
+  <h1 style="margin-top:14px">{{ s.icon[r.verdict] }} {{ s.verdict_text(r.verdict, lang) }}</h1>
+  <p class="lede">{{ t('ui.v_claim') }}: <b>{{ r.subject }}</b> · #{{ s.row.id }} · {{ s.row.created_at|utc }} UTC{% if s.others|length > 1 %} · {{ t('ui.s_community', n=s.others|length) }}{% endif %}</p>
+  <div class="stats">
+    <div class="stat glass {{ tone }}"><span>{{ t('ui.verdict') }}</span><b>{{ r.verdict }}</b><small>{% if r.source %}{{ r.source }} · {{ r.candles }} {{ t('ui.v_candles') }}{% endif %}</small></div>
+    {% if r.low is not none %}<div class="stat glass"><span>{{ t('ui.v_range') }}</span><b style="font-size:18px">{{ '{:,.2f}'.format(r.low) }} – {{ '{:,.2f}'.format(r.high) }}</b><small>{{ r.window }}</small></div>{% endif %}
+  </div>
+  <ul class="tight">{% for line in s.lines(r, lang)[1:] %}<li>{{ line|safe }}</li>{% endfor %}</ul>
+  <p class="soon">{{ t('ver.note') }}</p>
+  <div class="actions" style="margin-top:24px"><a class="btn btn-gold" href="{{ url_for('views.product', slug=p.slug) }}">{{ t('ui.s_run') }}</a></div>
+  <p class="soon">{{ t('scan.disclaimer') }}</p>
+</div>
+{% endblock %}

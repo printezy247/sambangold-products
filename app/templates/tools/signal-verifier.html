@@ -1,0 +1,60 @@
+{% set c = tool %}
+<h2>{{ t('ui.v_h') }}</h2>
+<p class="lede">{{ t('ui.v_lede') }}</p>
+<form method="post" class="panel tool">
+  <input type="hidden" name="action" value="one">
+  <div class="fields">
+    <label>{{ t('ui.v_price') }} <input name="price" value="{{ c.form.get('price', '') }}" placeholder="2431.5" required></label>
+    <label>{{ t('ui.v_date') }} <input name="date" value="{{ c.form.get('date', '') }}" placeholder="2026-09-14"></label>
+    <label>{{ t('ui.v_time') }} <input name="time" value="{{ c.form.get('time', '') }}" placeholder="14:30"></label>
+    <label>{{ t('ui.v_side') }}
+      <select name="side">
+        <option value="">{{ t('ui.v_any') }}</option>
+        <option value="buy" {{ 'selected' if c.form.get('side') == 'buy' }}>{{ t('ui.v_buy') }}</option>
+        <option value="sell" {{ 'selected' if c.form.get('side') == 'sell' }}>{{ t('ui.v_sell') }}</option>
+      </select>
+    </label>
+  </div>
+  <div class="actions"><button type="submit">{{ t('ui.v_btn') }}</button></div>
+  {% if c.error %}<p class="err">{{ c.error }}</p>{% endif %}
+  {% if not c.owner %}<p class="soon">{{ t('product.signin') }} {{ t('scan.disclaimer') }}</p>{% endif %}
+</form>
+
+{% if c.results %}
+{% for r in c.results %}
+{% set tone = 'positive' if r.verdict == 'REAL' else ('negative' if r.verdict == 'IMPOSSIBLE' else 'warn') %}
+<div class="stats">
+  <div class="stat glass {{ tone }}"><span>{{ t('ui.v_claim') }} · {{ r.subject }}</span><b>{{ c.icon[r.verdict] }} {{ c.verdict_text(r.verdict, lang) }}</b>
+    <small>{% if r.source %}{{ r.source }} · {{ r.candles }} {{ t('ui.v_candles') }}{% else %}{{ (r.error or '')[:60] }}{% endif %}</small></div>
+  {% if r.low is not none %}
+  <div class="stat glass"><span>{{ t('ui.v_range') }}</span><b style="font-size:18px">{{ c.fmt(r.low) }} – {{ c.fmt(r.high) }}</b><small>{{ t('ui.v_window') }}: {{ r.window }}</small></div>
+  <div class="stat glass {{ tone }}"><span>{{ t('ui.v_gap') }}</span><b>{% if r.gap %}${{ c.fmt(r.gap) }}{% else %}0{% endif %}</b><small>{% if r.gap_pct %}{{ '%.2f' % (r.gap_pct * 100) }}%{% else %}—{% endif %}</small></div>
+  {% endif %}
+</div>
+<p class="lede">{{ t('ui.s_share') }}: <a class="mono" href="{{ url_for('views.scan_public', slug='signal-verifier', scan_id=r.id) }}">{{ url_for('views.scan_public', slug='signal-verifier', scan_id=r.id, _external=True) }}</a></p>
+{% endfor %}
+<p class="soon">{{ t('ver.note') }}</p>
+{% endif %}
+
+<h2>{{ t('ui.v_batch') }}</h2>
+<form method="post" class="panel tool">
+  <input type="hidden" name="action" value="batch">
+  <label class="wide" style="display:block">{{ t('ui.v_batch_label') }}
+    <textarea name="claims" rows="6" placeholder="{{ t('ui.v_batch_ph') }}">{{ c.form.get('claims', '') }}</textarea>
+  </label>
+  <div class="actions"><button type="submit">{{ t('ui.v_batch_btn') }}</button></div>
+</form>
+
+{% if c.owner %}
+<h3>{{ t('ui.history') }}</h3>
+{% if c.history %}
+<table class="flags">
+  <thead><tr><th>#</th><th>{{ t('ui.v_claim') }}</th><th>{{ t('ui.verdict') }}</th><th>{{ t('ui.when') }}</th></tr></thead>
+  <tbody>
+  {% for h in c.history[:30] %}
+    <tr><td><a class="mono" href="{{ url_for('views.scan_public', slug='signal-verifier', scan_id=h.id) }}">{{ h.id }}</a></td><td>{{ h.subject }}</td><td>{{ c.icon[h.verdict] }} {{ c.verdict_text(h.verdict, lang) }}</td><td class="mono">{{ h.created_at|utc }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="lede">{{ t('ui.v_nohist') }}</p>{% endif %}
+{% endif %}

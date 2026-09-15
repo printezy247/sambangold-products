@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
                    send_from_directory, session)
 
-from . import caltool, feeds, scan, scantool, store, telegram, watch
+from . import caltool, feeds, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -117,6 +117,11 @@ def gold_calendar_pdf():
 def scan_public(slug, scan_id):
     """Public share page for one archived scan — the score, the findings, nothing about who ran it."""
     item = BY_SLUG.get(slug)
+    if slug == "signal-verifier":
+        page = verifytool.public_page(scan_id)
+        if page is None:
+            abort(404)
+        return render_template("verify_public.html", p=item, s=page)
     page = scantool.public_page(scan_id)
     if item is None or page is None or page["row"]["product"] != slug:
         abort(404)
