@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, jsonify, render_template, request,
                    send_from_directory, session)
 
-from . import feeds, store, telegram, watch
+from . import caltool, feeds, store, telegram, watch
 from .auth import admin_required, current_user, login_required
 from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
@@ -104,6 +104,13 @@ def check_alerts_task():
     if not expected or not hmac.compare_digest(expected, given):
         abort(403)
     return jsonify(watch.check_alerts(telegram.send_message))
+
+
+@bp.route("/p/gold-calendar/quarter.pdf")
+def gold_calendar_pdf():
+    name, body = caltool.quarter_pdf_bytes()
+    return Response(body, mimetype="application/pdf",
+                    headers={"Content-Disposition": "attachment; filename=%s" % name})
 
 
 @bp.route("/p/ib-revenue-calculator/checklist.txt")

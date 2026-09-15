@@ -10,6 +10,7 @@ fails the surface-contract test.
 from flask import session
 
 from . import calc
+from .caltool import bot_calendar, bot_calendar_alert, dashboard_calendar
 from .watch import bot_watch, dashboard_watch
 
 SAVE_LIMIT = 8
@@ -152,6 +153,7 @@ def _save(slug, row):
     session.modified = True
 
 
-BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc}
-DASHBOARD = {"gold-watch": dashboard_watch, "prop-calculator": dashboard_prop,
-             "ib-revenue-calculator": dashboard_ib}
+BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc,
+       "calendar": bot_calendar, "calendar_alert": bot_calendar_alert}
+DASHBOARD = {"gold-watch": dashboard_watch, "gold-calendar": dashboard_calendar,
+             "prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib}

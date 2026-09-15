@@ -100,11 +100,19 @@ def bot_watch(args, chat_id=None, **_):
 # --- checker ---------------------------------------------------------------- #
 
 def check_alerts(send):
-    """Fire every crossed alert. `send(chat_id, text)` is injected so tests need no token."""
+    """Fire every crossed alert, log the spread, push calendar reminders.
+
+    `send(chat_id, text)` is injected so tests need no token.
+    """
+    from . import caltool  # late import: caltool imports store, not watch
     alerts = store.active_alerts()
+    try:
+        quote = feeds.gold_quote(max_age=0)
+    except feeds.FeedError:
+        return {"checked": 0, "fired": 0, "pushed": 0, "error": "feed unavailable"}
+    calendar = caltool.check_calendar(send, quote)
     if not alerts:
-        return {"checked": 0, "fired": 0}
-    quote = feeds.gold_quote(max_age=0)
+        return {"checked": 0, "fired": 0, "pushed": calendar["pushed"]}
     fired = 0
     for alert in alerts:
         if feeds.crossed(alert["direction"], alert["level"], quote):
@@ -114,7 +122,7 @@ def check_alerts(send):
                 "ask" if alert["direction"] == "above" else "bid", fmt(price), quote["source"],
                 "Educational research only. Verify with your broker."))
             fired += 1
-    return {"checked": len(alerts), "fired": fired, "source": quote["source"]}
+    return {"checked": len(alerts), "fired": fired, "source": quote["source"], "pushed": calendar["pushed"]}
 
 
 # --- dashboard -------------------------------------------------------------- #

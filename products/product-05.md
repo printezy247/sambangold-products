@@ -40,14 +40,15 @@ A monthly volatility and event calendar with the spread-risk windows marked.
 
 | Command | Does |
 |:--|:--|
-| `/calendar` | the next event and its historical spread behaviour |
-| `/calendar_alert` | push 30 minutes before each window |
+| `/calendar` | next three red USD events (MYT), next FOMC statement, next CME holiday, this month's seasonality, and your alert state — with a one-tap on/off button |
+| `/calendar_alert` | toggle a push 30 minutes before every red USD event and FOMC statement |
 
 ## Dashboard views
 
-- Month grid of volatility patterns and Fed release windows
-- PDF download of the current quarter
-- Per-event history — what the spread did last time
+- Month grid (MYT) with red USD events, FOMC statement days, CME closures and thin sessions; today outlined in gold; prev/next month
+- PDF download of the current quarter — one page per month, events and seasonality, generated in-app
+- Seasonality strip — average return and range per calendar month from ten years of `GC=F`, static long-run table as fallback
+- Per-event history — the five-minute checker samples the spread and tags samples inside ±30 min of a red event; worst and mean per event vs the baseline median
 
 ## Monetization
 
@@ -58,9 +59,10 @@ No product is paywalled at the door. Paid tiers sell scale and automation only.
 
 ## Data sources
 
-- CME holiday calendar
-- Federal Reserve release schedule
-- Historical XAU volatility by month
+- Forex Factory weekly JSON (`ff_calendar_thisweek` + `nextweek`) — red USD events, free, no key; last good copy kept when unreachable
+- Federal Reserve FOMC schedule and CME Globex holidays — embedded for the year, so the grid reaches past the feed's two-week horizon
+- Yahoo Finance `GC=F` monthly history — seasonality, cached a day
+- The app's own spread log — what the spread did around each event
 
 ---
 

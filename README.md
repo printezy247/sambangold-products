@@ -158,7 +158,7 @@ flowchart LR
 
 **Problem** — Traders ignore gold seasonality — Fed windows, CME holidays, jewelry cycles — and the spread-widening events around them.
 
-**Solution** — Web calendar at `/gold-calendar` showing monthly volatility patterns and Fed release windows, with PDF download. Bot pushes `/calendar_alert` 30 minutes ahead.
+**Solution** — `/calendar` returns the next red USD events, the next FOMC and CME holiday, and this month's seasonality; `/calendar_alert` pushes 30 minutes before each. The dashboard adds the month grid, a quarter PDF, the 12-month seasonality strip, and a measured per-event spread history. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/calendar`, `/calendar_alert` &nbsp;·&nbsp; 🌐 `/p/gold-calendar` — Month grid of volatility patterns and Fed release windows · PDF download of the current quarter · Per-event history.
 
@@ -507,7 +507,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 | 🥇 **2** | XAUUSD Signal Verifier | `/verify GOLD PRICE` | `/p/signal-verifier` | 🤖 | One verify per request, unlimited requests |
 | 🏛 **3** | Prop Firm Challenge Calculator | `/propcalc FEE SIZE PASS%` | `/p/prop-calculator` | 🌐 | Full calculator and bot command, no limit |
 | 🔒 **4** | Telegram Bot Scam Detector | `/audit @bot_username` | `/p/bot-scam-detector` | 🤖 | Unlimited /audit scans |
-| 🥇 **5** | Gold Seasonality Calendar | `/calendar` | `/p/gold-calendar` | 🌐 | Full calendar and PDF, no login |
+| 🥇 **5** | Gold Seasonality Calendar | `/calendar` · `/calendar_alert` | `/p/gold-calendar` | 🌐 | Full calendar and PDF, no login |
 | 🔒 **6** | Copy-Trade Safety Audit | `/copyaudit BROKER` | `/p/copy-trade-audit` | 🤖 | 5 audits free |
 | 💱 **7** | Forex Signal Red-Flag Scanner | `/scan TEXT` | `/p/red-flag-scanner` | 🤖 | Unlimited text scans |
 | 🥇 **8** | IB Affiliate Revenue Calculator | `/ibcalc LOTS RATE [CLIENTS] [CLAWBACK%]` | `/p/ib-revenue-calculator` | 🌐 | Full calculator and compliance checklist |
