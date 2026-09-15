@@ -11,7 +11,15 @@
 
 ## Platform
 
-🤖 **Telegram-first** — the entire value is a push arriving seconds before the line is crossed. The web side only links accounts and selects rule packs.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/sentinel link`, `/sentinel status`, `/sentinel firm NAME` |
+| 🌐 Dashboard | `/p/drawdown-sentinel` |
+
+**Primary — 🤖 bot-led.** The entire value is a push arriving seconds before the line is crossed.
 
 ## Free tier
 
@@ -41,6 +49,12 @@
 | `/sentinel firm NAME` | load a firm's rule pack |
 
 ---
+
+## Dashboard views
+
+- Account linking and rule-pack selection
+- Live distance-to-breach gauges per rule
+- Breach history and near-miss log
 
 ## Monetization
 

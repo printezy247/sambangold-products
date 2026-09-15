@@ -11,7 +11,15 @@
 
 ## Platform
 
-🤖🌐 **Both** — web heat-map of the position cluster, `/exposure` snapshot and overexposure warning in Telegram.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/exposure`, `/exposure warn` |
+| 🌐 Dashboard | `/p/exposure-monitor` |
+
+**Primary — 🤖 bot-led.** Overexposure is a warning you need immediately; the heat-map explains it afterwards.
 
 ## Free tier
 
@@ -39,6 +47,12 @@
 | `/exposure warn` | enable overexposure push alerts |
 
 ---
+
+## Dashboard views
+
+- Correlation heat-map of the open book
+- True-risk figure with the cluster decomposition
+- Rollover and session-spread cost projection
 
 ## Monetization
 

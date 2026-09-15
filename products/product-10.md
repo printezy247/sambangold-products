@@ -11,7 +11,15 @@
 
 ## Platform
 
-🌐 **Web-first** — CSV upload, sortable diff table, PDF export. 🤖 Telegram companion pings when a statement finishes reconciling.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/rebateaudit`, `/rebatestatus` |
+| 🌐 Dashboard | `/p/rebate-auditor` |
+
+**Primary — 🌐 dashboard-led.** CSV upload, a sortable diff, a dispute PDF; the bot pings when a run finishes.
 
 ## Free tier
 
@@ -40,6 +48,12 @@
 | `/rebatestatus` | show shortfall total for the current period |
 
 ---
+
+## Dashboard views
+
+- CSV upload for the broker statement and the client trade log
+- Sortable diff table — shortfall, missing account, silent rate change
+- Dispute PDF with the per-account arithmetic shown
 
 ## Monetization
 

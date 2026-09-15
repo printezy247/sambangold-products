@@ -11,7 +11,15 @@
 
 ## Platform
 
-🤖 **Telegram-first** — `/paxg`, `/walletcheck`, depeg push. Public web premium chart alongside.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/paxg`, `/walletcheck ADDRESS` |
+| 🌐 Dashboard | `/p/tokenized-gold` |
+
+**Primary — 🤖 bot-led.** Depeg and poisoning checks are alerts; the premium chart is a page.
 
 ## Free tier
 
@@ -38,6 +46,12 @@
 | `/walletcheck ADDRESS` | chain fee, depeg status, poisoning check |
 
 ---
+
+## Dashboard views
+
+- Public premium/discount chart over time
+- Reserve attestation freshness per token
+- Payout wallet health report
 
 ## Monetization
 

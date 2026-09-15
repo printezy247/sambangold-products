@@ -11,7 +11,15 @@
 
 ## Platform
 
-🤖🌐 **Both** — web dashboard for the whole book, Telegram push the moment a client crosses a risk threshold.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/ibchurn`, `/ibchurn @client` |
+| 🌐 Dashboard | `/p/churn-radar` |
+
+**Primary — 🌐 dashboard-led.** The book is a table you study; the bot warns the moment a client crosses a line.
 
 ## Free tier
 
@@ -40,6 +48,12 @@
 | `/ibchurn @client` | single client detail and signal breakdown |
 
 ---
+
+## Dashboard views
+
+- Book overview ranked by 30-day blow-up probability
+- Per-client signal breakdown and history
+- Intervention log — what was tried and what it did
 
 ## Monetization
 

@@ -20,6 +20,10 @@ if [ -x scripts/check-readme.sh ]; then
   bash scripts/check-readme.sh
 fi
 
+if compgen -G "tests/test_*.py" > /dev/null; then
+  python3 -m pytest -q
+fi
+
 git add -A
 if git diff --cached --quiet; then
   echo "No changes to commit."

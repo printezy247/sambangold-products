@@ -11,7 +11,15 @@
 
 ## Platform
 
-🤖🌐 **Both** — public indexable web table (the SEO asset) and `/goldspread`, which returns the ranked card as an image straight into any Telegram group.
+🤖🌐 **Both.** Every product in this repo ships a Telegram half and a dashboard
+half, on one Telegram account, with the same free tier on each.
+
+| Half | This product |
+|:--|:--|
+| 🤖 Telegram | `/goldspread`, `/goldspread 1.0 overnight` |
+| 🌐 Dashboard | `/p/broker-comparator` |
+
+**Primary — 🌐 dashboard-led.** The public table is the SEO asset; the bot drops the card straight into a group.
 
 ## Free tier
 
@@ -40,6 +48,12 @@
 | `/goldspread 1.0 overnight` | cost ranking for a specific lot size and holding period |
 
 ---
+
+## Dashboard views
+
+- Public indexable comparison table — the SEO asset
+- Cost calculator for a given lot size and holding period
+- Referral-branded card generator
 
 ## Monetization
 
