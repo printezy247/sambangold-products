@@ -227,14 +227,14 @@ PRODUCTS = (
     ),
     Product(
         number=11, slug="churn-radar", name="IB Client Churn & Blow-Up Radar",
-        vertical="Gold IB", emoji="🥇", status="proposed", primary="dashboard",
+        vertical="Gold IB", emoji="🥇", status="shipped", primary="dashboard",
         primary_why="The book is a table you study; the bot warns the moment a client crosses a line.",
         free_tier="10 tracked clients, unlimited alerts.",
         problem="IB revenue dies when the client book dies, and the warning signs are visible weeks before the payout drops.",
         solution="Score each referred client on volume decay, margin utilisation, martingale patterns and dormancy drift.",
         bot_commands=(
             ("/ibchurn", "top clients at risk right now"),
-            ("/ibchurn @client", "single client detail and signal breakdown"),
+            ("/ibchurn ACCOUNT", "single client detail and signal breakdown"),
         ),
         dashboard_views=(
             "Book overview ranked by 30-day blow-up probability",

@@ -96,4 +96,4 @@ def test_dashboard_sample_run_errors_history_and_pdf(client):
 
 def test_landing_counts_ten_live(client):
     body = client.get("/").get_data(as_text=True)
-    assert "10 sudah hidup" in body and "8 lagi dalam giliran" in body
+    assert "11 sudah hidup" in body and "7 lagi dalam giliran" in body

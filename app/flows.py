@@ -37,6 +37,7 @@ FLOWS = {
     ],
     "gold-calendar": [],
     "rebate-auditor": [],      # dashboard-led: the bot reads back the last run
+    "churn-radar": [],
     "bot-scam-detector": [
         S("handle", "flow.audit_handle"),
         S("text", "flow.audit_text", optional=True),
@@ -72,6 +73,8 @@ def build(slug, a):
         return "/calendar"
     if slug == "rebate-auditor":
         return "/rebateaudit"
+    if slug == "churn-radar":
+        return "/ibchurn"
     if slug == "bot-scam-detector":
         return ("/audit %s %s" % (a["handle"], a.get("text") or "")).strip()
     if slug == "copy-trade-audit":

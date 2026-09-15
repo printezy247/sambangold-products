@@ -148,7 +148,7 @@ MS = {
         "free_tier": "10 klien dijejak, alert tanpa had.",
         "problem": "Hasil IB mati bila buku klien mati, dan tanda amarannya kelihatan berminggu-minggu sebelum payout jatuh.",
         "solution": "Skor setiap klien rujukan pada penyusutan volum, penggunaan margin, corak martingale dan hanyut dormansi.",
-        "bot_commands": (("/ibchurn", "klien paling berisiko sekarang"), ("/ibchurn @klien", "butiran satu klien dan pecahan isyarat")),
+        "bot_commands": (("/ibchurn", "klien paling berisiko sekarang"), ("/ibchurn AKAUN", "butiran satu klien dan pecahan isyarat")),
         "dashboard_views": ("Gambaran buku disusun ikut kebarangkalian blow-up 30 hari", "Pecahan isyarat dan sejarah setiap klien", "Log intervensi — apa yang dicuba dan kesannya"),
         "upsell": "Klien tanpa had serta mesej susulan draf automatik.",
         "primary_why": "Buku klien ialah jadual yang anda kaji; bot beri amaran sebaik klien melepasi garisan.",

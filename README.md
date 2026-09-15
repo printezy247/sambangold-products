@@ -306,9 +306,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Problem** — IB revenue dies when the client book dies, and it dies quietly. By the time volume shows up flat in the monthly statement, the client is already gone.
 
-**Solution** — Score every referred client on declining lot volume, rising margin utilisation, martingale and revenge-trade patterns, and dormancy drift. Output a 30-day churn or blow-up probability with a suggested intervention.
+**Solution** — Score every referred client on declining lot volume, rising margin utilisation, martingale and revenge-trade patterns, and dormancy drift. Output a 30-day churn or blow-up probability with a suggested intervention, ranked by revenue at risk; the dashboard keeps the intervention log. **Live.**
 
-**Platform** — 🤖🌐 **Both.** 🤖 `/ibchurn`, `/ibchurn @client` &nbsp;·&nbsp; 🌐 `/p/churn-radar` — Book overview ranked by 30-day blow-up probability · Per-client signal breakdown and history · Intervention log.
+**Platform** — 🤖🌐 **Both.** 🤖 `/ibchurn`, `/ibchurn ACCOUNT` &nbsp;·&nbsp; 🌐 `/p/churn-radar` — Book overview ranked by 30-day blow-up probability · Per-client signal breakdown and history · Intervention log.
 
 **Primary** — 🌐 dashboard-led. The book is a table you study; the bot warns the moment a client crosses a line.
 
@@ -552,7 +552,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 
 - [x] **Phase 0 — the spine** — one Flask app, a page per product, one Telegram identity across bot and dashboard
 - [x] **Vault I** — 9 products shipped
-- [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar, #12 Broker Comparator, #13 Attribution
+- [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator, #13 Attribution
 - [ ] **Prop + forex** — #14 Drawdown Sentinel, #15 Monte Carlo Sim, #16 Overexposure Monitor
 - [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
 - [ ] One billing spine (Stripe + USDT) across all eighteen
