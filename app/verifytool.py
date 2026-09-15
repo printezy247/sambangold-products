@@ -3,6 +3,7 @@
 import datetime as dt
 
 from . import store, verify
+from . import gate
 from .brand import DEFAULT_LANG, t
 
 ICON = {"REAL": "✅", "BORDERLINE": "🟡", "IMPOSSIBLE": "❌", "UNVERIFIED": "❔"}
@@ -73,10 +74,10 @@ def dashboard_verify(request, user=None):
     owner = user["owner"] if user else None
     form = request.form if request.method == "POST" else {}
     ctx = {"form": form, "results": [], "error": None, "owner": owner, "history": [],
-           "icon": ICON, "verdict_text": verdict_text, "lines": lines, "fmt": _fmt, "batch_limit": BATCH_LIMIT}
+           "icon": ICON, "verdict_text": verdict_text, "lines": lines, "fmt": _fmt, "batch_limit": gate.limit("batch_rows", user=user)}
     claims = []
     if request.method == "POST" and form.get("action") == "batch":
-        for raw in form.get("claims", "").splitlines()[:BATCH_LIMIT]:
+        for raw in form.get("claims", "").splitlines()[:ctx["batch_limit"]]:
             c = verify.parse_claim_line(raw)
             if c:
                 claims.append(c)

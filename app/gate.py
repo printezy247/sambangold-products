@@ -9,7 +9,7 @@ language, and to do it without an error page or a dead end.
 
 from functools import wraps
 
-from flask import flash, redirect, request, url_for
+from flask import flash, has_request_context, redirect, request, url_for
 
 from . import store
 from .auth import current_user, lang as session_lang
@@ -24,7 +24,10 @@ def owner_tier(owner, signed_in=False):
 
 
 def user_tier(user=None):
-    user = current_user() if user is None else user
+    """The signed-in visitor's rank. Public outside a request — a background
+    job has no session, and must not be handed someone else's rank."""
+    if user is None:
+        user = current_user() if has_request_context() else None
     return (user or {}).get("rank") or "public"
 
 
@@ -67,3 +70,29 @@ def bot_gate(feature, chat_id=None, lang="ms"):
     if allows(tier, feature):
         return None
     return "%s\n\n%s" % (upgrade_line(feature, lang), t("gate.where", lang))
+
+
+# --- limits ----------------------------------------------------------------- #
+
+def limit(key, user=None, owner=None, chat_id=None):
+    """The cap this caller carries for `key`. 0 means unlimited.
+
+    Pass whichever identity the call site already has: the dashboard has a
+    `user`, a bot handler has a `chat_id`, a background job has an `owner`.
+    """
+    from .tiers import limit_for
+    if user is not None:
+        tier = user.get("rank") or "public"
+    elif chat_id is not None:
+        tier = owner_tier(str(chat_id), signed_in=True)
+    elif owner is not None:
+        tier = owner_tier(str(owner), signed_in=True)
+    else:
+        tier = user_tier()
+    return limit_for(key, tier)
+
+
+def within(key, count, **who):
+    """True while `count` is still under the caller's cap for `key`."""
+    cap = limit(key, **who)
+    return cap == 0 or count < cap

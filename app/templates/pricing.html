@@ -96,6 +96,22 @@
       </tbody>
     </table>
   </div>
+  <h3 style="margin-top:34px">{{ t('price.limits_h') }}</h3>
+  <p class="lede">{{ t('price.limits_sub') }}</p>
+  <div class="scroll">
+    <table class="matrix">
+      <thead><tr><th>{{ t('price.feature') }}</th>{% for tier in tiers %}<th>{{ rank_label(tier.key) }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for key in limit_rows %}
+        <tr>
+          <td>{{ limit_label(key) }}</td>
+          {% for tier in tiers %}{% set n = limit_for(key, tier.key) %}
+          <td class="mono">{% if n %}{{ '{:,}'.format(n) }}{% else %}∞{% endif %}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <p class="lede" style="margin-top:14px">{{ t('price.note') }}</p>
 </section>
 

@@ -549,6 +549,24 @@ answer to Telegram.
 The switch survives a lapsed rank. Pushes stop the day the rank lapses and
 resume the day it comes back, with nothing to set up again.
 
+#### 📏 The caps a rank raises
+
+The other half of "paid ranks sell scale". Every number below was already a hard
+free cap before the ladder existed. A rank raises it; nothing new was closed to
+get here, and the Public column is unchanged.
+
+| Cap | Awam | General | A-Team | Rambo |
+|:--|--:|--:|--:|--:|
+| Linked prop accounts (#14) | 1 | 1 | 10 | 50 |
+| Clients per run (#11) | 10 | 10 | 200 | ∞ |
+| Tracked links (#13) | 3 | 3 | 50 | ∞ |
+| Monte Carlo paths (#15) | 1,000 | 1,000 | 100,000 | 100,000 |
+| Rows per batch (#2) | 20 | 20 | 200 | 1,000 |
+| Saved comparisons | 8 | 8 | 50 | 200 |
+
+The table is published on `/pricing`, read from the same `LIMITS` map the code
+enforces, so the page cannot promise a number the gate does not honour.
+
 <div align="center">
 
 | # | Product | 🤖 Telegram | 🌐 Dashboard | Primary | Free tier |
@@ -607,7 +625,8 @@ resume the day it comes back, with nothing to set up again.
 - [x] **Crypto + stocks** — #17 Tokenized-Gold Monitor ✅, #18 Miner Divergence Screener ✅
 - [x] **Rank spine** — entitlements, the gate on both surfaces, `/pricing`, admin grants
 - [x] **A-Team autopilot** — daily standing questions on five tools, on both surfaces
-- [ ] **A-Team batch + reports** — bulk CSV upload and scheduled PDF reports
+- [x] **A-Team scale** — every free cap is now rank-aware, published on the ranks page
+- [ ] **A-Team reports** — weekly scorecards and scheduled PDF reports
 - [ ] **Rambo scale** — seats, client reports, white-label widget, outbound webhooks
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 

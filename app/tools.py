@@ -137,9 +137,10 @@ def dashboard_ib(request, user=None):
 
 
 def _save(slug, row):
+    from .gate import limit
     saves = session.setdefault("saves", {})
     rows = [row] + [r for r in saves.get(slug, []) if r != row]
-    saves[slug] = rows[:SAVE_LIMIT]
+    saves[slug] = rows[:limit("saves") or len(rows)]
     session.modified = True
 
 

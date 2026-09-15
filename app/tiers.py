@@ -43,6 +43,43 @@ PRO_F = FREE_F + ("autopilot", "batch", "reports", "universe")
 ELITE_F = PRO_F + ("seats", "clients", "whitelabel", "api", "priority")
 
 
+DEFAULT_TIER = "public"
+
+# --- limits ----------------------------------------------------------------- #
+# The other half of "paid ranks sell scale": the same tool, more of it. Every
+# number below already existed as a hard free cap; a rank raises it rather than
+# unlocking anything that was previously shut. 0 means no limit.
+
+LIMITS = {
+    "accounts":   {"public": 1, "free": 1, "pro": 10, "elite": 50},        # #14 linked prop accounts
+    "clients":    {"public": 10, "free": 10, "pro": 200, "elite": 0},      # #11 clients scored per run
+    "links":      {"public": 3, "free": 3, "pro": 50, "elite": 0},         # #13 tracked links
+    "sims":       {"public": 1000, "free": 1000, "pro": 100000, "elite": 100000},   # #15 Monte Carlo paths
+    "batch_rows": {"public": 20, "free": 20, "pro": 200, "elite": 1000},   # #2 claims verified at once
+    "saves":      {"public": 8, "free": 8, "pro": 50, "elite": 200},       # saved comparisons
+}
+
+LIMIT_LABELS = {
+    "accounts":   {"ms": "Akaun prop dipaut",       "en": "Linked prop accounts"},
+    "clients":    {"ms": "Klien setiap larian",     "en": "Clients per run"},
+    "links":      {"ms": "Pautan dijejak",          "en": "Tracked links"},
+    "sims":       {"ms": "Laluan Monte Carlo",      "en": "Monte Carlo paths"},
+    "batch_rows": {"ms": "Baris setiap kelompok",   "en": "Rows per batch"},
+    "saves":      {"ms": "Perbandingan disimpan",   "en": "Saved comparisons"},
+}
+
+
+def limit_for(key, tier=DEFAULT_TIER):
+    """The cap this rank carries for `key`. 0 means unlimited."""
+    row = LIMITS.get(key) or {}
+    return row.get(tier, row.get(DEFAULT_TIER, 0))
+
+
+def limit_label(key, lang="ms"):
+    row = LIMIT_LABELS.get(key) or {}
+    return row.get(lang) or row.get("ms") or key
+
+
 @dataclass(frozen=True)
 class Tier:
     key: str
@@ -73,7 +110,6 @@ TIERS = (
 )
 
 BY_KEY = {t.key: t for t in TIERS}
-DEFAULT_TIER = "public"
 
 
 def tier_by_key(key):

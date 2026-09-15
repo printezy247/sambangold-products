@@ -3,6 +3,9 @@
 import datetime as dt
 
 from . import churn, store
+from . import gate
+
+NO_CAP = 10 ** 6   # a rank with no client cap still needs a number to slice with
 from .brand import DEFAULT_LANG, t
 
 SLUG = "churn-radar"
@@ -55,7 +58,7 @@ def dashboard_churn(request, user=None):
     owner = user["owner"] if user else None
     form = {k: v for k, v in request.form.items()} if request.method == "POST" else {}
     ctx = {"form": form, "run": None, "run_id": None, "error": None, "owner": owner, "runs": [], "icon": ICON,
-           "flags": _flags, "interventions": churn.interventions(lang), "free": churn.FREE_CLIENTS,
+           "flags": _flags, "interventions": churn.interventions(lang), "free": gate.limit("clients", user=user) or NO_CAP,
            "client": None, "notes": [], "notice": None}
     if request.method == "POST" and form.get("action") == "note" and owner and form.get("account") and form.get("note", "").strip():
         store.add_note(SLUG, owner, form["account"].strip(), form["note"])

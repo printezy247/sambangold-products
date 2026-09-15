@@ -53,6 +53,8 @@ def create_app(config_object=Config):
             "feature_rows": tiers.FEATURE_ROWS,
             "feature_label": lambda f: tiers.feature_label(f, lang),
             "tier_for_feature": tiers.tier_for_feature,
+            "limit_rows": list(tiers.LIMITS), "limit_for": tiers.limit_for,
+            "limit_label": lambda k: tiers.limit_label(k, lang),
         }
 
     @app.template_filter("utc")
