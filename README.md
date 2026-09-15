@@ -540,6 +540,20 @@ The two risk warnings are deliberately ungated and the reasoning is written into
 is sold honestly by the account cap instead: one linked account free, ten on
 A-Team, fifty on Rambo.
 
+**The card on a product page is computed, not written.** `app/perks.py` derives
+what a rank gives on one tool from the three places a rank is actually wired —
+the autopilot registry, the `LIMITS` map and the feature matrix — so a page can
+only ever claim something that exists. `broker-comparator` is the one tool where
+no rank changes anything, and its page says exactly that rather than inventing an
+upgrade.
+
+> [!IMPORTANT]
+> This replaces the registry's `upsell` sentence, which used to be rendered on
+> every product page as if it were a live capability. Ten of eighteen products
+> advertised features nobody had built, and the card read "UPGRADE · A-TEAM" even
+> to a Rambo holder. The guard is a test: every line a page can show must resolve
+> from the wiring, and a rank is never offered when it would add nothing.
+
 > [!IMPORTANT]
 > A rank never unlocks a *product*. It unlocks the **memory, automation and
 > scale** around products whose free tier is already open to everybody. The gate

@@ -146,6 +146,31 @@ def _forecast_report(owner, lang):
              year=run.get("annual") or run["net"] * 12, clients=run.get("clients", 1))
 
 
+SCANNERS = ("bot-scam-detector", "copy-trade-audit", "red-flag-scanner", "influencer-audit")
+
+
+def _scorecard(slug):
+    """A weekly scorecard for one scanner, built from what the owner scanned.
+
+    This is the thing the registry promised on four product pages and nothing
+    delivered. It reads the owner's own scans, so an untouched scanner stays
+    silent rather than reporting on an empty week.
+    """
+    def build(owner, lang, _slug=slug):
+        from .scantool import verdict_text
+        rows = [r for r in store.scans_for(owner, _slug, limit=200)
+                if r["created_at"] > time.time() - 7 * 86400]
+        if not rows:
+            return None
+        bad = [r for r in rows if r["verdict"] != "clear"]
+        lines = [t("rp.scan", lang, n=len(rows), bad=len(bad), tool=_name(_slug, lang))]
+        for r in bad[:5]:
+            lines.append(t("rp.scan_row", lang, subject=r["subject"] or "—",
+                           verdict=verdict_text(r["verdict"], lang), score=r["score"]))
+        return "\n".join(lines)
+    return build
+
+
 # --- the registry ----------------------------------------------------------- #
 # (slug, cadence, capability, builder)
 
@@ -159,7 +184,7 @@ JOBS = (
     ("churn-radar:book", "weekly", REPORT_FEATURE, _book_report),
     ("rebate-auditor:audit", "weekly", REPORT_FEATURE, _rebate_report),
     ("ib-revenue-calculator:forecast", "monthly", REPORT_FEATURE, _forecast_report),
-)
+) + tuple(("%s:scorecard" % slug, "weekly", REPORT_FEATURE, _scorecard(slug)) for slug in SCANNERS)
 BY_SLUG = {slug: build for slug, _, _, build in JOBS}
 CADENCE = {slug: cadence for slug, cadence, _, _ in JOBS}
 NEEDS = {slug: feature for slug, _, feature, _ in JOBS}
