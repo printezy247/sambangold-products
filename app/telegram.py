@@ -74,6 +74,31 @@ def set_webhook(base_url, token):
     )
 
 
+# The "/" command list and the Menu button Telegram shows next to the input.
+# Registered once, in both languages, so the bot is button-driven from the very
+# first screen — before the user has tapped anything.
+COMMANDS = {
+    "ms": [("start", "Menu utama"), ("tools", "Cuba alat percuma"), ("watch", "Harga emas & alert"),
+           ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
+           ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
+    "en": [("start", "Main menu"), ("tools", "Try a free tool"), ("watch", "Gold price & alerts"),
+           ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
+           ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
+}
+
+
+def set_commands(token):
+    """Register the command list (default = Bahasa Melayu, plus English) and the Menu button."""
+    results = []
+    for code, cmds in (("", COMMANDS["ms"]), ("ms", COMMANDS["ms"]), ("en", COMMANDS["en"])):
+        payload = {"commands": [{"command": c, "description": d} for c, d in cmds]}
+        if code:
+            payload["language_code"] = code
+        results.append(requests.post(API % (token, "setMyCommands"), json=payload, timeout=TIMEOUT))
+    results.append(requests.post(API % (token, "setChatMenuButton"), json={"menu_button": {"type": "commands"}}, timeout=TIMEOUT))
+    return results
+
+
 # --- keyboards ------------------------------------------------------------- #
 
 def kb(rows):
@@ -242,6 +267,8 @@ def _handle_message(chat_id, text, user):
         return [("send", chat_id, t("bot.pick_lang"), lang_keyboard())]
 
     lang = lang or DEFAULT_LANG
+    if word == "tools":
+        return [("send", chat_id, t("bot.tools", lang), tools_keyboard(lang))]
     if word == "dashboard":
         return [("send", chat_id, t("bot.dash", lang), kb([[btn(t("bot.btn_dash", lang), url=_base_url() + "/dashboard")]]))]
     if word == "help":

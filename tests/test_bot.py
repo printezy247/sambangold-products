@@ -110,3 +110,12 @@ def test_help_is_bilingual_and_lists_every_product(app):
 def test_webhook_handles_a_callback_without_a_token(client):
     r = client.post("/webhook/telegram", json=tap("menu_main"))
     assert r.status_code == 200 and r.get_json() == {"ok": True}
+
+
+def test_tools_command_opens_the_tool_picker_and_commands_are_registered(app):
+    from app.telegram import COMMANDS
+    with app.app_context():
+        actions = handle_update(msg("/tools", lang_code="ms"))
+        assert actions[0][0] == "send" and "Alat yang sudah hidup" in actions[0][2]
+    assert [c for c, _ in COMMANDS["ms"]] == [c for c, _ in COMMANDS["en"]]
+    assert {"start", "tools", "dashboard", "language", "help"} <= {c for c, _ in COMMANDS["ms"]}
