@@ -4,7 +4,7 @@ import pytest
 
 import datetime as dt
 
-from app import create_app, feeds, goldcal
+from app import create_app, feeds, goldcal, tokengold
 from app.config import Config
 
 FAKE_QUOTE = {"symbol": "XAUUSD", "source": "test feed", "bid": 2399.50, "ask": 2400.50,
@@ -37,6 +37,21 @@ def fake_calendar(monkeypatch):
     goldcal.clear_cache()
     yield
     goldcal.clear_cache()
+
+
+REAL_TOKEN_FETCH = tokengold.fetch      # the unpatched function, for the one test that exercises it
+FAKE_TOKENS = {"at": 0.0, "source_spot": "Yahoo GC=F (front futures)", "errors": [],
+               "paxg": 2420.0, "xaut": 2410.0, "spot": 2400.0, "usdt": 0.9995}
+
+
+@pytest.fixture(autouse=True)
+def fake_tokens(monkeypatch):
+    """#17: PAXG, XAUT, GC=F and USDT come from here; tests mutate the dict to move the premium."""
+    snap = dict(FAKE_TOKENS)
+    monkeypatch.setattr(tokengold, "fetch", lambda: dict(snap))
+    tokengold.clear_cache()
+    yield snap
+    tokengold.clear_cache()
 
 
 @pytest.fixture

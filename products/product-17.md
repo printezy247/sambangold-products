@@ -16,7 +16,7 @@ half, on one Telegram account, with the same free tier on each.
 
 | Half | This product |
 |:--|:--|
-| 🤖 Telegram | `/paxg`, `/walletcheck ADDRESS` |
+| 🤖 Telegram | `/paxg`, `/walletcheck ADDRESS [EXPECTED]` |
 | 🌐 Dashboard | `/p/tokenized-gold` |
 
 **Primary — 🤖 bot-led.** Depeg and poisoning checks are alerts; the premium chart is a page.
@@ -38,20 +38,23 @@ half, on one Telegram account, with the same free tier on each.
 2. Payout-wallet health check: current chain fee, stablecoin depeg watch, and address-poisoning detection on the paste target.
 3. Push when premium crosses a threshold or a peg slips.
 
+**Live.** PAXG comes from Binance (PAXGUSDT) and XAUT from Bitfinex (tXAUT:USD), both public. There is no free real-time LBMA spot, so the reference is Yahoo GC=F — the front futures contract, which carries a small basis over spot — and every readout says so; the PAXG−XAUT spread needs no reference and is the cleanest number on the page. The USDT peg is Kraken's public USDT/USD ticker, flagged beyond 0.3 %. A premium beyond 1 % is flagged. The five-minute checker samples all four numbers into a premium log, and the dashboard charts seven days of it. Reserve attestation and redemption terms are a dated facts table linking to each issuer's page, not a live feed. The wallet check is offline: chain detection (EVM, Tron, Bitcoin, Solana), the EIP-55 checksum on a mixed-case Ethereum address, and address poisoning — the address about to be paid shares its first and last four characters with the one from your history but is not the same address. Chain fees are typical published values, dated, to verify with the wallet.
+
 ## Commands
 
 | Command | Does |
 |:--|:--|
-| `/paxg` | current premium/discount vs spot XAU |
-| `/walletcheck ADDRESS` | chain fee, depeg status, poisoning check |
+| `/paxg` | PAXG and XAUT premium vs GC=F, PAXG−XAUT spread, USDT peg, flags |
+| `/walletcheck ADDRESS [EXPECTED]` | chain, EIP-55 checksum, poisoning against the expected address, typical fees, peg status |
 
 ---
 
 ## Dashboard views
 
-- Public premium/discount chart over time
-- Reserve attestation freshness per token
-- Payout wallet health report
+- Live readout: PAXG, XAUT, spot reference, USDT peg, with flags
+- Seven-day premium chart from the checker's log
+- Dated facts table per token: issuer, chain, attestation cadence, redemption terms, fees, issuer link
+- Wallet health form: chain, checksum, poisoning verdict, typical transfer fees, payout rules
 
 ## Monetization
 
@@ -62,10 +65,11 @@ half, on one Telegram account, with the same free tier on each.
 
 ## Data sources
 
-- PAXG/XAUT market prices
-- Spot XAU reference
-- Issuer attestation pages
-- Chain fee oracles
+- Binance public ticker (PAXGUSDT), Bitfinex public ticker (tXAUT:USD)
+- Yahoo Finance GC=F as the spot reference (front futures; small basis)
+- Kraken public ticker (USDTUSD) for the peg
+- Issuer pages (Paxos, Tether) for attestation and redemption terms, dated in the table
+- Typical chain fees, dated; no oracle
 
 ---
 
@@ -83,7 +87,7 @@ half, on one Telegram account, with the same free tier on each.
 ---
 
 <div align="center">
-<sub>Status: <b>PROPOSED</b> &nbsp;·&nbsp; <a href="../README.md">← back to all 18 products</a></sub>
+<sub>Status: <b>LIVE</b> &nbsp;·&nbsp; <a href="../README.md">← back to all 18 products</a></sub>
 
 <sub>Educational research only. Not financial advice.</sub>
 </div>

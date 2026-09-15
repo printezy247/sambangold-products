@@ -202,7 +202,7 @@ MS = {
         "free_tier": "Bacaan premium langsung dan semakan keselamatan wallet, tanpa had.",
         "problem": "PAXG dan XAUT hanyut dari spot, dan trader yang ambil payout dalam USDT terkena yuran chain, depeg dan address poisoning.",
         "solution": "Jejak premium dan diskaun terhadap spot XAU bersama yuran tebusan, kesegaran attestation dan kesihatan wallet payout.",
-        "bot_commands": (("/paxg", "premium atau diskaun semasa berbanding spot XAU"), ("/walletcheck ALAMAT", "yuran chain, status depeg, semakan poisoning")),
+        "bot_commands": (("/paxg", "premium atau diskaun semasa berbanding spot XAU"), ("/walletcheck ALAMAT [DIJANGKA]", "yuran chain, status depeg, checksum dan semakan poisoning")),
         "dashboard_views": ("Carta premium/diskaun awam mengikut masa", "Kesegaran attestation rizab setiap token", "Laporan kesihatan wallet payout"),
         "upsell": "Alert arbitraj dan pemantauan wallet berterusan.",
         "primary_why": "Semakan depeg dan poisoning ialah alert; carta premium ialah halaman.",

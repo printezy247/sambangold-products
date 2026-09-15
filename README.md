@@ -432,9 +432,9 @@ Scored on what matters: how badly people want it, versus how little exists today
 
 **Problem** — PAXG and XAUT drift from spot XAU, and nobody watches the premium. Separately, traders taking IB and prop payouts in USDT get hit by chain fees, depeg moments, and address-poisoning attacks.
 
-**Solution** — Track tokenized-gold premium and discount against spot, redemption fees, and reserve-attestation freshness. Add a payout-wallet health check: chain fee, depeg watch, address-poisoning detection.
+**Solution** — **Live.** PAXG (Binance) and XAUT (Bitfinex) premium against Yahoo GC=F, the PAXG−XAUT spread, and the USDT peg from Kraken, sampled every five minutes into a seven-day chart. A dated facts table per token for attestation and redemption. An offline wallet check: chain, EIP-55 checksum, address poisoning against the address you expected, typical chain fees.
 
-**Platform** — 🤖🌐 **Both.** 🤖 `/paxg`, `/walletcheck ADDRESS` &nbsp;·&nbsp; 🌐 `/p/tokenized-gold` — Public premium/discount chart over time · Reserve attestation freshness per token · Payout wallet health report.
+**Platform** — 🤖🌐 **Both.** 🤖 `/paxg`, `/walletcheck ADDRESS [EXPECTED]` &nbsp;·&nbsp; 🌐 `/p/tokenized-gold` — Live readout and seven-day premium chart · Dated attestation and redemption table per token · Wallet health form.
 
 **Primary** — 🤖 bot-led. Depeg and poisoning checks are alerts; the premium chart is a page.
 
@@ -554,7 +554,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 - [x] **Vault I** — 9 products shipped
 - [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution ✅
 - [x] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor ✅
-- [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor, #18 Miner Divergence Screener
+- [ ] **Crypto + stocks** — #17 Tokenized-Gold Monitor ✅, #18 Miner Divergence Screener
 - [ ] One billing spine (Stripe + USDT) across all eighteen
 
 ```mermaid

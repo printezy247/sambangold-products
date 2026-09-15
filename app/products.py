@@ -335,14 +335,14 @@ PRODUCTS = (
     ),
     Product(
         number=17, slug="tokenized-gold", name="Tokenized-Gold Premium & Payout Health",
-        vertical="Crypto", emoji="🪙", status="proposed", primary="bot",
+        vertical="Crypto", emoji="🪙", status="shipped", primary="bot",
         primary_why="Depeg and poisoning checks are alerts; the premium chart is a page.",
         free_tier="Live premium readout and wallet safety check, unlimited.",
         problem="PAXG and XAUT drift from spot, and traders taking payouts in USDT get hit by chain fees, depegs and address poisoning.",
         solution="Track premium and discount against spot XAU alongside redemption fees, attestation freshness and payout-wallet health.",
         bot_commands=(
             ("/paxg", "current premium or discount vs spot XAU"),
-            ("/walletcheck ADDRESS", "chain fee, depeg status, poisoning check"),
+            ("/walletcheck ADDRESS [EXPECTED]", "chain fee, depeg status, checksum and poisoning check"),
         ),
         dashboard_views=(
             "Public premium/discount chart over time",
