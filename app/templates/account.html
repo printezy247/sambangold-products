@@ -7,7 +7,12 @@
 
   <div class="lux lux-gold" style="padding:22px;margin-top:22px">
     <table class="flags">
-      <tr><th>{{ t('dash.rank') }}</th><td><b class="text-gold">{{ rank_label(user.rank) }}</b></td></tr>
+      <tr><th>{{ t('dash.rank') }}</th><td><b class="text-gold">{{ rank_label(user.rank) }}</b>
+          <a class="lang" href="{{ url_for('views.pricing') }}">{{ t('price.title') }}</a></td></tr>
+      <tr><th>{{ t('acct.rank_h') }}</th><td>
+        {% if grants %}{% for g in grants %}<div>{{ rank_label(g.tier_key) }} · {{ t('price.src_%s' % g.source) }} ·
+          {% if g.expires_at %}{{ t('price.expires') }} {{ g.expires_at|utc }}{% else %}{{ t('price.never') }}{% endif %}</div>{% endfor %}
+        {% else %}<span class="text-muted">{{ t('acct.rank_none') }}</span>{% endif %}</td></tr>
       <tr><th>{{ t('account.email') }}</th><td>{{ user.email or t('account.none') }}</td></tr>
       <tr><th>{{ t('account.telegram') }}</th><td>{% if user.telegram_id %}@{{ user.username or '' }} <span class="text-muted mono">{{ user.telegram_id }}</span>{% else %}{{ t('account.none') }}{% endif %}</td></tr>
       <tr><th>{{ t('account.lang') }}</th><td><a class="lang" href="{{ url_for('auth.set_lang', code='ms') }}">BM</a> <a class="lang" href="{{ url_for('auth.set_lang', code='en') }}">EN</a></td></tr>

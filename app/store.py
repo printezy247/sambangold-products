@@ -850,3 +850,83 @@ def log_premium(paxg, xaut, spot, usdt):
 def premium_history(days=7, limit=2500):
     return [dict(r) for r in db().execute("SELECT at, paxg, xaut, spot, usdt FROM premium_log WHERE at > ? ORDER BY at LIMIT ?",
                                           (time.time() - days * 86400, limit))]
+
+
+# --------------------------------------------------------------------------- #
+# Ranks: entitlements. Ported from website_sam src/lib/entitlements.ts so the
+# two properties grant the same way — idempotent on external_id, effective
+# rank is the highest active grant.
+# --------------------------------------------------------------------------- #
+
+ENTITLEMENT_SCHEMA = """
+CREATE TABLE IF NOT EXISTS entitlements (
+    id          INTEGER PRIMARY KEY,
+    owner       TEXT NOT NULL,
+    tier_key    TEXT NOT NULL,
+    source      TEXT NOT NULL,            -- ib | stripe | crypto | manual
+    external_id TEXT UNIQUE,              -- stripe sub id / invoice id / ib account id
+    note        TEXT,
+    starts_at   REAL NOT NULL,
+    expires_at  REAL,
+    status      TEXT NOT NULL DEFAULT 'active',   -- active | expired | cancelled
+    created_at  REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS entitlements_owner ON entitlements(owner, status);
+"""
+SCHEMA += ENTITLEMENT_SCHEMA
+
+
+def grant_entitlement(owner, tier_key, source="manual", external_id=None, expires_at=None, note=""):
+    """Grant a rank. Re-running with the same external_id updates instead of duplicating."""
+    now = time.time()
+    row = (str(owner), tier_key, source, external_id, note, now, expires_at, "active", now)
+    if external_id:
+        db().execute(
+            "INSERT INTO entitlements (owner, tier_key, source, external_id, note, starts_at, expires_at, status, created_at)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            " ON CONFLICT(external_id) DO UPDATE SET tier_key = excluded.tier_key, expires_at = excluded.expires_at,"
+            " note = excluded.note, status = 'active'", row)
+    else:
+        db().execute(
+            "INSERT INTO entitlements (owner, tier_key, source, external_id, note, starts_at, expires_at, status, created_at)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
+    db().commit()
+    return entitlements_for(owner)
+
+
+def revoke_entitlement(entitlement_id=None, external_id=None, status="cancelled"):
+    if external_id:
+        db().execute("UPDATE entitlements SET status = ? WHERE external_id = ?", (status, external_id))
+    elif entitlement_id is not None:
+        db().execute("UPDATE entitlements SET status = ? WHERE id = ?", (status, int(entitlement_id)))
+    db().commit()
+
+
+def entitlements_for(owner, active_only=True):
+    sql = "SELECT * FROM entitlements WHERE owner = ?"
+    args = [str(owner)]
+    if active_only:
+        sql += " AND status = 'active' AND (expires_at IS NULL OR expires_at > ?)"
+        args.append(time.time())
+    return [dict(r) for r in db().execute(sql + " ORDER BY created_at DESC", args)]
+
+
+def effective_tier(owner, default="public"):
+    """The highest rank the owner holds right now."""
+    from .tiers import higher_tier
+    best = default
+    for row in entitlements_for(owner):
+        best = higher_tier(best, row["tier_key"])
+    return best
+
+
+def all_entitlements(limit=500):
+    return [dict(r) for r in db().execute("SELECT * FROM entitlements ORDER BY created_at DESC LIMIT ?", (limit,))]
+
+
+def expire_due(now=None):
+    """Mark lapsed grants expired. Cheap enough to call from the five-minute checker."""
+    now = time.time() if now is None else now
+    cur = db().execute("UPDATE entitlements SET status = 'expired' WHERE status = 'active' AND expires_at IS NOT NULL AND expires_at <= ?", (now,))
+    db().commit()
+    return cur.rowcount

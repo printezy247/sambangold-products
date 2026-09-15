@@ -499,6 +499,33 @@ meaning where the value actually lands. That marker is kept on every product bel
 because it is real information: a breach alert is worthless on a page you are not
 looking at, and a sortable diff table is unreadable in a chat window.
 
+<br>
+
+### 🎖️ Ranks — Awam → General → A-Team → Rambo
+
+The ladder, the labels and the broker doors come from Sam's site
+(`printezy247/website_sam`), so one person carries one rank across both
+properties. `app/tiers.py` is the copy that this app reads.
+
+| Rank | Price | HFM door | What it adds |
+|:--|--:|:--|:--|
+| 🪪 **Awam** / Public | Free | — | All 18 tools, full free tier, no sign-in |
+| 🎫 **General** | Free | Account, any deposit | Saved run history, CSV export, armed alerts |
+| ⚙️ **A-Team** | $49 / mo | Deposit $100+ | Continuous monitoring, daily alerts, bulk CSV, scheduled PDF reports, your own universe |
+| 🎖️ **Rambo** | $129 / mo | Deposit $500+ | Multiple seats, unlimited clients and client reports, white-label widget, outbound webhooks, priority support |
+
+> [!IMPORTANT]
+> A rank never unlocks a *product*. It unlocks **scale and automation** on
+> products whose free tier is already open to everybody. The gate in `app/gate.py`
+> enforces that: a blocked call answers with the free result plus one line naming
+> the rank, never an error page.
+
+A rank is an **entitlement row**, not a column on the user: source (`ib`,
+`stripe`, `crypto`, `manual`), an optional expiry, and a unique external id that
+makes every grant idempotent. Your effective rank is the highest grant still
+active, which is why the broker door and a card subscription can coexist without
+either one clobbering the other.
+
 <div align="center">
 
 | # | Product | 🤖 Telegram | 🌐 Dashboard | Primary | Free tier |
@@ -552,10 +579,13 @@ looking at, and a sortable diff table is unreadable in a chat window.
 
 - [x] **Phase 0 — the spine** — one Flask app, a page per product, one Telegram identity across bot and dashboard
 - [x] **Vault I** — 9 products shipped
-- [ ] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution ✅
+- [x] **Gold IB ops suite** — #10 Rebate Auditor ✅, #11 Churn Radar ✅, #12 Broker Comparator ✅, #13 Attribution ✅
 - [x] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor ✅
 - [x] **Crypto + stocks** — #17 Tokenized-Gold Monitor ✅, #18 Miner Divergence Screener ✅
-- [ ] One billing spine (Stripe + USDT) across all eighteen
+- [x] **Rank spine** — entitlements, the gate on both surfaces, `/pricing`, admin grants
+- [ ] **A-Team automation** — the scheduler behind continuous monitoring, daily alerts and bulk CSV
+- [ ] **Rambo scale** — seats, client reports, white-label widget, outbound webhooks
+- [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
 timeline
@@ -658,9 +688,11 @@ sambangold-products/
 ├── fly.toml                            app sambangold-products, 1 GB volume at /data
 ├── app/
 │   ├── products.py                     the registry — 18 products, both halves
+│   ├── tiers.py                        the rank ladder — ported from website_sam
+│   ├── gate.py                         one gate, both surfaces — scale only, never the door
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
-│   ├── views.py                        / and /p/<slug>
+│   ├── views.py                        /, /pricing and /p/<slug>
 │   └── templates/                      dashboard pages
 ├── tests/                              surface contract + auth verification
 ├── products/product-01..18.md          per-product specs

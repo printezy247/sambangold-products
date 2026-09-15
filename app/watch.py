@@ -100,6 +100,7 @@ def check_alerts(send):
     `send(chat_id, text)` is injected so tests need no token.
     """
     from . import caltool  # late import: caltool imports store, not watch
+    store.expire_due()        # lapsed ranks fall back before anything reads a rank
     alerts = store.active_alerts()
     try:
         quote = feeds.gold_quote(max_age=0)

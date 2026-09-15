@@ -148,11 +148,14 @@
     {% for rk, i in (('public', 1), ('free', 2), ('pro', 3), ('elite', 4)) %}
     <div class="lux{% if i == 2 %} lux-gold{% endif %} rank">
       <div class="nm {% if i == 2 %}text-goldgrad{% else %}text-chrome{% endif %}">{{ rank_label(rk) }}</div>
-      {% if i > 2 %}<span class="chip">{{ t('land.rk_soon') }}</span>{% else %}<span class="chip win">{{ t('product.free') }}</span>{% endif %}
+      {% set tier = tier_by_key(rk) %}
+      {% if tier.price_month_cents %}<span class="chip">{{ fmt_usd(tier.price_month_cents) }} / {{ t('price.month') }}</span>
+      {% else %}<span class="chip win">{{ t('product.free') }}</span>{% endif %}
       <p>{{ t('land.rk%d' % i) }}</p>
     </div>
     {% endfor %}
   </div>
+  <p style="margin-top:14px"><a class="holo-btn" href="{{ url_for('views.pricing') }}">{{ t('price.title') }} →</a></p>
 </section>
 
 <section class="wrap" id="tools">

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{{ t('price.title') }}{% endblock %}
+{% block style %}
+<style>
+  .price-hero { padding-top: 56px; }
+  .plans { display: grid; gap: 14px; margin-top: 26px; }
+  @media (min-width: 900px) { .plans { grid-template-columns: repeat(4, 1fr); } }
+  .plan { padding: 22px; display: flex; flex-direction: column; }
+  .plan .nm { font-family: var(--font-display); text-transform: uppercase; font-size: 26px; letter-spacing: .03em; }
+  .plan .amt { font-size: 32px; font-weight: 700; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+  .plan .per { color: var(--muted); font-size: 13px; }
+  .plan ul { list-style: none; padding: 0; margin: 16px 0 0; flex: 1; }
+  .plan li { font-size: 13px; color: var(--muted); padding: 5px 0 5px 20px; position: relative; }
+  .plan li::before { content: "✓"; position: absolute; left: 0; color: var(--gold); }
+  .plan .go { margin-top: 18px; }
+  .matrix { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
+  .matrix th, .matrix td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: center; }
+  .matrix th:first-child, .matrix td:first-child { text-align: left; color: var(--fg); }
+  .matrix thead th { color: var(--muted); font-family: var(--font-display); text-transform: uppercase; letter-spacing: .04em; }
+  .matrix .yes { color: var(--win); }
+  .matrix .no { color: var(--border); }
+  .matrix tr.want { background: rgba(212,175,55,.07); }
+  .doors { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+  .doors th, .doors td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; }
+  .scroll { overflow-x: auto; }
+</style>
+{% endblock %}
+{% block body %}
+<section class="wrap price-hero">
+  <h1>{{ t('price.title') }}</h1>
+  <p class="lede">{{ t('price.sub') }}</p>
+  {% if user %}<p class="notice">{{ t('price.current') }}: <b class="text-gold">{{ rank_label(mine) }}</b> — {{ t('price.ladder') }}</p>{% endif %}
+
+  <div class="plans">
+    {% for tier in tiers %}
+    <div class="lux{% if tier.popular %} lux-gold{% endif %} plan">
+      <div class="nm {% if tier.popular %}text-goldgrad{% else %}text-chrome{% endif %}">{{ rank_label(tier.key) }}</div>
+      {% if tier.popular %}<span class="chip gold">{{ t('price.popular') }}</span>{% endif %}
+      {% if tier.price_month_cents %}
+        <p class="amt">{{ fmt_usd(tier.price_month_cents) }}</p>
+        <p class="per">{{ t('price.month') }} · {{ fmt_usd(tier.price_year_cents) }} {{ t('price.year') }}</p>
+      {% else %}
+        <p class="amt text-gold">{{ t('price.free') }}</p>
+        <p class="per">{{ t('price.month') }}</p>
+      {% endif %}
+      <ul>
+        {% for f in tier.features %}<li>{{ feature_label(f) }}</li>{% endfor %}
+      </ul>
+      <div class="go">
+        {% if tier.key == 'public' %}
+          <a class="btn" href="{{ url_for('views.index') }}#tools">{{ t('price.cta_free') }}</a>
+        {% elif tier.key == 'free' %}
+          {% if user %}<span class="chip win">{{ t('price.current') }}</span>
+          {% else %}<a class="btn btn-gold" href="{{ url_for('auth.signin') }}">{{ t('price.cta_signin') }}</a>{% endif %}
+        {% else %}
+          <a class="holo-btn" href="#pintu">{{ t('price.cta_pay', rank=rank_label(tier.key)) }}</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="lede" style="margin-top:14px">{{ t('price.year_note') }}</p>
+</section>
+
+<section class="wrap" id="pintu">
+  <h2>{{ t('price.ib_h') }}</h2>
+  <p class="lede">{{ t('price.ib_sub') }}</p>
+  <p class="notice">{{ t('price.soon') }}</p>
+  <div class="scroll">
+    <table class="doors">
+      <tr><th>{{ t('price.title') }}</th><th>{{ t('price.ib_h') }}</th><th>{{ t('price.month') }}</th></tr>
+      {% for tier in tiers %}
+      <tr>
+        <td><b>{{ rank_label(tier.key) }}</b></td>
+        <td>{% if tier.ib_min_deposit_usd is none %}<span class="text-muted">{{ t('price.ib_none') }}</span>
+            {% else %}{{ t('price.ib_row', usd='$%d' % tier.ib_min_deposit_usd) }}{% endif %}</td>
+        <td class="mono">{% if tier.price_month_cents %}{{ fmt_usd(tier.price_month_cents) }}{% else %}{{ t('price.free') }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>{{ t('price.matrix_h') }}</h2>
+  <div class="scroll">
+    <table class="matrix">
+      <thead><tr><th>{{ t('price.feature') }}</th>{% for tier in tiers %}<th>{{ rank_label(tier.key) }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for f in feature_rows %}
+        <tr{% if f == want %} class="want"{% endif %}>
+          <td>{{ feature_label(f) }}</td>
+          {% for tier in tiers %}<td>{% if tier.has(f) %}<span class="yes">✓</span>{% else %}<span class="no">·</span>{% endif %}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="lede" style="margin-top:14px">{{ t('price.note') }}</p>
+</section>
+
+{% if grants %}
+<section class="wrap">
+  <h2>{{ t('acct.rank_h') }}</h2>
+  <div class="scroll">
+    <table class="doors">
+      <tr><th>{{ t('price.title') }}</th><th>{{ t('price.source') }}</th><th>{{ t('price.expires') }}</th></tr>
+      {% for g in grants %}
+      <tr><td><b>{{ rank_label(g.tier_key) }}</b></td>
+          <td>{{ t('price.src_%s' % g.source) }}</td>
+          <td class="mono">{% if g.expires_at %}{{ g.expires_at|utc }}{% else %}{{ t('price.never') }}{% endif %}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
