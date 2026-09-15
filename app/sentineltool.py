@@ -6,6 +6,7 @@ import secrets
 from flask import current_app
 
 from . import sentinel, store
+from . import gate
 from .brand import DEFAULT_LANG, t
 
 SLUG = "drawdown-sentinel"
@@ -24,9 +25,10 @@ def _firms():
     return ", ".join(k for k in sentinel.PACKS if k != "custom")
 
 
-def link_account(owner, name, firm, balance, pack=None):
-    """(account, error_key)."""
-    if len(store.sentinels_for(owner)) >= sentinel.FREE_ACCOUNTS:
+def link_account(owner, name, firm, balance, pack=None, cap=None):
+    """(account, error_key). `cap` of 0 means no limit."""
+    cap = sentinel.FREE_ACCOUNTS if cap is None else cap
+    if cap and len(store.sentinels_for(owner)) >= cap:
         return None, "sn.limit"
     key = sentinel.find_pack(firm) if pack is None else "custom"
     if not key:
@@ -100,9 +102,10 @@ def bot_sentinel(args, chat_id=None, lang=DEFAULT_LANG, **_):
     if sub == "link" and chat_id:
         if len(args) < 4:
             return usage
-        acc, err = link_account(chat_id, args[1], args[2], args[3])
+        cap = gate.limit("accounts", chat_id=chat_id)
+        acc, err = link_account(chat_id, args[1], args[2], args[3], cap=cap)
         if err:
-            return t(err, lang, n=sentinel.FREE_ACCOUNTS, firms=_firms()) if err != "sn.usage" else usage
+            return t(err, lang, n=cap, firms=_firms()) if err != "sn.usage" else usage
         p = acc["pack"]
         return t("sn.linked", lang, name=acc["name"], firm=acc["firm"], balance=acc["initial_balance"], ping=ping_url(acc["token"]),
                  daily=p["daily_pct"], max=p["max_pct"], trail=t("sn.trailing", lang) if p["trailing"] else "", days=p["min_days"])
@@ -159,7 +162,7 @@ def dashboard_sentinel(request, user=None):
     owner = user["owner"] if user else None
     form = request.form if request.method == "POST" else {}
     ctx = {"form": form, "owner": owner, "error": None, "notice": None, "packs": sentinel.PACKS, "pack_date": sentinel.PACK_DATE,
-           "free": sentinel.FREE_ACCOUNTS, "accounts": [], "icon": ICON, "ping": ping_url}
+           "free": gate.limit("accounts", user=user), "accounts": [], "icon": ICON, "ping": ping_url}
     if request.method == "POST" and owner:
         action = form.get("action")
         if action == "link":
@@ -173,7 +176,7 @@ def dashboard_sentinel(request, user=None):
             if not ctx["error"]:
                 acc, err = link_account(owner, form.get("name", ""), form.get("firm", ""), form.get("balance", ""), pack)
                 if err:
-                    ctx["error"] = t(err, lang, n=sentinel.FREE_ACCOUNTS, firms=_firms())
+                    ctx["error"] = t(err, lang, n=ctx["free"], firms=_firms())
         elif action == "update":
             acc = store.sentinel_get(owner, form.get("id", 0))
             if acc:

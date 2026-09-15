@@ -3,6 +3,7 @@
 from flask import current_app
 
 from . import links, store
+from . import gate
 from .brand import DEFAULT_LANG, t
 
 SLUG = "link-attribution"
@@ -16,15 +17,18 @@ def _default_url(owner):
     return store.get_setting("broker-comparator", owner, "reflink") if owner else ""
 
 
-def create_link(owner, channel, url):
-    """(link_row, error_key) — enforces the free-tier cap and one link per channel."""
+def create_link(owner, channel, url="", cap=None):
+    """(link_row, error_key) — enforces the rank's cap and one link per channel.
+
+    `cap` of 0 means no limit; None falls back to the free cap."""
+    cap = links.FREE_LINKS if cap is None else cap
     channel = (channel or "").strip().lstrip("#@")
     if not channel:
         return None, "ui.k_bad"
     existing = store.link_by_channel(owner, channel)
     if existing:
         return existing, "lk.exists"
-    if len(store.links_for(owner)) >= links.FREE_LINKS:
+    if cap and len(store.links_for(owner)) >= cap:
         return None, "lk.limit"
     url = (url or "").strip() or _default_url(owner)
     if not url.lower().startswith(("http://", "https://")):
@@ -41,11 +45,12 @@ def create_link(owner, channel, url):
 def bot_newlink(args, chat_id=None, lang=DEFAULT_LANG, **_):
     if not args or not chat_id:
         return t("lk.usage", lang)
-    link, err = create_link(chat_id, args[0], args[1] if len(args) > 1 else "")
+    cap = gate.limit("links", chat_id=chat_id)
+    link, err = create_link(chat_id, args[0], args[1] if len(args) > 1 else "", cap=cap)
     if err == "lk.exists":
         return t(err, lang, channel=link["channel"], short=short_url(link["code"]))
     if err:
-        return t(err, lang, channel=args[0], n=links.FREE_LINKS)
+        return t(err, lang, channel=args[0], n=cap)
     return t("lk.created", lang, channel=link["channel"], short=short_url(link["code"]), url=link["url"])
 
 
@@ -75,15 +80,15 @@ def dashboard_links(request, user=None):
     owner = user["owner"] if user else None
     form = request.form if request.method == "POST" else {}
     days = links.RANGES.get(request.values.get("range", "30"), 30)
-    ctx = {"form": form, "owner": owner, "days": days, "ranges": list(links.RANGES), "free": links.FREE_LINKS,
+    ctx = {"form": form, "owner": owner, "days": days, "ranges": list(links.RANGES), "free": gate.limit("links", user=user),
            "notice": None, "error": None, "links": [], "funnel": None, "stages": links.STAGES[1:], "short": short_url,
            "default_url": _default_url(owner)}
     if request.method == "POST" and owner:
         action = form.get("action")
         if action == "create":
-            link, err = create_link(owner, form.get("channel", ""), form.get("url", ""))
+            link, err = create_link(owner, form.get("channel", ""), form.get("url", ""), cap=ctx["free"])
             if err and err != "lk.exists":
-                ctx["error"] = t(err, lang, channel=form.get("channel", ""), n=links.FREE_LINKS)
+                ctx["error"] = t(err, lang, channel=form.get("channel", ""), n=ctx["free"])
             elif err == "lk.exists":
                 ctx["error"] = t(err, lang, channel=link["channel"], short=short_url(link["code"]))
             else:

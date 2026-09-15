@@ -59,11 +59,11 @@ def _num(v):
     return float(str(v).replace("%", "").replace("$", "").replace(",", "").strip())
 
 
-def run(winrate, rr, risk_pct, pack_key="ftmo", target_pct=10.0, fee=500.0, trades_per_day=3, sims=FREE_SIMS, seed=None):
+def run(winrate, rr, risk_pct, pack_key="ftmo", target_pct=10.0, fee=500.0, trades_per_day=3, sims=FREE_SIMS, seed=None, cap=FREE_SIMS):
     winrate = _num(winrate) / (100.0 if _num(winrate) > 1 else 1.0)
     rr, risk_pct, target_pct, fee = _num(rr), _num(risk_pct), _num(target_pct), _num(fee)
     trades_per_day = max(1, int(trades_per_day))
-    sims = max(100, min(int(sims), FREE_SIMS))
+    sims = max(100, min(int(sims), cap or int(sims)))
     if not (0 < winrate < 1) or rr <= 0 or not (0 < risk_pct <= 10) or target_pct <= 0:
         raise ValueError("inputs out of range")
     pack = PACKS.get(pack_key) or PACKS["ftmo"]

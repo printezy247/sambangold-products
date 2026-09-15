@@ -5,6 +5,7 @@ import random
 from flask import current_app
 
 from . import mc, store
+from . import gate
 from .brand import DEFAULT_LANG, t
 from .goldcal import simple_pdf
 from .sentinel import PACKS
@@ -39,7 +40,8 @@ def bot_simulate(args, chat_id=None, lang=DEFAULT_LANG, **_):
     key = find_pack(firm) or "ftmo"
     try:
         target = float(args[4]) if len(args) > 4 else (8.0 if PACKS[key]["max_pct"] <= 8 else 10.0)
-        res = mc.run(args[0].rstrip("%"), args[1], args[2].rstrip("%"), key, target, 500, 3, mc.FREE_SIMS)
+        cap = gate.limit("sims", chat_id=chat_id)
+        res = mc.run(args[0].rstrip("%"), args[1], args[2].rstrip("%"), key, target, 500, 3, cap, cap=cap)
     except (ValueError, IndexError):
         return t("mc.bad", lang) + "\n\n" + t("mc.usage", lang)
     out = summary_lines(res, lang)
@@ -57,13 +59,13 @@ def dashboard_mc(request, user=None):
     lang = ui_lang()
     owner = user["owner"] if user else None
     form = request.values
-    ctx = {"form": form, "owner": owner, "res": None, "svg": None, "error": None, "packs": PACKS, "free": mc.FREE_SIMS,
+    ctx = {"form": form, "owner": owner, "res": None, "svg": None, "error": None, "packs": PACKS, "free": gate.limit("sims", user=user),
            "icon": ICON, "verdict": mc.verdict, "lines": summary_lines, "runs": [], "run_id": None, "pct": _pct}
     if form.get("winrate"):
         try:
             seed = int(form.get("seed") or random.randrange(1, 10 ** 6))
             res = mc.run(form["winrate"], form.get("rr", 2), form.get("risk", 1), form.get("firm", "ftmo"), form.get("target", 10),
-                         form.get("fee", 500), form.get("tpd", 3), form.get("sims", mc.FREE_SIMS), seed=seed)
+                         form.get("fee", 500), form.get("tpd", 3), form.get("sims", ctx["free"]), seed=seed, cap=ctx["free"])
             res["seed"] = seed
             ctx["res"], ctx["svg"] = res, mc.svg_fan(res)
             if owner:

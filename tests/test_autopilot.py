@@ -112,3 +112,69 @@ def test_dashboard_panel_is_read_only_below_a_team(client, app):
     assert r.status_code == 200
     with app.app_context():
         assert autopilot.subscribed("42", "gold-watch")
+
+
+# --- reports: weekly and monthly ------------------------------------------- #
+
+def test_report_slugs_belong_to_a_real_product():
+    from app.products import BY_SLUG as PRODUCTS
+    for slug in autopilot.SLUGS:
+        assert autopilot.product_of(slug) in PRODUCTS
+    assert set(autopilot.DAILY) | set(autopilot.REPORTS) == set(autopilot.SLUGS)
+
+
+def test_reports_need_the_reports_capability_not_autopilot(app):
+    with app.app_context():
+        assert autopilot.NEEDS["gold-watch"] == "autopilot"
+        assert autopilot.NEEDS["churn-radar:book"] == "reports"
+
+
+def test_a_weekly_report_fires_once_a_week_not_once_a_day(app):
+    with app.app_context():
+        store.grant_entitlement("77", "pro", source="manual")
+        autopilot.toggle("77", "ib-revenue-calculator:forecast", on=True)
+        store.save_run("ib-revenue-calculator", {"net": 4200.0, "annual": 50400.0, "clients": 25}, owner="77")
+
+    monday = 1_757_462_400.0            # a fixed instant, so the period keys are stable
+    out, res = _sent(app, now=monday)
+    assert res["sent"] == 1 and "4,200" in out[0][1]
+
+    out2, res2 = _sent(app, now=monday + 86400)       # next day, same month
+    assert res2["sent"] == 0
+
+    out3, res3 = _sent(app, now=monday + 40 * 86400)  # next month
+    assert res3["sent"] == 1
+
+
+def test_a_report_with_nothing_to_read_stays_silent(app):
+    with app.app_context():
+        store.grant_entitlement("77", "pro", source="manual")
+        autopilot.toggle("77", "rebate-auditor:audit", on=True)
+        assert autopilot._rebate_report("77", "ms") is None
+        assert autopilot._book_report("77", "ms") is None
+    out, res = _sent(app)
+    assert out == [] and res["sent"] == 0
+
+
+def test_the_book_scorecard_names_only_the_clients_at_risk(app):
+    """Built from a real scan, so the report and the tool cannot disagree."""
+    from app import churn
+    run = churn.scan_book(churn.parse_log(churn.sample_log()), 6.0)
+    at_risk = [c for c in run["clients"] if c["band"] in ("risk", "watch")]
+    assert at_risk, "the sample book should contain someone worth flagging"
+    with app.app_context():
+        store.save_run("churn-radar", run, owner="77")
+        text = autopilot._book_report("77", "en")
+    assert text and "of %d clients" % len(run["clients"]) in text
+    assert str(at_risk[0]["account"]) in text
+
+
+def test_the_dashboard_separates_reports_from_daily(client, app):
+    with app.app_context():
+        store.grant_entitlement("42", "pro", source="manual")
+    login(client, user_id="42")
+    with client.session_transaction() as s:
+        user = dict(s["user"]); user["rank"] = "pro"; s["user"] = user
+    body = client.get("/dashboard").get_data(as_text=True)
+    assert "Laporan berjadual" in body
+    assert "mingguan" in body and "bulanan" in body
