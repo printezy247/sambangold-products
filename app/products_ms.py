@@ -211,7 +211,7 @@ MS = {
         "free_tier": "Saringan mingguan, jadual penuh, tak perlu log masuk.",
         "problem": "Trader emas yang mahu pendedahan ekuiti tiada apa-apa yang menyaring pelombong terhadap logam itu sendiri.",
         "solution": "Saring GDX, GDXJ dan nama royalti untuk divergence beta, mampatan margin AISC dan risiko acara.",
-        "bot_commands": (("/miners", "saringan divergence minggu ini"), ("/miners TICKER", "beta, margin AISC, earnings seterusnya untuk satu nama")),
+        "bot_commands": (("/miners", "saringan divergence minggu ini"), ("/miners TICKER", "beta, margin AISC, earnings seterusnya untuk satu nama"), ("/miners weekly", "digest Isnin hidup atau mati")),
         "dashboard_views": ("Jadual penyaring boleh susun merentas pelombong", "Carta divergence setiap nama terhadap spot emas", "Panel margin AISC dan risiko earnings/halt"),
         "upsell": "Alert harian dan backtesting.",
         "primary_why": "Penyaring boleh susun ialah jadual; bot bawa digest mingguan.",

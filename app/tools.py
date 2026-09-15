@@ -17,6 +17,7 @@ from .scantool import (bot_audit, bot_copyaudit, bot_influencer, bot_scan, dashb
 from .brokertool import bot_goldspread, dashboard_brokers
 from .exposuretool import bot_exposure, dashboard_exposure
 from .tokengoldtool import bot_paxg, bot_walletcheck, dashboard_tokengold
+from .minerstool import bot_miners, dashboard_miners
 from .mctool import bot_simulate, dashboard_mc
 from .sentineltool import bot_sentinel, dashboard_sentinel
 from .linktool import bot_funnel, bot_newlink, dashboard_links
@@ -148,10 +149,10 @@ BOT = {"watch": bot_watch, "propcalc": bot_propcalc, "ibcalc": bot_ibcalc,
        "verify": bot_verify, "rebateaudit": bot_rebateaudit, "rebatestatus": bot_rebatestatus,
        "ibchurn": bot_ibchurn, "goldspread": bot_goldspread,
        "newlink": bot_newlink, "funnel": bot_funnel, "sentinel": bot_sentinel, "simulate": bot_simulate, "exposure": bot_exposure,
-       "paxg": bot_paxg, "walletcheck": bot_walletcheck}
+       "paxg": bot_paxg, "walletcheck": bot_walletcheck, "miners": bot_miners}
 DASHBOARD = {"gold-watch": dashboard_watch, "gold-calendar": dashboard_calendar,
              "prop-calculator": dashboard_prop, "ib-revenue-calculator": dashboard_ib,
              "bot-scam-detector": dashboard_botscam, "copy-trade-audit": dashboard_copyaudit,
              "red-flag-scanner": dashboard_redflag, "influencer-audit": dashboard_influencer,
              "signal-verifier": dashboard_verify, "rebate-auditor": dashboard_rebate, "churn-radar": dashboard_churn, "broker-comparator": dashboard_brokers,
-             "link-attribution": dashboard_links, "drawdown-sentinel": dashboard_sentinel, "monte-carlo-sim": dashboard_mc, "exposure-monitor": dashboard_exposure, "tokenized-gold": dashboard_tokengold}
+             "link-attribution": dashboard_links, "drawdown-sentinel": dashboard_sentinel, "monte-carlo-sim": dashboard_mc, "exposure-monitor": dashboard_exposure, "tokenized-gold": dashboard_tokengold, "miner-divergence": dashboard_miners}

@@ -353,7 +353,7 @@ PRODUCTS = (
     ),
     Product(
         number=18, slug="miner-divergence", name="Miner–Bullion Divergence Screener",
-        vertical="Stocks", emoji="📈", status="proposed", primary="dashboard",
+        vertical="Stocks", emoji="📈", status="shipped", primary="dashboard",
         primary_why="A sortable screener is a table; the bot carries the weekly digest.",
         free_tier="Weekly screen, full table, no login.",
         problem="Gold traders who want equity exposure have nothing that screens miners against the metal itself.",
@@ -361,6 +361,7 @@ PRODUCTS = (
         bot_commands=(
             ("/miners", "this week's divergence screen"),
             ("/miners TICKER", "single-name beta, AISC margin, next earnings"),
+            ("/miners weekly", "Monday digest on or off"),
         ),
         dashboard_views=(
             "Sortable screener table across the miner universe",
