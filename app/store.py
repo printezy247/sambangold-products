@@ -613,3 +613,53 @@ def notes_for(product, owner, subject=None, limit=50):
     return [dict(r) for r in db().execute(
         "SELECT subject, note, created_at FROM notes WHERE product = ? AND owner = ? AND subject = ? ORDER BY created_at DESC LIMIT ?",
         (product, str(owner), subject, limit))]
+
+
+# --------------------------------------------------------------------------- #
+# #12 Broker comparator: what users measured on their own platform.
+# --------------------------------------------------------------------------- #
+
+OBS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS spread_obs (
+    id         INTEGER PRIMARY KEY,
+    owner      TEXT NOT NULL,
+    broker     TEXT NOT NULL,
+    spread     REAL NOT NULL,
+    slippage   REAL,
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS spread_obs_broker ON spread_obs(broker, created_at);
+"""
+SCHEMA += OBS_SCHEMA
+
+
+def add_observation(owner, broker, spread, slippage=None):
+    db().execute("INSERT INTO spread_obs (owner, broker, spread, slippage, created_at) VALUES (?, ?, ?, ?, ?)",
+                 (str(owner), broker, float(spread), float(slippage) if slippage not in (None, "") else None, time.time()))
+    db().commit()
+
+
+def observations(days=30):
+    return [dict(r) for r in db().execute(
+        "SELECT broker, spread, slippage, owner, created_at FROM spread_obs WHERE created_at > ? ORDER BY created_at DESC",
+        (time.time() - days * 86400,))]
+
+
+def set_setting(product, owner, key, value):
+    db().execute("DELETE FROM notes WHERE product = ? AND owner = ? AND subject = ?", (product, str(owner), "setting:" + key))
+    if value:
+        db().execute("INSERT INTO notes (product, owner, subject, note, created_at) VALUES (?, ?, ?, ?, ?)",
+                     (product, str(owner), "setting:" + key, value.strip(), time.time()))
+    db().commit()
+
+
+def get_setting(product, owner, key):
+    row = _row(db().execute("SELECT note FROM notes WHERE product = ? AND owner = ? AND subject = ? ORDER BY created_at DESC LIMIT 1",
+                            (product, str(owner), "setting:" + key)))
+    return row["note"] if row else ""
+
+
+def owner_by_setting(product, key, value):
+    row = _row(db().execute("SELECT owner FROM notes WHERE product = ? AND subject = ? AND note = ? ORDER BY created_at DESC LIMIT 1",
+                            (product, "setting:" + key, value)))
+    return row["owner"] if row else None

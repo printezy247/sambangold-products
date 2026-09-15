@@ -245,7 +245,7 @@ PRODUCTS = (
     ),
     Product(
         number=12, slug="broker-comparator", name="Live Gold Broker Comparator",
-        vertical="Gold IB", emoji="🥇", status="proposed", primary="dashboard",
+        vertical="Gold IB", emoji="🥇", status="shipped", primary="dashboard",
         primary_why="The public table is the SEO asset; the bot drops the card straight into a group.",
         free_tier="Public comparison table and bot command, fully open.",
         problem="Nobody can see live XAUUSD trading cost across brokers side by side, so IBs cannot prove their routing is the cheap one.",

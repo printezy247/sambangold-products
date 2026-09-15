@@ -40,6 +40,8 @@ half, on one Telegram account, with the same free tier on each.
 3. Render the ranking as a shareable card carrying the IB's own referral link.
 4. The public web table is the top-of-funnel asset; the bot card is the distribution mechanism.
 
+**Live.** No free feed publishes every broker's live gold spread, so the table has two layers: a seeded row per broker (published typical XAUUSD spread, commission per round-turn lot, swap long/short per night, dated and marked *verify with the broker*), and community observations — spread and slippage that signed-in users measured on their own platform, folded in as the 30-day median once there are three. Cost = spread + commission + swap × nights per lot, so the ranking flips with the holding period (swap-free accounts win over a month). Our own live spot and feed spread sit above the table as the baseline. Each IB gets a public card URL that carries their referral link.
+
 ## Commands
 
 | Command | Does |
@@ -51,9 +53,10 @@ half, on one Telegram account, with the same free tier on each.
 
 ## Dashboard views
 
-- Public indexable comparison table — the SEO asset
-- Cost calculator for a given lot size and holding period
-- Referral-branded card generator
+- Public comparison table with live spot and feed spread above it — the SEO asset, no login
+- Cost calculator: lot size, nights held, long or short
+- Referral card generator: save your IB link and name, get a public card URL for any group
+- Report the spread you measured: three reports replace the published figure for that broker
 
 ## Monetization
 
