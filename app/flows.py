@@ -47,6 +47,11 @@ FLOWS = {
         S("lots", "flow.copy_lots", number=True, optional=True, options=(("5 lot", "5"), ("10 lot", "10"), ("30 lot", "30"))),
     ],
     "red-flag-scanner": [S("text", "flow.scan_text")],
+    "signal-verifier": [
+        S("price", "flow.ver_price", number=True),
+        S("date", "flow.ver_date", optional=True),
+        S("time", "flow.ver_time", optional=True, when=lambda a: bool(a.get("date"))),
+    ],
     "influencer-audit": [
         S("handle", "flow.inf_handle"),
         S("text", "flow.inf_text", optional=True),
@@ -71,6 +76,8 @@ def build(slug, a):
         return " ".join(parts)
     if slug == "red-flag-scanner":
         return "/scan " + a["text"]
+    if slug == "signal-verifier":
+        return " ".join(["/verify GOLD", str(a["price"])] + [a[k] for k in ("date", "time") if a.get(k)])
     if slug == "influencer-audit":
         return ("/influencer %s %s" % (a["handle"], a.get("text") or "")).strip()
     raise KeyError(slug)

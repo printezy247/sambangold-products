@@ -101,7 +101,7 @@ flowchart LR
 
 **Problem** — Gold signal sellers post fabricated MT4 screenshots with cherry-picked entries.
 
-**Solution** — `/verify GOLD PRICE` pulls Binance `PAXGUSDT` tick history and tests the claimed fill. Returns **VERDICT: REAL / IMPOSSIBLE** with the gap percentage and a plain-language reason.
+**Solution** — `/verify GOLD PRICE [DATE] [TIME]` pulls Binance `PAXGUSDT` tick history and tests the claimed fill. Returns **REAL / BORDERLINE / IMPOSSIBLE / UNVERIFIED** with the window range, the nearest candle and the gap percentage; the dashboard adds batch verify, the verdict archive and a public verdict page per check. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/verify GOLD PRICE` &nbsp;·&nbsp; 🌐 `/p/signal-verifier` — Verdict archive with the tick window that produced each call · Batch verify · Shareable public verdict link for posting back into a group.
 
