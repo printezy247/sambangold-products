@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, flash, jsonify, redirect, render_template, request,
                    send_from_directory, session, url_for)
 
-from . import brokertool, caltool, feeds, linktool, mctool, rebatetool, sentineltool, scan, scantool, store, telegram, verifytool, watch
+from . import autopilot, brokertool, caltool, feeds, linktool, mctool, rebatetool, sentineltool, scan, scantool, store, telegram, verifytool, watch
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
 from .calc import ib_checklist_text
@@ -53,10 +53,13 @@ def index():
     return render_template("landing.html", products=PRODUCTS, live=live, rest=rest, quote=quote, by_slug=BY_SLUG, paths=LANDING_PATHS, rows=LANDING_ROWS)
 
 
-@bp.route("/dashboard")
+@bp.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
     user = current_user()
+    ap = autopilot.dashboard_autopilot(request, user)
+    if request.method == "POST":
+        return redirect(url_for("views.dashboard") + "#autopilot")
     live, rest = _split()
     row = store.user_by_id(user["uid"])
     saved = session.get("saves", {})
@@ -66,7 +69,7 @@ def dashboard():
         "saved": sum(len(v) for v in saved.values()),
     }
     since = time.strftime("%Y-%m-%d", time.gmtime(row["created_at"])) if row else "—"
-    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since)
+    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, by_slug=BY_SLUG)
 
 
 @bp.route("/pricing")

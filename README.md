@@ -526,6 +526,29 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 🛰️ Autopilot — what A-Team actually buys
+
+`/autopilot` on the bot, or the panel on your dashboard, turns five of the tools
+into standing questions. Once a day the checker asks them for you and pushes the
+answer to Telegram.
+
+| Tool | Speaks when |
+|:--|:--|
+| 🥇 Gold Watch | Every day — the bid, the ask, the spread and how many alerts you have armed |
+| ⛏️ Miner Divergence | A miner is actually moving against bullion |
+| 🪙 Tokenized Gold | A premium or the USDT peg leaves its band |
+| 🛡️ Drawdown Sentinel | A linked account is no longer safe against its rule pack |
+| 🌐 Exposure Monitor | Every day, on your last snapshot |
+
+> [!NOTE]
+> Silence is the feature. Four of the five say nothing on a quiet day, because a
+> digest nobody reads trains you to ignore the one that matters. A day that
+> produced nothing still counts as sent, so you get at most one message per tool
+> per day.
+
+The switch survives a lapsed rank. Pushes stop the day the rank lapses and
+resume the day it comes back, with nothing to set up again.
+
 <div align="center">
 
 | # | Product | 🤖 Telegram | 🌐 Dashboard | Primary | Free tier |
@@ -583,7 +606,8 @@ either one clobbering the other.
 - [x] **Prop + forex** — #14 Drawdown Sentinel ✅, #15 Monte Carlo Sim ✅, #16 Overexposure Monitor ✅
 - [x] **Crypto + stocks** — #17 Tokenized-Gold Monitor ✅, #18 Miner Divergence Screener ✅
 - [x] **Rank spine** — entitlements, the gate on both surfaces, `/pricing`, admin grants
-- [ ] **A-Team automation** — the scheduler behind continuous monitoring, daily alerts and bulk CSV
+- [x] **A-Team autopilot** — daily standing questions on five tools, on both surfaces
+- [ ] **A-Team batch + reports** — bulk CSV upload and scheduled PDF reports
 - [ ] **Rambo scale** — seats, client reports, white-label widget, outbound webhooks
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
@@ -690,6 +714,7 @@ sambangold-products/
 │   ├── products.py                     the registry — 18 products, both halves
 │   ├── tiers.py                        the rank ladder — ported from website_sam
 │   ├── gate.py                         one gate, both surfaces — scale only, never the door
+│   ├── autopilot.py                    the daily standing questions behind A-Team
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>
