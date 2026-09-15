@@ -26,7 +26,9 @@
         {% for view in p.dashboard_views %}<li>{{ view }}</li>{% endfor %}
       </ul>
       <p class="soon">
-        {% if p.status == 'shipped' %}
+        {% if tool %}
+          Live below — same numbers the bot returns.
+        {% elif p.status == 'shipped' %}
           Panels come online as each view is wired to live data.
         {% else %}
           Queued for build — the spec is written, the surface is reserved.
@@ -34,6 +36,8 @@
       </p>
     </div>
   </div>
+
+  {% if tool %}{% include "tools/" ~ p.slug ~ ".html" %}{% endif %}
 
   <h3>Upsell</h3>
   <p class="lede">{{ p.upsell }} Paid tiers sell scale and automation only, never basic access.</p>

@@ -120,7 +120,7 @@ flowchart LR
 
 **Problem** — Traders pay $500–$5,000 in challenge fees with no expected-value estimate, and roughly 90% fail. Hidden rules sit buried in the T&Cs.
 
-**Solution** — Flask calculator plus `/propcalc FEE SIZE PASS%`. Computes EV and scans pasted T&Cs for hidden rules with red/yellow scoring.
+**Solution** — `/propcalc FEE SIZE PASS%` returns EV, ROI and the breakeven pass rate; the dashboard adds the full model, an eleven-rule red/yellow scan of pasted T&Cs, and saved firm comparisons. **Live.**
 
 **Platform** — 🤖🌐 **Both.** 🤖 `/propcalc FEE SIZE PASS%` &nbsp;·&nbsp; 🌐 `/p/prop-calculator` — Full calculator with the long T&C paste box · Rule-scan report, red and yellow flags itemised · Saved comparisons across firms.
 
@@ -215,9 +215,9 @@ flowchart LR
 
 **Problem** — IB affiliates face opaque payout rules and compliance overhead, and referred clients complain about buggy platforms and slow withdrawals.
 
-**Solution** — Web calculator at `/ib-calc` estimating net revenue after compliance cost and payout timeline, with a downloadable compliance checklist.
+**Solution** — `/ibcalc LOTS RATE [CLIENTS] [CLAWBACK%]` returns net monthly and annual rebate revenue; the dashboard adds compliance cost, payout threshold and hold period, a 12-month payout timeline showing when the first cash lands, a downloadable compliance checklist and saved broker scenarios. **Live.**
 
-**Platform** — 🤖🌐 **Both.** 🤖 `/ibcalc LOTS RATE` &nbsp;·&nbsp; 🌐 `/p/ib-revenue-calculator` — Multi-field revenue model with the payout timeline · Downloadable compliance checklist · Saved scenarios across brokers.
+**Platform** — 🤖🌐 **Both.** 🤖 `/ibcalc LOTS RATE [CLIENTS] [CLAWBACK%]` &nbsp;·&nbsp; 🌐 `/p/ib-revenue-calculator` — Multi-field revenue model with the payout timeline · Downloadable compliance checklist · Saved scenarios across brokers.
 
 **Primary** — 🌐 dashboard-led. A multi-field model and a document download; the bot gives the quick estimate.
 
@@ -510,7 +510,7 @@ looking at, and a sortable diff table is unreadable in a chat window.
 | 🥇 **5** | Gold Seasonality Calendar | `/calendar` | `/p/gold-calendar` | 🌐 | Full calendar and PDF, no login |
 | 🔒 **6** | Copy-Trade Safety Audit | `/copyaudit BROKER` | `/p/copy-trade-audit` | 🤖 | 5 audits free |
 | 💱 **7** | Forex Signal Red-Flag Scanner | `/scan TEXT` | `/p/red-flag-scanner` | 🤖 | Unlimited text scans |
-| 🥇 **8** | IB Affiliate Revenue Calculator | `/ibcalc LOTS RATE` | `/p/ib-revenue-calculator` | 🌐 | Full calculator and compliance checklist |
+| 🥇 **8** | IB Affiliate Revenue Calculator | `/ibcalc LOTS RATE [CLIENTS] [CLAWBACK%]` | `/p/ib-revenue-calculator` | 🌐 | Full calculator and compliance checklist |
 | 🔒 **9** | Influencer Trading Scam Audit | `/influencer @handle` | `/p/influencer-audit` | 🤖 | Unlimited audits plus the loss-report template |
 | 🥇 **10** | Rebate Reconciliation Auditor | `/rebateaudit` | `/p/rebate-auditor` | 🌐 | One broker, one month, full shortfall report. No card |
 | 🥇 **11** | IB Client Churn & Blow-Up Radar | `/ibchurn` | `/p/churn-radar` | 🌐 | 10 tracked clients, unlimited alerts |

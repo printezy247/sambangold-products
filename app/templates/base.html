@@ -54,6 +54,33 @@
   ul.tight li { margin: 6px 0; }
   code { background: rgba(255,255,255,.06); padding: 2px 7px; border-radius: 6px; font-size: 14px; }
   .soon { color: var(--muted); font-size: 13px; border-left: 2px solid var(--gold); padding-left: 12px; margin-top: 14px; }
+  .tool .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .tool label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); }
+  .tool label.wide { margin-top: 4px; }
+  .tool input, .tool textarea {
+    background: rgba(255,255,255,.04); border: 1px solid var(--edge); border-radius: 8px;
+    color: var(--text); padding: 9px 11px; font: inherit; font-size: 15px;
+  }
+  .tool input:focus, .tool textarea:focus { outline: none; border-color: var(--cyan); }
+  .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  button {
+    background: var(--gold); color: #060b14; border: 0; border-radius: 999px;
+    padding: 10px 20px; font: inherit; font-weight: 650; cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--gold); border: 1px solid rgba(240,180,41,.45); }
+  .err { color: var(--rose); font-size: 14px; margin: 12px 0 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
+  .stat { background: var(--surface); border: 1px solid var(--edge); border-radius: var(--radius); padding: 18px; border-top: 3px solid var(--muted); }
+  .stat span { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .stat b { display: block; font-size: 28px; margin: 4px 0 2px; }
+  .stat small { color: var(--muted); }
+  .stat.positive { border-top-color: var(--green); } .stat.positive b { color: var(--green); }
+  .stat.negative { border-top-color: var(--rose); } .stat.negative b { color: var(--rose); }
+  .stat.warn { border-top-color: var(--gold); } .stat.warn b { color: var(--gold); }
+  table.flags { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 14px; }
+  table.flags th, table.flags td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--edge); vertical-align: top; }
+  table.flags th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  table.flags tr.positive b { color: var(--green); } table.flags tr.negative b { color: var(--rose); }
   footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--edge); color: var(--muted); font-size: 13px; }
   @media (prefers-color-scheme: light) {
     html:not([data-theme="dark"]) body { background: #f5f7fb; color: #0b1424; }

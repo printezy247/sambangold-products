@@ -64,3 +64,43 @@ def test_webhook_accepts_an_update_without_a_token(client):
 def test_healthz(client):
     body = client.get("/healthz").get_json()
     assert body["ok"] is True and body["products"] == 18
+
+
+# --- the two live dashboards ---------------------------------------------- #
+
+def test_prop_dashboard_computes_and_saves(client):
+    page = client.get("/p/prop-calculator?fee=500&size=100000&pass_pct=15&save=1&firm=Acme")
+    body = page.get_data(as_text=True)
+    assert page.status_code == 200
+    assert "$460" in body and "7.8%" in body
+    assert "Acme" in body  # saved comparison row
+    again = client.get("/p/prop-calculator").get_data(as_text=True)
+    assert "Acme" in again  # survives in the session
+
+
+def test_prop_dashboard_scans_pasted_terms(client):
+    page = client.post("/p/prop-calculator", data={
+        "terms": "A trailing maximum drawdown applies. News trading is prohibited."})
+    body = page.get_data(as_text=True)
+    assert "Trailing drawdown" in body and "No news trading" in body
+
+
+def test_prop_dashboard_shows_input_errors(client):
+    body = client.get("/p/prop-calculator?fee=abc").get_data(as_text=True)
+    assert "must be a number" in body
+
+
+def test_ib_dashboard_computes_timeline_and_checklist(client):
+    page = client.get("/p/ib-revenue-calculator?lots=10&rate=5&payout_threshold=120")
+    body = page.get_data(as_text=True)
+    assert page.status_code == 200
+    assert "$150" in body and "day 120" in body
+    assert "Registration" in body and "checklist.txt" in body
+
+
+def test_ib_checklist_downloads_as_text(client):
+    r = client.get("/p/ib-revenue-calculator/checklist.txt")
+    assert r.status_code == 200
+    assert r.mimetype == "text/plain"
+    assert "attachment" in r.headers["Content-Disposition"]
+    assert "- [ ]" in r.get_data(as_text=True)

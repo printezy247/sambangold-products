@@ -40,13 +40,13 @@ Expected value on the fee, plus a red/yellow scan of pasted terms for the rules 
 
 | Command | Does |
 |:--|:--|
-| `/propcalc FEE SIZE PASS%` | expected value for one challenge |
+| `/propcalc FEE SIZE PASS%` | EV, ROI and breakeven pass rate for one challenge (8% target, 80% split assumed; both adjustable on the dashboard) |
 
 ## Dashboard views
 
-- Full calculator with the long T&C paste box
-- Rule-scan report, red and yellow flags itemised
-- Saved comparisons across firms
+- Full calculator with the long T&C paste box — every assumption is an editable field, and the result URL is shareable
+- Rule-scan report, red and yellow flags itemised — eleven known failure rules (trailing drawdown, consistency, balance-based daily loss, news, weekend, time limit…) with the matching snippet
+- Saved comparisons across firms — session-scoped table of EV and breakeven per firm
 
 ## Monetization
 

@@ -9,6 +9,7 @@ import requests
 from flask import Blueprint, current_app, jsonify, request
 
 from .products import PRODUCTS, command_index
+from .tools import BOT
 
 bp = Blueprint("telegram", __name__)
 
@@ -48,7 +49,8 @@ def help_text():
 
 def reply_for(text, base_url=""):
     """Answer for one incoming message. Pure, so the tests can call it."""
-    word = text.strip().split()[0].lstrip("/").split("@")[0] if text.strip() else ""
+    parts = text.strip().split()
+    word = parts[0].lstrip("/").split("@")[0] if parts else ""
     if word in ("start", "help", ""):
         return help_text()
 
@@ -57,6 +59,10 @@ def reply_for(text, base_url=""):
         return "Unknown command. Send /help for the full list."
 
     page = "%s/p/%s" % (base_url.rstrip("/"), product.slug)
+    handler = BOT.get(word)
+    if handler is not None:
+        return "%s <b>%s</b>\n%s\n\nDashboard: %s" % (
+            product.emoji, product.name, handler(parts[1:]), page)
     if product.status == "shipped":
         head = "%s <b>%s</b>\n%s" % (product.emoji, product.name, product.solution)
     else:

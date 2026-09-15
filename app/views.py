@@ -2,10 +2,12 @@
 
 import os
 
-from flask import Blueprint, abort, current_app, render_template, send_from_directory
+from flask import Blueprint, Response, abort, current_app, render_template, request, send_from_directory
 
 from .auth import current_user
+from .calc import ib_checklist_text
 from .products import BY_SLUG, PRODUCTS
+from .tools import DASHBOARD, money, pct
 
 bp = Blueprint("views", __name__)
 
@@ -22,12 +24,21 @@ def index():
     )
 
 
-@bp.route("/p/<slug>")
+@bp.route("/p/<slug>", methods=["GET", "POST"])
 def product(slug):
     item = BY_SLUG.get(slug)
     if item is None:
         abort(404)
-    return render_template("product.html", p=item, user=current_user())
+    build = DASHBOARD.get(slug)
+    tool = build(request) if build else None
+    return render_template("product.html", p=item, user=current_user(),
+                           tool=tool, money=money, pct=pct)
+
+
+@bp.route("/p/ib-revenue-calculator/checklist.txt")
+def ib_checklist():
+    return Response(ib_checklist_text(), mimetype="text/plain",
+                    headers={"Content-Disposition": "attachment; filename=ib-compliance-checklist.txt"})
 
 
 @bp.route("/assets/<path:filename>")

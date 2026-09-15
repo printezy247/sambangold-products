@@ -119,7 +119,7 @@ run and the CI run never drift apart.
 ## Repo layout
 
 ```
-app/             the Flask app — products.py registry, auth.py, telegram.py, views.py, templates/
+app/             the Flask app — products.py registry, calc.py (pure math), tools.py (bot + dashboard handlers), auth.py, telegram.py, views.py, templates/
 tests/           surface contract (both halves, all 18) + Telegram login verification
 assets/          self-hosted animated SVGs (hero, dividers, icons, nav chips, charts)
 products/        product-01..18.md — one spec per product

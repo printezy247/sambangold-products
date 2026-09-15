@@ -40,13 +40,13 @@ Model net revenue after compliance cost, with the payout timeline made explicit.
 
 | Command | Does |
 |:--|:--|
-| `/ibcalc LOTS RATE` | quick net-revenue estimate |
+| `/ibcalc LOTS RATE [CLIENTS] [CLAWBACK%]` | net monthly and annual rebate revenue, gross, clawback and margin |
 
 ## Dashboard views
 
-- Multi-field revenue model with the payout timeline
-- Downloadable compliance checklist
-- Saved scenarios across brokers
+- Multi-field revenue model with the payout timeline — lots, rate, clients, clawback, compliance cost, payout threshold and hold period; a 12-month table shows when the first cash actually lands
+- Downloadable compliance checklist — registration, marketing, client handling and payout, as `.txt`
+- Saved scenarios across brokers — session-scoped table of net, annual and first-cash day per broker
 
 ## Monetization
 
