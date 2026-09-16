@@ -8,6 +8,11 @@
    OpenAI-compatible chat-completions endpoint for a conversational answer
    on top of the same results. Never blocks or breaks the page: any
    network/API failure just means no AI answer that request.
+
+`NARA_MODEL` is a comma-separated priority list ("free-model,paid-model,...").
+Each request tries them in order and stops at the first one that answers —
+a rate limit, an outage, or an unavailable model on one just rotates to the
+next rather than failing the whole request.
 """
 
 import re
@@ -38,14 +43,20 @@ def search_files(query, items, limit=8):
     return [it for _score, it in scored[:limit]]
 
 
+def _models(config):
+    return [m.strip() for m in (config.get("NARA_MODEL") or "").split(",") if m.strip()]
+
+
 def configured(config):
-    return bool(config.get("NARA_API_KEY") and config.get("NARA_BASE_URL") and config.get("NARA_MODEL"))
+    return bool(config.get("NARA_API_KEY") and config.get("NARA_BASE_URL") and _models(config))
 
 
 def ai_answer(query, matches, config, lang="en"):
     """A short conversational answer grounded in `matches` (already-found
     local results — the AI explains/ranks, it doesn't invent new files).
-    Returns None if unconfigured or the call fails; never raises."""
+    Tries each model in NARA_MODEL's priority order, returning the first
+    one that answers. Returns None if unconfigured or every model fails;
+    never raises."""
     if not configured(config):
         return None
 
@@ -59,20 +70,17 @@ def ai_answer(query, matches, config, lang="en"):
         "list below — never invent a file that isn't listed. If nothing fits, say so "
         "plainly and suggest rephrasing.\n\nFiles:\n%s"
     ) % ("Bahasa Melayu" if lang == "ms" else "English", listing)
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": query}]
+    url = config["NARA_BASE_URL"].rstrip("/") + "/chat/completions"
+    headers = {"Authorization": "Bearer %s" % config["NARA_API_KEY"]}
 
-    try:
-        r = requests.post(
-            config["NARA_BASE_URL"].rstrip("/") + "/chat/completions",
-            headers={"Authorization": "Bearer %s" % config["NARA_API_KEY"]},
-            json={
-                "model": config["NARA_MODEL"],
-                "messages": [{"role": "system", "content": system}, {"role": "user", "content": query}],
-                "max_tokens": 200,
-                "temperature": 0.2,
-            },
-            timeout=TIMEOUT,
-        )
-        r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"].strip()
-    except (requests.RequestException, KeyError, IndexError, ValueError):
-        return None
+    for model in _models(config):
+        try:
+            r = requests.post(url, headers=headers,
+                              json={"model": model, "messages": messages, "max_tokens": 200, "temperature": 0.2},
+                              timeout=TIMEOUT)
+            r.raise_for_status()
+            return r.json()["choices"][0]["message"]["content"].strip()
+        except (requests.RequestException, KeyError, IndexError, ValueError, TypeError):
+            continue   # this model failed — rotate to the next one in the list
+    return None

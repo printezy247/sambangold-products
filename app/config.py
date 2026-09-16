@@ -18,6 +18,8 @@ class Config:
     # Optional AI layer on top of /team/chat's local file search — an
     # OpenAI-compatible chat-completions API. All three must be set or the
     # chat falls back to local search only (which always works, key or not).
+    # NARA_MODEL is a comma-separated priority list; a failing/rate-limited
+    # model just rotates to the next one rather than failing the request.
     NARA_API_KEY = os.environ.get("NARA_API_KEY", "")
     NARA_BASE_URL = os.environ.get("NARA_BASE_URL", "")
     NARA_MODEL = os.environ.get("NARA_MODEL", "")

@@ -43,6 +43,11 @@ def test_configured_requires_all_three_settings():
     assert navchat.configured({"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": "m"})
 
 
+def test_configured_requires_at_least_one_model_in_the_list():
+    assert not navchat.configured({"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": " , ,"})
+    assert navchat.configured({"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": "a,b,c"})
+
+
 def test_ai_answer_returns_none_when_unconfigured_without_a_network_call(monkeypatch):
     def fail(*a, **kw):
         raise AssertionError("should not call the network when unconfigured")
@@ -69,3 +74,53 @@ def test_ai_answer_parses_a_successful_response(monkeypatch):
     monkeypatch.setattr(navchat.requests, "post", lambda *a, **kw: FakeResp())
     config = {"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": "m"}
     assert navchat.ai_answer("where's the manual", ITEMS, config) == "Try the Field Manual."
+
+
+def test_ai_answer_rotates_to_the_next_model_when_the_first_fails(monkeypatch):
+    class FakeResp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"choices": [{"message": {"content": "from the second model"}}]}
+
+    calls = []
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        calls.append(json["model"])
+        if json["model"] == "model-a":
+            raise navchat.requests.RequestException("rate limited")
+        return FakeResp()
+
+    monkeypatch.setattr(navchat.requests, "post", fake_post)
+    config = {"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": "model-a, model-b"}
+    assert navchat.ai_answer("where's the manual", ITEMS, config) == "from the second model"
+    assert calls == ["model-a", "model-b"]
+
+
+def test_ai_answer_returns_none_when_every_model_fails(monkeypatch):
+    def always_fail(*a, **kw):
+        raise navchat.requests.RequestException("down")
+    monkeypatch.setattr(navchat.requests, "post", always_fail)
+    config = {"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": "model-a,model-b,model-c"}
+    assert navchat.ai_answer("where's the manual", ITEMS, config) is None
+
+
+def test_ai_answer_stops_rotating_once_a_model_succeeds(monkeypatch):
+    class FakeResp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"choices": [{"message": {"content": "answer"}}]}
+
+    calls = []
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        calls.append(json["model"])
+        return FakeResp()
+
+    monkeypatch.setattr(navchat.requests, "post", fake_post)
+    config = {"NARA_API_KEY": "k", "NARA_BASE_URL": "https://api.example.test", "NARA_MODEL": "model-a,model-b,model-c"}
+    navchat.ai_answer("q", ITEMS, config)
+    assert calls == ["model-a"]   # never tries b or c once a succeeds
