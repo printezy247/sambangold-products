@@ -30,12 +30,13 @@ def create_app(config_object=Config):
     app.config.from_object(config_object)
     app.config["MISSING"] = config_object.missing()
 
-    from . import auth, brand, store, teamviews, telegram, tiers, views, watch
+    from . import auth, brand, store, teambot, teamviews, telegram, tiers, views, watch
     from markupsafe import Markup
     app.register_blueprint(views.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(telegram.bp)
     app.register_blueprint(teamviews.bp)
+    app.register_blueprint(teambot.bp)
     app.teardown_appcontext(store.close_db)
 
     @app.context_processor
@@ -77,6 +78,16 @@ def create_app(config_object=Config):
         click.echo(telegram.set_webhook(base, token).text)
         for r in telegram.set_commands(token):
             click.echo(r.text)
+
+    @app.cli.command("team-set-webhook")
+    def team_set_webhook_command():
+        """Point Telegram at PUBLIC_BASE_URL/webhook/teambot. Run once after
+        the team bot's token is set."""
+        base, token = app.config["PUBLIC_BASE_URL"], app.config["TEAM_BOT_TOKEN"]
+        if not token:
+            raise click.ClickException("TEAM_BOT_TOKEN is not set.")
+        click.echo(teambot.set_webhook(base, token).text)
+        click.echo(teambot.set_commands(token).text)
 
     @app.cli.command("team-seed")
     def team_seed_command():
