@@ -637,11 +637,22 @@ between them all 18 tools:
 | 🤝 | **The IB Floor** | where commission is counted and clients go quiet |
 | 🪙 | **The Crypto Vault** | where tokenised gold gets checked |
 
-Each floor is a pinned scene: three strata drift at different rates to read as
-distance, the content rises out of the depth as the floor takes hold, and the
-accent colour changes with the room. A lift indicator tracks your depth. In the
-hero the smith hammers a CSS 3D gold bar whose specular highlight sweeps with
-your scroll.
+Behind the whole descent runs **one canvas** — candles in win-green and
+loss-red, ticks in gold, lines in chrome, glyphs tinted by the floor you are on —
+leaning away from your pointer and burning brighter while the gate is up. The
+gate carries the SBG monogram inside its loading ring, and its doors are
+translucent so the field shows through; on **ENTER** they slide apart.
+
+Each floor is a pinned scene read three ways from one scroll number — arriving
+from below small and soft, holding, leaving upward — with a giant wall numeral
+drifting slower than you, three strata at different rates for distance, a
+hairline shutter that sweeps the room as you arrive, headings whose letters rise
+one at a time, and an accent colour that changes with the room and tints the
+field. A lift indicator tracks your depth, a two-pixel gold line at the top
+tracks the whole descent, and on fine pointers a gold dot and lagging ring
+replace the cursor. The commands roll past on a marquee between the door and the
+first floor. In the hero the smith hammers a CSS 3D ingot whose specular
+highlight sweeps with your scroll.
 
 **No 3D library.** `perspective` and `transform3d` do camera moves natively at
 60fps on any phone, and a WebGL bar would have cost 150KB, a main-thread compile
@@ -653,7 +664,9 @@ ones seeing. One experience that is fully good everywhere beat two.
 > it on, so a crawler and a JS-off visitor read the whole vault; every floor's
 > copy is in the HTML, not fetched later; reduced motion flattens the descent to
 > the same content standing still; and `test_vault.py` fails if a third-party
-> script ever appears or the page doubles in weight.
+> script ever appears, the page doubles in weight, or a landing rule names a
+> shell class — the first version called the ingot `.bar`, which is also the
+> header's row, and the header inherited a 3D rotation.
 
 #### 🔎 The public register — look someone up before you pay them
 

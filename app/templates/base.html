@@ -150,7 +150,7 @@
       {% endif %}
     </nav>
     <div style="display:flex;align-items:center;gap:8px">
-      <a href="{{ url_for('views.register') }}">{{ t('reg.title') }}</a>
+      <a href="{{ url_for('views.register') }}">{{ t('nav.register') }}</a>
       <a href="{{ url_for('views.pricing') }}">{{ t('price.title') }}</a>
       <a class="lang" href="{{ url_for('auth.set_lang', code=('en' if lang == 'ms' else 'ms')) }}">{{ t('nav.lang') }}</a>
       {% if bot_link %}<a class="btn btn-gold small" href="{{ bot_link }}">{{ t('nav.cta') }}</a>{% endif %}

@@ -163,7 +163,9 @@ def test_a_scanner_page_shows_the_record_it_just_matched(client, app):
 
 
 def test_the_register_is_in_the_nav(client, app):
-    assert "Daftar awam" in client.get("/").get_data(as_text=True)
+    """The nav carries the short label; the page itself carries the full one."""
+    assert 'href="/register">Daftar<' in client.get("/").get_data(as_text=True)
+    assert "Daftar awam" in client.get("/register").get_data(as_text=True)
 
 
 def test_both_languages_carry_every_register_string(app):
