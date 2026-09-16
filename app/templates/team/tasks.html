@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ t('team.tasks_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <h1>{{ t('team.tasks_title') }}</h1>
+
+  <div class="actions" style="margin:18px 0 32px">
+    <a class="btn" href="{{ url_for('team.roadmap_page') }}">{{ t('team.roadmap_title') }}</a>
+    <a class="btn" href="{{ url_for('team.tasks_page') }}">{{ t('team.tasks_title') }}</a>
+    {% if user.team_role == 'ceo' %}<a class="btn" href="{{ url_for('team.people_page') }}">{{ t('team.people_title') }}</a>{% endif %}
+  </div>
+
+  <div class="chips" style="margin-bottom:20px">
+    <a class="chip {{ 'gold' if not filter_status }}" href="{{ url_for('team.tasks_page') }}">{{ t('team.status') }}: *</a>
+    {% for s in task_statuses %}
+    <a class="chip {{ 'gold' if filter_status == s }}" href="{{ url_for('team.tasks_page', status=s) }}">{{ t('team.task_status_' + s) }}</a>
+    {% endfor %}
+  </div>
+
+  {% if can_edit %}
+  <div class="lux" style="padding:20px;margin-bottom:28px">
+    <h3 style="margin-top:0">{{ t('team.add_task') }}</h3>
+    <form method="post" action="{{ url_for('team.tasks_page') }}">
+      <div class="fields">
+        <label>{{ t('team.title_label') }}<input name="title" required></label>
+        <label>{{ t('team.assignee') }}
+          <select name="assigned_to">
+            <option value="">—</option>
+            {% for m in members %}<option value="{{ m.owner }}">{{ m.display_name or m.owner }} ({{ t('team.role_' + m.role) }})</option>{% endfor %}
+          </select>
+        </label>
+        <label>{{ t('team.due') }}<input type="date" name="due"></label>
+        <label>{{ t('team.priority') }}
+          <select name="priority">
+            {% for p in priorities %}<option value="{{ p }}" {% if p == 'normal' %}selected{% endif %}>{{ t('team.priority_' + p) }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <label style="margin-top:10px">{{ t('team.notes') }}<textarea name="description" rows="2"></textarea></label>
+      <div class="actions"><button class="btn btn-gold" type="submit">{{ t('team.add_task') }}</button></div>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if not tasks %}
+  <p class="text-muted">{{ t('team.no_tasks') }}</p>
+  {% else %}
+  <table class="flags">
+    <tr>
+      <th>{{ t('team.title_label') }}</th><th>{{ t('team.assignee') }}</th>
+      <th>{{ t('team.due') }}</th><th>{{ t('team.priority') }}</th><th>{{ t('team.status') }}</th>
+    </tr>
+    {% for tk in tasks %}
+    <tr class="{{ 'positive' if tk.status == 'done' else ('negative' if tk.status == 'delayed' else '') }}">
+      <td><b>{{ tk.title }}</b>{% if tk.description %}<br><span class="text-muted" style="font-size:13px">{{ tk.description }}</span>{% endif %}</td>
+      <td>{{ tk.assigned_to or '—' }}</td>
+      <td>{{ tk.due_at|utc if tk.due_at else '—' }}</td>
+      <td>{{ t('team.priority_' + tk.priority) }}</td>
+      <td>
+        {% if can_edit %}
+        <form class="inline" method="post" action="{{ url_for('team.task_status', task_id=tk.id) }}">
+          <select name="status" onchange="this.form.submit()">
+            {% for s in task_statuses %}<option value="{{ s }}" {% if s == tk.status %}selected{% endif %}>{{ t('team.task_status_' + s) }}</option>{% endfor %}
+          </select>
+        </form>
+        {% else %}{{ t('team.task_status_' + tk.status) }}{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

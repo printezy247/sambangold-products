@@ -1113,3 +1113,216 @@ def group_watchers(group_id):
 def groups_for(owner):
     return [dict(r) for r in db().execute(
         "SELECT * FROM group_watch WHERE owner = ? ORDER BY created_at", (str(owner),))]
+
+
+# --------------------------------------------------------------------------- #
+# Team ops: the internal CEO/HOD/Executive bot + dashboard. A separate role
+# space from customer ranks (tiers.py) — a team member can hold both.
+# --------------------------------------------------------------------------- #
+
+TEAM_SCHEMA = """
+CREATE TABLE IF NOT EXISTS team_roles (
+    owner        TEXT PRIMARY KEY,
+    role         TEXT NOT NULL,     -- ceo | hod_sales | hod_marketing | executive
+    display_name TEXT,
+    added_by     TEXT,
+    created_at   REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tasks (
+    id           INTEGER PRIMARY KEY,
+    title        TEXT NOT NULL,
+    description  TEXT,
+    status       TEXT NOT NULL DEFAULT 'open',    -- open | in_progress | done | delayed
+    priority     TEXT NOT NULL DEFAULT 'normal',  -- low | normal | high
+    due_at       REAL,
+    assigned_to  TEXT,
+    created_by   TEXT NOT NULL,
+    created_at   REAL NOT NULL,
+    updated_at   REAL NOT NULL,
+    completed_at REAL
+);
+CREATE INDEX IF NOT EXISTS tasks_assignee ON tasks(assigned_to, status);
+CREATE INDEX IF NOT EXISTS tasks_due ON tasks(due_at);
+CREATE TABLE IF NOT EXISTS roadmap_items (
+    id              INTEGER PRIMARY KEY,
+    family          TEXT NOT NULL,       -- saas-tools | digital-products
+    slug            TEXT NOT NULL UNIQUE,
+    name            TEXT NOT NULL,
+    vertical        TEXT,
+    internal_status TEXT NOT NULL,       -- launched | ready_to_launch | in_progress | developing | not_delivered
+    owner_role      TEXT,
+    notes           TEXT,
+    updated_by      TEXT,
+    updated_at      REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS roadmap_family ON roadmap_items(family, internal_status);
+CREATE TABLE IF NOT EXISTS notify_prefs (
+    owner           TEXT PRIMARY KEY,
+    daily_digest    INTEGER NOT NULL DEFAULT 1,
+    task_reminders  INTEGER NOT NULL DEFAULT 1,
+    group_broadcast INTEGER NOT NULL DEFAULT 1
+);
+"""
+SCHEMA += TEAM_SCHEMA
+
+TEAM_ROLES = ("ceo", "hod_sales", "hod_marketing", "executive")
+TEAM_FULL_ACCESS_ROLES = ("ceo", "hod_sales", "hod_marketing")
+
+
+def team_role(owner):
+    row = _row(db().execute("SELECT role FROM team_roles WHERE owner = ?", (str(owner),)))
+    return row["role"] if row else None
+
+
+def team_member(owner):
+    return _row(db().execute("SELECT * FROM team_roles WHERE owner = ?", (str(owner),)))
+
+
+def set_team_role(owner, role, display_name="", added_by=None):
+    if role not in TEAM_ROLES:
+        raise ValueError("unknown team role: %s" % role)
+    now = time.time()
+    db().execute(
+        "INSERT INTO team_roles (owner, role, display_name, added_by, created_at) VALUES (?, ?, ?, ?, ?)"
+        " ON CONFLICT(owner) DO UPDATE SET role = excluded.role,"
+        " display_name = COALESCE(NULLIF(excluded.display_name, ''), team_roles.display_name), added_by = excluded.added_by",
+        (str(owner), role, display_name, str(added_by) if added_by else None, now))
+    db().commit()
+    return team_member(owner)
+
+
+def remove_team_role(owner):
+    db().execute("DELETE FROM team_roles WHERE owner = ?", (str(owner),))
+    db().commit()
+
+
+def list_team_members():
+    return [dict(r) for r in db().execute("SELECT * FROM team_roles ORDER BY role, created_at")]
+
+
+# --- tasks ------------------------------------------------------------------ #
+
+def add_task(title, created_by, description="", priority="normal", due_at=None, assigned_to=None):
+    now = time.time()
+    cur = db().execute(
+        "INSERT INTO tasks (title, description, status, priority, due_at, assigned_to, created_by, created_at, updated_at)"
+        " VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?)",
+        (title.strip(), (description or "").strip(), priority, due_at,
+         str(assigned_to) if assigned_to else None, str(created_by), now, now))
+    db().commit()
+    return task(cur.lastrowid)
+
+
+def task(task_id):
+    return _row(db().execute("SELECT * FROM tasks WHERE id = ?", (int(task_id),)))
+
+
+def update_task(task_id, **fields):
+    if not fields:
+        return task(task_id)
+    if "status" in fields:
+        fields["completed_at"] = time.time() if fields["status"] == "done" else None
+    fields["updated_at"] = time.time()
+    cols = ", ".join("%s = ?" % k for k in fields)
+    db().execute("UPDATE tasks SET %s WHERE id = ?" % cols, (*fields.values(), int(task_id)))
+    db().commit()
+    return task(task_id)
+
+
+def delete_task(task_id):
+    db().execute("DELETE FROM tasks WHERE id = ?", (int(task_id),))
+    db().commit()
+
+
+def tasks_all(status=None, assigned_to=None, limit=500):
+    sql = "SELECT * FROM tasks WHERE 1=1"
+    args = []
+    if status:
+        sql += " AND status = ?"
+        args.append(status)
+    if assigned_to:
+        sql += " AND assigned_to = ?"
+        args.append(str(assigned_to))
+    args.append(limit)
+    return [dict(r) for r in db().execute(sql + " ORDER BY (due_at IS NULL), due_at, created_at DESC LIMIT ?", args)]
+
+
+def tasks_due_between(start_ts, end_ts):
+    return [dict(r) for r in db().execute(
+        "SELECT * FROM tasks WHERE due_at IS NOT NULL AND due_at >= ? AND due_at < ? AND status != 'done'"
+        " ORDER BY due_at", (start_ts, end_ts))]
+
+
+def tasks_overdue(now=None):
+    now = now if now is not None else time.time()
+    return [dict(r) for r in db().execute(
+        "SELECT * FROM tasks WHERE due_at IS NOT NULL AND due_at < ? AND status NOT IN ('done')"
+        " ORDER BY due_at", (now,))]
+
+
+# --- roadmap ------------------------------------------------------------------ #
+
+ROADMAP_STATUSES = ("launched", "ready_to_launch", "in_progress", "developing", "not_delivered")
+
+
+def seed_roadmap(items):
+    """Insert seed rows that do not exist yet. Never overwrites a status a
+    human has already set — the dashboard is the source of truth once seeded."""
+    now = time.time()
+    for it in items:
+        db().execute(
+            "INSERT INTO roadmap_items (family, slug, name, vertical, internal_status, owner_role, notes, updated_at)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(slug) DO NOTHING",
+            (it["family"], it["slug"], it["name"], it.get("vertical", ""), it["internal_status"],
+             it.get("owner_role"), it.get("notes", ""), now))
+    db().commit()
+
+
+def roadmap_items(family=None):
+    sql = "SELECT * FROM roadmap_items"
+    args = []
+    if family:
+        sql += " WHERE family = ?"
+        args.append(family)
+    return [dict(r) for r in db().execute(sql + " ORDER BY family, name", args)]
+
+
+def set_roadmap_status(slug, internal_status, updated_by, notes=None):
+    if internal_status not in ROADMAP_STATUSES:
+        raise ValueError("unknown roadmap status: %s" % internal_status)
+    fields = ["internal_status = ?", "updated_by = ?", "updated_at = ?"]
+    args = [internal_status, str(updated_by), time.time()]
+    if notes is not None:
+        fields.append("notes = ?")
+        args.append(notes.strip())
+    args.append(slug)
+    db().execute("UPDATE roadmap_items SET %s WHERE slug = ?" % ", ".join(fields), args)
+    db().commit()
+    return _row(db().execute("SELECT * FROM roadmap_items WHERE slug = ?", (slug,)))
+
+
+# --- notification preferences ------------------------------------------------ #
+
+def notify_prefs(owner):
+    row = _row(db().execute("SELECT * FROM notify_prefs WHERE owner = ?", (str(owner),)))
+    return row or {"owner": str(owner), "daily_digest": 1, "task_reminders": 1, "group_broadcast": 1}
+
+
+def set_notify_pref(owner, key, value):
+    if key not in ("daily_digest", "task_reminders", "group_broadcast"):
+        raise ValueError("unknown notify pref: %s" % key)
+    current = notify_prefs(owner)
+    current[key] = 1 if value else 0
+    db().execute(
+        "INSERT INTO notify_prefs (owner, daily_digest, task_reminders, group_broadcast) VALUES (?, ?, ?, ?)"
+        " ON CONFLICT(owner) DO UPDATE SET %s = excluded.%s" % (key, key),
+        (str(owner), current["daily_digest"], current["task_reminders"], current["group_broadcast"]))
+    db().commit()
+    return notify_prefs(owner)
+
+
+def notify_prefs_enabled(key):
+    """Every team member whose preference for `key` is on (or unset — default on)."""
+    members = [m["owner"] for m in list_team_members()]
+    off = {r["owner"] for r in db().execute("SELECT owner FROM notify_prefs WHERE %s = 0" % key)}
+    return [m for m in members if m not in off]

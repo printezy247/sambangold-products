@@ -73,9 +73,10 @@ def _is_admin(user):
 
 def session_user(user):
     """The slice of a users row the templates and tools need."""
+    owner = store.owner_key(user)
     return {
         "uid": user["id"],
-        "owner": store.owner_key(user),
+        "owner": owner,
         "telegram_id": user.get("telegram_id"),
         "email": user.get("email"),
         "username": user.get("username") or "",
@@ -83,6 +84,9 @@ def session_user(user):
         "locale": user.get("locale") or DEFAULT_LANG,
         "is_admin": _is_admin(user),
         "rank": rank_for(user),
+        # Internal team role (CEO/HOD/Executive) — separate from `rank`,
+        # which is the customer-facing tier. None for everyone outside Sam's team.
+        "team_role": store.team_role(owner),
     }
 
 

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t('team.roadmap_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <h1>{{ t('team.roadmap_title') }}</h1>
+  <p class="lede">{{ t('team.roadmap_sub') }}</p>
+
+  <div class="actions" style="margin:18px 0 32px">
+    <a class="btn" href="{{ url_for('team.roadmap_page') }}">{{ t('team.roadmap_title') }}</a>
+    <a class="btn" href="{{ url_for('team.tasks_page') }}">{{ t('team.tasks_title') }}</a>
+    {% if user.team_role == 'ceo' %}<a class="btn" href="{{ url_for('team.people_page') }}">{{ t('team.people_title') }}</a>{% endif %}
+  </div>
+
+  {% set status_class = {'launched': 'win', 'ready_to_launch': 'gold', 'in_progress': 'gold', 'developing': '', 'not_delivered': 'bot'} %}
+
+  {% for family, items in groups %}
+  <h2>{{ t('team.family_' + family) }}</h2>
+  <div class="grid">
+    {% for it in items %}
+    <div class="lux card" style="padding:20px">
+      <div class="chips">
+        {% if it.vertical %}<span class="chip">{{ it.vertical }}</span>{% endif %}
+        <span class="chip {{ status_class.get(it.internal_status, '') }}">{{ t('team.status_' + it.internal_status) }}</span>
+      </div>
+      <div class="name" style="margin-top:10px">{{ it.name }}</div>
+      {% if it.notes %}<p class="text-muted" style="font-size:13px;margin:8px 0 0">{{ it.notes }}</p>{% endif %}
+
+      {% if can_edit %}
+      <form method="post" action="{{ url_for('team.roadmap_page') }}" style="margin-top:14px">
+        <input type="hidden" name="slug" value="{{ it.slug }}">
+        <div class="fields">
+          <label>{{ t('team.status') }}
+            <select name="internal_status">
+              {% for s in statuses %}<option value="{{ s }}" {% if s == it.internal_status %}selected{% endif %}>{{ t('team.status_' + s) }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>{{ t('team.notes') }}<input name="notes" value="{{ it.notes or '' }}"></label>
+        </div>
+        <div class="actions"><button class="btn btn-gold small" type="submit">{{ t('team.save') }}</button></div>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

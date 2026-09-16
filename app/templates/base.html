@@ -161,6 +161,7 @@
         <a href="{{ url_for('views.dashboard') }}">{{ t('nav.dashboard') }}</a>
         <a href="{{ url_for('views.setup_page') }}">{{ t('nav.setup') }}</a>
         <a href="{{ url_for('views.account') }}">{{ t('nav.account') }}</a>
+        {% if user.team_role %}<a href="{{ url_for('team.home') }}" class="text-gold">{{ t('nav.team') }}</a>{% endif %}
         {% if user.is_admin %}<a href="{{ url_for('views.admin') }}" class="text-gold">{{ t('nav.admin') }}</a>{% endif %}
       {% else %}
         <a href="{{ url_for('auth.signin') }}">{{ t('nav.signin') }}</a>
