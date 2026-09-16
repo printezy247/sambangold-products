@@ -4,11 +4,12 @@ management for Sam's CEO/HODs/Executives. Separate from the customer-facing
 """
 
 import datetime as dt
+import hmac
 import time
 
-from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, send_from_directory, url_for
+from flask import Blueprint, abort, current_app, flash, jsonify, redirect, render_template, request, send_from_directory, url_for
 
-from . import library, navchat, roadmap, store, teamcalendar
+from . import library, navchat, roadmap, store, teamcalendar, teamsetup
 from .auth import current_user, lang as ui_lang
 from .brand import t
 from .teamauth import ceo_required, is_team_admin, team_admin_required, team_required
@@ -170,6 +171,29 @@ def chat_page():
 
     return render_template("team/chat.html", query=query, matches=matches, answer=answer,
                            ai_on=navchat.configured(current_app.config))
+
+
+@bp.route("/tasks/setup", methods=["POST"])
+def setup_task():
+    """One-time (repeatable) team-ops setup, triggered over HTTP instead of
+    a local CLI — the CLI's team-seed/team-set-webhook only work run *inside*
+    the deployed container (volume access), which `railway run` doesn't
+    give you. This runs inside the live app itself instead, so it always
+    has the right environment. Shared-secret header, same pattern as
+    /tasks/check-alerts:
+
+        curl -X POST https://<your-app>.up.railway.app/team/tasks/setup \\
+             -H "X-Task-Token: <TASK_TOKEN>"
+    """
+    expected = current_app.config["TASK_TOKEN"]
+    given = request.headers.get("X-Task-Token", "")
+    if not expected or not hmac.compare_digest(expected, given):
+        abort(403)
+
+    result = teamsetup.seed_all()
+    result["ceo_granted"] = teamsetup.bootstrap_ceo()
+    result["team_webhook"] = teamsetup.set_team_webhook()
+    return jsonify(result)
 
 
 @bp.route("/people", methods=["GET", "POST"])

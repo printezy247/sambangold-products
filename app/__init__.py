@@ -82,12 +82,17 @@ def create_app(config_object=Config):
     @app.cli.command("team-set-webhook")
     def team_set_webhook_command():
         """Point Telegram at PUBLIC_BASE_URL/webhook/teambot. Run once after
-        the team bot's token is set."""
-        base, token = app.config["PUBLIC_BASE_URL"], app.config["TEAM_BOT_TOKEN"]
-        if not token:
+        the team bot's token is set.
+
+        Only correct run *inside* the deployed container — `railway run`
+        executes locally with Railway's env vars, not inside the container,
+        which doesn't matter here (no volume involved) but does for
+        team-seed below. POST /tasks/team-setup works from anywhere."""
+        from . import teamsetup
+        result = teamsetup.set_team_webhook()
+        if result is None:
             raise click.ClickException("TEAM_BOT_TOKEN is not set.")
-        click.echo(teambot.set_webhook(base, token).text)
-        click.echo(teambot.set_commands(token).text)
+        click.echo(result)
 
     @app.cli.command("team-seed")
     def team_seed_command():
@@ -99,23 +104,23 @@ def create_app(config_object=Config):
         holds it yet. Run once after deploy, and again any time a new
         product ships or a file is added to library/ (new rows insert;
         existing ones are untouched).
+
+        This must run *inside* the deployed container — it reads/writes the
+        volume-mounted database and PAID_LIBRARY_PATH. `railway run` does
+        NOT do that (it runs locally with Railway's env vars injected, not
+        inside the container), so it would seed an empty local database
+        instead of the live one. Use POST /tasks/team-setup instead if you
+        don't have shell access inside the container.
         """
-        from . import library as library_mod
-        from . import roadmap as roadmap_mod
-
-        store.seed_roadmap(roadmap_mod.seed_data())
-        click.echo("Roadmap seeded: %d items." % len(store.roadmap_items()))
-
-        store.seed_file_items(library_mod.seed_data())
-        paid = library_mod.scan_paid_files(app.config["PAID_LIBRARY_PATH"])
-        if paid:
-            store.seed_file_items(paid)
-        click.echo("File library seeded: %d items (%d paid-tier)." % (len(store.file_items()), len(paid)))
+        from . import teamsetup
+        counts = teamsetup.seed_all()
+        click.echo("Roadmap seeded: %d items." % counts["roadmap_items"])
+        click.echo("File library seeded: %d items (%d paid-tier)." % (counts["file_items"], counts["paid_items"]))
 
         admin_id = app.config["ADMIN_TELEGRAM_ID"]
-        if admin_id and not store.list_team_members():
-            store.set_team_role(admin_id, "ceo", display_name="Sam", added_by="system")
-            click.echo("Granted CEO to ADMIN_TELEGRAM_ID (%s)." % admin_id)
+        granted = teamsetup.bootstrap_ceo()
+        if granted:
+            click.echo("Granted CEO to ADMIN_TELEGRAM_ID (%s)." % granted)
         elif not admin_id:
             click.echo("ADMIN_TELEGRAM_ID not set — grant the first CEO role manually via the DB or /team/people once one CEO exists.")
         else:
