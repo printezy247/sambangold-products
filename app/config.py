@@ -23,6 +23,11 @@ class Config:
     NARA_API_KEY = os.environ.get("NARA_API_KEY", "")
     NARA_BASE_URL = os.environ.get("NARA_BASE_URL", "")
     NARA_MODEL = os.environ.get("NARA_MODEL", "")
+    # All optional — navchat.py's defaults are sane for a short summary call.
+    # Only set these if a specific NARA model genuinely needs longer.
+    NARA_TIMEOUT_SECONDS = os.environ.get("NARA_TIMEOUT_SECONDS", "")
+    NARA_MAX_RETRIES = os.environ.get("NARA_MAX_RETRIES", "")
+    NARA_TIME_BUDGET_SECONDS = os.environ.get("NARA_TIME_BUDGET_SECONDS", "")
     DATABASE_PATH = os.environ.get("DATABASE_PATH", "data/sambangold.db")
     # Paid-tier docs (sold as ebooks on website_sam) never go in git — this repo
     # is public. Uploaded once to the Railway volume, outside the deploy;

@@ -13,4 +13,6 @@ RUN mkdir -p /data
 EXPOSE 8080
 
 # Shell form so ${PORT} expands — Railway assigns its own port at runtime.
-CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --access-logfile - wsgi:app
+# --timeout 60: headroom above /team/chat's NARA_TIME_BUDGET_SECONDS (default
+# 20s) — that budget is the real ceiling, this is a second line of defense.
+CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 --timeout 60 --access-logfile - wsgi:app
