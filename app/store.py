@@ -418,6 +418,13 @@ def log_spread(quote, event=None):
     db().commit()
 
 
+def spread_samples(days=30):
+    """Every logged spread in the window — when it was taken, and how wide it was."""
+    return [(r[0], r[1]) for r in db().execute(
+        "SELECT ts, spread FROM spread_log WHERE spread IS NOT NULL AND ts > ? ORDER BY ts",
+        (time.time() - days * 86400,))]
+
+
 def baseline_spread():
     rows = [r[0] for r in db().execute("SELECT spread FROM spread_log WHERE spread IS NOT NULL")]
     if not rows:

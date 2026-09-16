@@ -43,6 +43,8 @@ Spread-aware entry and stop levels from Binance PAXGUSDT, with Yahoo GC=F as fal
 | `/watch XAUUSD` | live bid, ask, spread in bps, and spread-widened long/short entry and stop levels |
 | `/watch XAUUSD above 2450` | arm an alert that fires when the **ask** reaches the level |
 | `/watch XAUUSD below 2380` | arm an alert that fires when the **bid** falls to the level |
+| `/watch hours` | the best and worst hours to trade gold in KL time, from our own spread log — plus what entering now costs over waiting |
+| `/watch hours 5` | the same, with the cost of waiting priced for five lots |
 | `/watch list` | show every alert you have armed |
 | `/watch clear` | disarm them all |
 
@@ -51,6 +53,7 @@ Spread-aware entry and stop levels from Binance PAXGUSDT, with Yahoo GC=F as fal
 - Live price panel — bid, ask, spread and the entry/stop levels, no login needed
 - Alert history — every trigger with the price and spread at fire time, keyed to the same Telegram account the bot uses
 - Threshold editor for each armed alert — arm, edit the level, disarm; the bot's `/watch list` shows the same rows
+- Trading-hours map — a 24-hour bar of median spread in KL time, this hour outlined, the cheapest and dearest hours named, and the cost of entering now at your lot size
 - CSV export of triggers for journalling
 
 ## Monetization
