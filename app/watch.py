@@ -13,7 +13,7 @@ import time
 
 from flask import current_app
 
-from . import feeds, store
+from . import feeds, hours as hours_map, store
 from .brand import DEFAULT_LANG, t
 
 STOP_PCT = 0.005  # a 0.5% stop, widened by the spread, as a starting point
@@ -54,6 +54,19 @@ def bot_watch(args, chat_id=None, lang=DEFAULT_LANG, **_):
         if not rows:
             return t("watch.none", lang) + "\n\n" + usage
         return t("watch.list", lang) + "\n" + "\n".join(alert_line(a, lang) for a in rows)
+
+    if sub == "hours":
+        # The evidence for "should I enter now" lives in the spread log. Free on
+        # purpose: paying the wrong spread is a loss, and warning about a loss is
+        # never the thing we charge for.
+        days = hours_map.days_for(chat_id=chat_id)
+        prof = hours_map.profile(days)
+        lots = args[1] if len(args) > 1 else 1
+        try:
+            lots = float(str(lots).replace(",", ""))
+        except ValueError:
+            lots = 1.0
+        return "\n".join(hours_map.lines(prof, hours_map.verdict(prof), lots, lang))
 
     if sub == "clear":
         n = store.clear_alerts(chat_id) if chat_id else 0
@@ -141,6 +154,20 @@ def dashboard_watch(request, user=None):
         ctx["spread_bps"] = feeds.spread_bps(ctx["quote"])
     except feeds.FeedError as exc:
         ctx["feed_error"] = str(exc)
+
+    days = hours_map.days_for(user=user)
+    prof = hours_map.profile(days)
+    ctx["hours"] = prof
+    ctx["hours_days"] = days
+    ctx["verdict"] = hours_map.verdict(prof)
+    ctx["hours_window"] = hours_map.window
+    ctx["hours_label"] = hours_map.label
+    try:
+        ctx["hours_lots"] = float(request.values.get("lots") or 1)
+    except ValueError:
+        ctx["hours_lots"] = 1.0
+    ctx["hours_cost"] = hours_map.cost_of_waiting(prof, ctx["verdict"], ctx["hours_lots"])
+    ctx["hours_lines"] = hours_map.lines(prof, ctx["verdict"], ctx["hours_lots"], ui_lang())
 
     from .gate import allows, upgrade_line, user_tier
     tier = user_tier(user)

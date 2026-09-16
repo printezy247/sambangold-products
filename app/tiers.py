@@ -62,6 +62,7 @@ LIMITS = {
     "sims":       {"public": 1000, "free": 1000, "pro": 100000, "elite": 100000},   # #15 Monte Carlo paths
     "batch_rows": {"public": 20, "free": 20, "pro": 200, "elite": 1000},   # #2 claims verified at once
     "saves":      {"public": 8, "free": 8, "pro": 50, "elite": 200},       # saved comparisons
+    "hours_days": {"public": 7, "free": 7, "pro": 30, "elite": 30},        # #1 days behind the hours map
 }
 
 LIMIT_LABELS = {
@@ -71,6 +72,7 @@ LIMIT_LABELS = {
     "sims":       {"ms": "Laluan Monte Carlo",      "en": "Monte Carlo paths"},
     "batch_rows": {"ms": "Baris setiap kelompok",   "en": "Rows per batch"},
     "saves":      {"ms": "Perbandingan disimpan",   "en": "Saved comparisons"},
+    "hours_days": {"ms": "Hari di belakang peta jam", "en": "Days behind the hours map"},
 }
 
 

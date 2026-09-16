@@ -13,6 +13,73 @@
 <p class="err">{{ t('ui.w_feed_err', err=tool.feed_error) }}</p>
 {% endif %}
 
+<h2>{{ t('hours.title') }}</h2>
+{% if not tool.hours %}
+<p class="lede">{{ t('hours.none') }}</p>
+{% else %}
+{% set h = tool.hours %}
+{% set v = tool.verdict %}
+<p class="lede">{{ t('hours.sub') }}</p>
+
+<div class="panel tool" style="margin-bottom:14px">
+  <p style="margin:0 0 6px;font-size:17px">
+    {% if v.band == 'thin' %}{{ t('hours.now_thin', window=tool.hours_window(v.row))|safe }}
+    {% else %}{{ t('hours.now_' ~ v.band, window=tool.hours_window(v.row), spread='%.2f' % v.row.median)|safe }}{% endif %}
+  </p>
+  {% if v.wait %}
+  <p style="margin:0 0 6px">{{ t('hours.wait', n=v.wait, window=tool.hours_window(v['next']))|safe }}</p>
+    {% if tool.hours_cost and tool.hours_cost >= 1 %}
+    <p class="text-loss" style="margin:0">{{ t('hours.cost', usd='%.0f' % tool.hours_cost, lots='%g' % tool.hours_lots)|safe }}</p>
+    {% endif %}
+  {% elif v.band == 'best' %}
+  <p style="margin:0">{{ t('hours.now_is_best') }}</p>
+  {% endif %}
+  <form method="get" class="fields" style="margin-top:12px;align-items:flex-end">
+    <label>{{ t('hours.lots') }} <input name="lots" value="{{ '%g' % tool.hours_lots }}" inputmode="decimal" style="max-width:110px"></label>
+    <button class="btn small" type="submit">{{ t('hours.show') }}</button>
+  </form>
+</div>
+
+{% set peak = h.rows | map(attribute='median') | reject('none') | max %}
+<div style="display:flex;align-items:flex-end;gap:2px;height:120px;margin:10px 0">
+  {% for r in h.rows %}
+  {% set colour = {'best': 'var(--win)', 'ok': 'var(--chrome)', 'worst': 'var(--loss)', 'thin': 'var(--border)'}[r.band] %}
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%"
+       title="{{ tool.hours_window(r) }} — {% if r.median %}${{ '%.2f' % r.median }}{% else %}{{ t('hours.band_thin') }}{% endif %} · {{ r.n }}">
+    <div style="background:{{ colour }};height:{{ (100 * r.median / peak)|round|int if r.median and peak else 4 }}%;
+                min-height:4px;border-radius:2px 2px 0 0;{{ 'outline:2px solid var(--gold)' if r.hour == v.hour }}"></div>
+  </div>
+  {% endfor %}
+</div>
+<div style="display:flex;gap:2px;font-size:10px" class="text-muted">
+  {% for r in h.rows %}<div style="flex:1;text-align:center">{{ '%02d' % r.hour if r.hour % 3 == 0 }}</div>{% endfor %}
+</div>
+
+{% if h.best and h.worst and h.best.hour != h.worst.hour %}
+<p style="margin:14px 0 0">{{ t('hours.best', window=tool.hours_window(h.best), spread='%.2f' % h.best.median) }}<br>
+   {{ t('hours.worst', window=tool.hours_window(h.worst), spread='%.2f' % h.worst.median) }}</p>
+{% endif %}
+
+<details style="margin-top:14px">
+  <summary class="text-muted">{{ t('hours.col_hour') }}</summary>
+  <table class="tbl" style="margin-top:10px">
+    <thead><tr><th>{{ t('hours.col_hour') }}</th><th>{{ t('hours.col_spread') }}</th><th></th><th>{{ t('hours.col_n') }}</th></tr></thead>
+    <tbody>
+      {% for r in h.rows %}
+      <tr style="{% if r.hour == v.hour %}outline:1px solid var(--gold){% endif %}">
+        <td class="mono">{{ tool.hours_window(r) }}{% if r.hour == v.hour %} · {{ t('hours.now') }}{% endif %}</td>
+        <td class="mono">{% if r.median %}${{ '%.2f' % r.median }}{% else %}—{% endif %}</td>
+        <td><span class="chip {{ {'best':'win','worst':'negative','ok':'','thin':''}[r.band] }}">{{ t('hours.band_' ~ r.band) }}</span></td>
+        <td class="mono">{{ r.n }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
+
+<p class="text-muted" style="margin-top:10px">{{ t('hours.from', n=h.samples, days=h.days) }} {{ t('hours.window_note', days=tool.hours_days) }}</p>
+{% endif %}
+
 <h2>{{ t('ui.w_armed') }}</h2>
 {% if not tool.owner %}
 <p class="lede">{{ t('ui.w_signin') }}</p>

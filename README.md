@@ -619,6 +619,27 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 🕘 The hours map — what the spread log was for
+
+The checker has sampled the gold bid, ask and spread every five minutes since
+the day it shipped, and until now nothing read it back. `/watch hours` turns that
+log into the question a trader actually has at 9am: **is now a sensible time to
+enter, or should I wait?**
+
+| | |
+|:--|:--|
+| 🤖 | `/watch hours`, or `/watch hours 5` for five lots — the verdict, the wait, and what entering now costs |
+| 🌐 | `/p/gold-watch` — a 24-hour bar of median spread, this hour outlined, cheapest and dearest named |
+| 🛰️ | The A-Team daily push carries the verdict, so the price comes with what to do about it |
+
+Three rules keep it honest. **KL time, not UTC** — an hour label the audience has
+to convert is an hour label they will misread. **An hour with too few samples
+says so** rather than guessing; a confident wrong answer about when to trade is
+worse than no answer. And **the verdict is free at every rank**, because paying
+the wrong spread is a loss and warning about a loss is never what we charge for.
+A rank buys the length of the window behind it — 7 days at Awam and General,
+30 at A-Team and Rambo.
+
 #### 🧰 My Setup — the answers a tool never asks twice
 
 Eighteen tools, and nearly every one of them opens by asking the same four
@@ -819,6 +840,7 @@ actually reads.
 - [x] **Rambo seats** — ten team members on one rank, with the expiry that pays for them
 - [x] **Rambo extras** — the white-label widget and signed outbound webhooks
 - [x] **My Setup** — the recurring answers saved once, pre-filling forms on both surfaces
+- [x] **#1 hours map** — best and worst hours to trade gold, from our own spread log
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -931,6 +953,7 @@ sambangold-products/
 │   ├── groups.py                       group auto-scan — the bot watches a room
 │   ├── howto.py                        three plain steps and an example, per tool
 │   ├── setup.py                        My Setup — the answers a tool never asks twice
+│   ├── hours.py                        #1 best and worst hours, read back from the spread log
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

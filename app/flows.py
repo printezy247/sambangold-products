@@ -77,9 +77,10 @@ FLOWS = {
     ],
     "gold-watch": [
         S("mode", "flow.watch_mode", text=False,
-          options=(("flow.watch_price", "price"), ("flow.watch_above", "above"), ("flow.watch_below", "below"))),
+          options=(("flow.watch_price", "price"), ("flow.watch_hours", "hours"),
+                   ("flow.watch_above", "above"), ("flow.watch_below", "below"))),
         S("level", "flow.watch_level", number=True, live=_gold_levels, example="2450",
-          when=lambda a: a.get("mode") != "price"),   # example so a dead feed is never a blank box
+          when=lambda a: a.get("mode") in ("above", "below")),   # example so a dead feed is never a blank box
     ],
     "prop-calculator": [
         S("fee", "flow.prop_fee", number=True, options=(("$100", "100"), ("$250", "250"), ("$500", "500"), ("$1,000", "1000"))),
@@ -150,6 +151,8 @@ FLOWS = {
 def build(slug, a):
     """The command the flow's answers amount to."""
     if slug == "gold-watch":
+        if a.get("mode") == "hours":
+            return "/watch hours"
         return "/watch XAUUSD" if a.get("mode") == "price" else "/watch XAUUSD %s %s" % (a["mode"], a["level"])
     if slug == "prop-calculator":
         return "/propcalc %s %s %s" % (a["fee"], a["size"], a["pass"])

@@ -51,8 +51,16 @@ def _gold(owner, lang):
     except feeds.FeedError:
         return None
     armed = store.alerts_for(owner)
-    return t("ap.gold", lang, bid=fmt(q["bid"]), ask=fmt(q["ask"]), spread=fmt(q["spread"]),
+    line = t("ap.gold", lang, bid=fmt(q["bid"]), ask=fmt(q["ask"]), spread=fmt(q["spread"]),
              src=q["source"], n=len(armed))
+    # The price alone does not say whether to act on it. The hours map does, and
+    # it is the reason to read a daily push rather than glance at any chart.
+    from . import hours as hours_map
+    prof = hours_map.profile(hours_map.days_for(owner=owner))
+    verd = hours_map.verdict(prof)
+    if verd and verd["band"] != "thin":
+        line += "\n" + "\n".join(hours_map.lines(prof, verd, 1, lang)[1:3])
+    return line
 
 
 def _miners(owner, lang):
