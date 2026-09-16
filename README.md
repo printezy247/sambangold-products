@@ -619,6 +619,42 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 🏛️ The landing page is a vault you descend
+
+The front door is an entry gate: the SBG ring draws while the page loads, a
+counter runs, and one **ENTER** opens it. It shows once per session — a door you
+have already opened is a wall — and reduced motion, a hash link or a returning
+visitor all walk straight in.
+
+Below it the page is a descent through five floors, each with one job, and
+between them all 18 tools:
+
+| | Floor | Holds |
+|:--|:--|:--|
+| 🥇 | **The Gold Desk** | the price, the spread, the calendar |
+| 🛡️ | **The Evidence Room** | where a pitch is checked before money leaves |
+| 🏦 | **The Prop Room** | where a challenge is passed, or lost |
+| 🤝 | **The IB Floor** | where commission is counted and clients go quiet |
+| 🪙 | **The Crypto Vault** | where tokenised gold gets checked |
+
+Each floor is a pinned scene: three strata drift at different rates to read as
+distance, the content rises out of the depth as the floor takes hold, and the
+accent colour changes with the room. A lift indicator tracks your depth. In the
+hero the smith hammers a CSS 3D gold bar whose specular highlight sweeps with
+your scroll.
+
+**No 3D library.** `perspective` and `transform3d` do camera moves natively at
+60fps on any phone, and a WebGL bar would have cost 150KB, a main-thread compile
+stall and a second codepath whose fallback most of the audience would be the
+ones seeing. One experience that is fully good everywhere beat two.
+
+> [!IMPORTANT]
+> The immersion never becomes the page. The gate is inert markup until JS turns
+> it on, so a crawler and a JS-off visitor read the whole vault; every floor's
+> copy is in the HTML, not fetched later; reduced motion flattens the descent to
+> the same content standing still; and `test_vault.py` fails if a third-party
+> script ever appears or the page doubles in weight.
+
 #### 🔎 The public register — look someone up before you pay them
 
 Four of the scanners answer the same shape of question about a different kind of
@@ -936,6 +972,7 @@ actually reads.
 - [x] **#17 premium band** — each coin's own 30-day range, and the cheaper way into gold today
 - [x] **One language per page** — every surface rendered in both and checked that neither bleeds into the other
 - [x] **Public register** — a searchable record across the four scanners, with a bar for being named on it
+- [x] **The vault** — the landing page rebuilt as an entry gate and a five-floor descent, no 3D library
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
