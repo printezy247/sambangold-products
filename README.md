@@ -20,7 +20,7 @@
 
 <br><br>
 
-<img src="assets/stack-ticker.svg" alt="Python 3.12 · Flask · Telegram Bot API · Binance · Yahoo Finance · SQLite · Fly.io · GitHub Actions" width="100%">
+<img src="assets/stack-ticker.svg" alt="Python 3.12 · Flask · Telegram Bot API · Binance · Yahoo Finance · SQLite · Railway · GitHub Actions" width="100%">
 
 </div>
 
@@ -1061,15 +1061,15 @@ caches it, so the Telegram login button appears either way.
 
 <br>
 
-CI runs on every push and pull request against `master` — the README/asset check, then `py_compile`, then pytest, then deploy to Fly.io on `master` pushes only. See [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml).
+CI runs on every push and pull request against `master` — the README/asset check, then `py_compile`, then pytest. See [`.github/workflows/build-deploy.yml`](.github/workflows/build-deploy.yml). Deploy itself is Railway's job, not CI's.
 
-```bash
-fly deploy --remote-only
-```
+**Railway (Dashboard → New Project → Deploy from GitHub repo):** point it at this repo, branch `master`. Railway builds the `Dockerfile` and reads `railway.json` for the health check (`/healthz`) and restart policy. After the first deploy:
 
-`FLY_API_TOKEN` must be set as a repository secret. Never commit `.env`.
+1. Add a **Volume** mounted at `/data` (Settings → Volumes) so SQLite survives restarts and redeploys.
+2. Set the secrets below as service variables (`TELEGRAM_BOT_TOKEN`, `FLASK_SECRET_KEY`, `PUBLIC_BASE_URL` = the Railway-issued domain, `ADMIN_TELEGRAM_ID`, `TASK_TOKEN`, plus SMTP/Stripe if used). `DATABASE_PATH` defaults to `data/sambangold.db`; set it to `/data/sambangold.db` to use the volume.
+3. Run `flask --app wsgi set-webhook` once (Railway shell, or locally with `PUBLIC_BASE_URL`/`TELEGRAM_BOT_TOKEN` set) so Telegram knows where to send updates.
 
-Or let Fly deploy straight from GitHub (Dashboard → Launch an App from GitHub): the repo carries a `Dockerfile` and `fly.toml` (app `sambangold-products`, port 8080, a 1 GB volume at `/data` for SQLite). After the first deploy, set the secrets with `fly secrets set` and run `fly ssh console -C "flask --app wsgi set-webhook"` once so Telegram knows where to send updates.
+Every push to `master` that passes CI redeploys automatically — no deploy step to run by hand.
 
 </details>
 
@@ -1090,8 +1090,8 @@ sambangold-products/
 │   ├── badges-strip.svg                self-hosted badges
 │   ├── nav/                            clickable section chips
 │   └── icons/ic-01..18.svg             3D product icons
-├── Dockerfile                          Fly.io build — python:3.12-slim + gunicorn on 8080
-├── fly.toml                            app sambangold-products, 1 GB volume at /data
+├── Dockerfile                          python:3.12-slim + gunicorn, reads Railway's $PORT
+├── railway.json                        build + healthcheck config for Railway
 ├── app/
 │   ├── products.py                     the registry — 18 products, both halves
 │   ├── tiers.py                        the rank ladder — ported from website_sam
@@ -1129,7 +1129,7 @@ sambangold-products/
 
 ### printezy · sambangold
 
-<sub>Python · Flask · Telegram Bot API · Binance · Yahoo Finance · Stripe · Fly.io</sub>
+<sub>Python · Flask · Telegram Bot API · Binance · Yahoo Finance · Stripe · Railway</sub>
 
 <sub>**Educational research only. Not financial advice.** Verify every price with your broker.</sub>
 

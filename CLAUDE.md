@@ -8,10 +8,10 @@ phase of work unless the request explicitly overrides one.
 No paid APIs, no paid hosting tiers, no paid fonts, no paid asset libraries, no
 services that require a card to start.
 
-Approved by default: GitHub (repos, Actions, Pages), Fly.io free allowance,
-Binance and Yahoo Finance public market endpoints, Telegram Bot API, Stripe
-(free to integrate; only end users pay), self-hosted SVG assets, system font
-stacks.
+Approved by default: GitHub (repos, Actions, Pages), Railway's free/hobby
+tier, Binance and Yahoo Finance public market endpoints, Telegram Bot API,
+Stripe (free to integrate; only end users pay), self-hosted SVG assets,
+system font stacks.
 
 Before adding any dependency or service, confirm it has a genuinely free tier
 that covers the intended use. If the only viable option costs money, stop and
@@ -30,8 +30,9 @@ Do not leave verified work sitting uncommitted in the working tree.
   current branch with retries. It refuses to run on `master` or `main`.
 - Opening the pull request is a separate step — the script does not do it.
   Open one from the session or the GitHub UI after the push, if none is open.
-- `scripts/auto-deploy.sh` runs the checks and deploys; it skips deploy cleanly
-  when `fly.toml` or the CLI is absent.
+- Deploy itself is Railway's job: once the repo is connected to a Railway
+  project, every push to `master` that passes CI is redeployed automatically
+  from the `Dockerfile` — no deploy script or GitHub Actions step needed.
 - Never commit `.env` or any real key. `.env.example` carries the key names only.
 
 A change is "successful" when `scripts/check-readme.sh` passes **and** `pytest`

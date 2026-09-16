@@ -1,4 +1,4 @@
-name: Build & Deploy
+name: Build & Check
 
 on:
   push:
@@ -58,25 +58,7 @@ jobs:
             echo "No tests yet — skipping pytest."
           fi
 
-  deploy:
-    name: Deploy to Fly.io
-    needs: [docs, app]
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        run: |
-          if [ -z "$FLY_API_TOKEN" ]; then
-            echo "FLY_API_TOKEN not set — skipping deploy."
-            exit 0
-          fi
-          if [ ! -f fly.toml ]; then
-            echo "No fly.toml yet — nothing to deploy."
-            exit 0
-          fi
-          curl -L https://fly.io/install.sh | sh
-          export PATH="$HOME/.fly/bin:$PATH"
-          fly deploy --remote-only --yes
+# Deploy is Railway's job, not CI's: Railway watches this repo directly (once
+# the project is connected in the Railway dashboard) and redeploys `master`
+# from the Dockerfile on every push that lands after this workflow passes.
+# See railway.json for build/health config.
