@@ -79,8 +79,8 @@ def bot_watch(args, chat_id=None, lang=DEFAULT_LANG, **_):
 
     try:
         quote = feeds.gold_quote()
-    except feeds.FeedError as exc:
-        return t("watch.feed_down", lang, err=exc)
+    except feeds.FeedError:
+        return t("watch.feed_down", lang)
 
     if len(args) == 1:
         rows = store.alerts_for(chat_id) if chat_id else []
@@ -154,8 +154,8 @@ def dashboard_watch(request, user=None):
         ctx["quote"] = feeds.gold_quote()
         ctx["lines"] = quote_lines(ctx["quote"], ui_lang())
         ctx["spread_bps"] = feeds.spread_bps(ctx["quote"])
-    except feeds.FeedError as exc:
-        ctx["feed_error"] = str(exc)
+    except feeds.FeedError:
+        ctx["feed_error"] = t("ui.w_feed_err", ui_lang())   # never the raw error: it is English, and it names our hosts
 
     days = hours_map.days_for(user=user)
     prof = hours_map.profile(days)

@@ -44,7 +44,7 @@ half, on one Telegram account, with the same free tier on each.
 
 | Command | Does |
 |:--|:--|
-| `/paxg` | PAXG and XAUT premium vs GC=F, PAXG−XAUT spread, USDT peg, flags |
+| `/paxg` | PAXG and XAUT premium vs GC=F, PAXG−XAUT spread, USDT peg, flags — plus each coin's own 30-day band, so the premium reads as cheap, normal or dear, and which coin is the cheaper way into gold right now |
 | `/walletcheck ADDRESS [EXPECTED]` | chain, EIP-55 checksum, poisoning against the expected address, typical fees, peg status |
 
 ---
@@ -52,8 +52,9 @@ half, on one Telegram account, with the same free tier on each.
 ## Dashboard views
 
 - Live readout: PAXG, XAUT, spot reference, USDT peg, with flags
+- Premium band per coin — the 10th to 90th percentile of its own premium over thirty days, with a marker for where the premium sits right now, and the cheaper route named. Nothing is drawn under 100 samples
 - Seven-day premium chart from the checker's log
-- Dated facts table per token: issuer, chain, attestation cadence, redemption terms, fees, issuer link
+- Dated facts table per token, in both languages: issuer, chain, attestation cadence, redemption terms, fees, issuer link
 - Wallet health form: chain, checksum, poisoning verdict, typical transfer fees, payout rules
 
 ## Monetization

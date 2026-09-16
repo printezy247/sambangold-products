@@ -62,8 +62,8 @@ def bot_miners(args, chat_id=None, lang=DEFAULT_LANG, **_):
         return t("mn.weekly_" + state, lang)
     try:
         s = _screen()
-    except miners.FeedError as exc:
-        return t("mn.down", lang, err=str(exc)[:80])
+    except miners.FeedError:
+        return t("mn.down", lang)
     if args:
         ticker = args[0].upper().lstrip("$")
         r = next((r for r in s["rows"] if r["ticker"] == ticker), None)
@@ -135,8 +135,8 @@ def dashboard_miners(request, user=None):
         ctx["weekly"] = not ctx["weekly"]
     try:
         ctx["s"] = _screen()
-    except miners.FeedError as exc:
-        ctx["error"] = t("mn.down", lang, err=str(exc)[:120])
+    except miners.FeedError:
+        ctx["error"] = t("mn.down", lang)
         return ctx
     ctx["rows"] = miners.sort_rows(ctx["s"]["rows"], sort)
     ticker = (request.args.get("ticker") or "").upper()

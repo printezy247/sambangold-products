@@ -10,7 +10,7 @@
 </div>
 <p class="lede">{{ tool.lines[2] }} · {{ tool.lines[3] }}. {{ t('ui.w_stopnote') }}</p>
 {% else %}
-<p class="err">{{ t('ui.w_feed_err', err=tool.feed_error) }}</p>
+<p class="err">{{ tool.feed_error }}</p>
 {% endif %}
 
 <h2>{{ t('hours.title') }}</h2>

@@ -619,6 +619,23 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 📊 The premium band — is this the moment, or just Tuesday?
+
+"PAXG is 1.4% over spot" is useless on its own, because nobody knows whether
+1.4% is the usual toll or a bad day to buy. A fixed warning threshold does not
+fix it either: it fires on every coin at the same number, when each keeps its
+own habitual range.
+
+The checker has logged PAXG and XAUT against spot every five minutes since #17
+shipped. `/paxg` now reads that back as **each coin's own 10th–90th percentile
+band over thirty days**, so the question becomes cheap, normal or dear *for this
+coin* — plus the follow-up nobody else answers: **which of the two is the
+cheaper way into gold right now, and by how much.**
+
+The autopilot speaks when a premium *leaves* its band. A break is a crossing,
+not a state: a coin already outside stays quiet, because a daily push repeating
+yesterday's news trains people to ignore it.
+
 #### ☀️ The Morning Brief — one message instead of eighteen
 
 Eighteen tools is eighteen things to remember to check, and nobody checks
@@ -894,6 +911,8 @@ actually reads.
 - [x] **#1 hours map** — best and worst hours to trade gold, from our own spread log
 - [x] **#5 event record** — what the spread did at the last releases, plus the safe re-entry clock
 - [x] **Morning Brief** — one daily message at your KL hour, across the calendar, the hours map and your own positions
+- [x] **#17 premium band** — each coin's own 30-day range, and the cheaper way into gold today
+- [x] **One language per page** — every surface rendered in both and checked that neither bleeds into the other
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -1009,6 +1028,7 @@ sambangold-products/
 │   ├── hours.py                        #1 best and worst hours, read back from the spread log
 │   ├── eventspread.py                  #5 what the spread did at the release, and when it came home
 │   ├── brief.py                        the Morning Brief — one message a day, at your KL hour
+│   ├── premium.py                      #17 each coin's own premium band, and the cheaper route
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

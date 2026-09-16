@@ -37,17 +37,6 @@ DANGER_AHEAD = dt.timedelta(hours=2)
 DANGER_BEHIND = dt.timedelta(hours=1)
 
 
-def _ready():
-    """False where there is no database.
-
-    The surface-contract test calls the bot's text functions with no app
-    context: the timetable must answer without a read. The record is the extra
-    on top, so it is the part that steps aside, not the answer.
-    """
-    from flask import has_app_context
-    return has_app_context()
-
-
 def _bucket(minutes):
     """Snap an offset to its point on the curve, clipped to the span."""
     snapped = int(round(minutes / BUCKET)) * BUCKET
@@ -62,7 +51,7 @@ def curve(title, occurrences=6, rows=None):
     release would look exactly as confident as a real one.
     """
     if rows is None:
-        rows = store.event_samples(title, occurrences) if _ready() else []
+        rows = store.event_samples(title, occurrences) if store.ready() else []
     if not rows:
         return None
     seen = {r["event_at"] for r in rows}
@@ -94,7 +83,7 @@ def curve(title, occurrences=6, rows=None):
 
 def records(limit=8):
     """A curve for each event we have measured enough of, worst blow-out first."""
-    if not _ready():
+    if not store.ready():
         return []
     out = [curve(title) for title in store.event_titles(limit)]
     return sorted((c for c in out if c), key=lambda c: c["multiple"] or 0, reverse=True)

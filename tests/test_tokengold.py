@@ -65,7 +65,7 @@ def test_bot_paxg_and_walletcheck(app, fake_tokens):
         text = reply_for("/paxg", chat_id=7, lang="en")
         assert "PAXG 2,420.00" in text and "+0.83%" in text and "peg OK" in text and "front futures" in text
         ms = reply_for("/paxg", chat_id=7)
-        assert "Emas bertoken" in ms and "peg OK" in ms
+        assert "Emas bertoken" in ms and "peg stabil" in ms   # the Malay reply says it in Malay
         fake_tokens.update(usdt=0.99)
         tokengold.clear_cache()
         assert "tergelincir" in reply_for("/paxg", chat_id=7)

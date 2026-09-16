@@ -11,6 +11,40 @@
 <p class="text-muted" style="font-size:12px">{{ t('tk.basis') }} · PAXG−XAUT {{ c.pct(a.paxg_xaut) }}{% if a.errors %} · {{ t('tk.partial', n=a.errors|length) }}{% endif %}</p>
 {% else %}<p class="err">{{ c.error }}</p>{% endif %}
 
+<h3>{{ t('band.title') }}</h3>
+<p class="lede">{{ t('band.sub', days=c.band_days) }}</p>
+{% set measured = c.bands.values() | select | list %}
+{% if not measured %}
+<p class="lede">{{ t('band.thin') }}</p>
+{% else %}
+<div class="panel tool">
+  {% for key in ('paxg', 'xaut') %}
+  {% set b = c.bands[key] %}
+  {% if b %}
+  <div style="margin-bottom:16px">
+    <p style="margin:0 0 6px">{{ c.band_line(b)|safe }}</p>
+    {# where now sits inside the coin's own 10th–90th percentile range #}
+    <div style="position:relative;height:10px;background:var(--surface2);border-radius:5px">
+      <div style="position:absolute;left:10%;width:80%;top:0;bottom:0;background:var(--border);border-radius:5px"></div>
+      <div style="position:absolute;top:-3px;width:4px;height:16px;border-radius:2px;
+                  left:{{ (10 + 80 * (b.position if b.position > 0 else 0) if b.position < 1 else 94)|round(1) }}%;
+                  background:{{ {'cheap':'var(--win)','normal':'var(--gold)','dear':'var(--loss)'}[b.verdict] }}"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px" class="text-muted">
+      <span class="mono">{{ '%+.2f' % b.low }}%</span>
+      <span>{{ t('band.col_n') }} {{ b.n }}</span>
+      <span class="mono">{{ '%+.2f' % b.high }}%</span>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% if c.cheapest %}
+  <p style="margin:0">{{ t('band.route', asset=c.cheapest.asset|upper, premium='%+.2f' % c.cheapest.premium,
+                          saving='%.2f' % c.cheapest.saving, other=c.cheapest.other|upper)|safe }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
 <h3>{{ t('ui.t_chart') }}</h3>
 {% if c.svg %}<div class="panel" style="padding:12px">{{ c.svg|safe }}</div><p class="text-muted" style="font-size:12px">{{ t('ui.t_chart_note', n=c.history|length) }}</p>
 {% else %}<p class="lede">{{ t('ui.t_nohist') }}</p>{% endif %}
