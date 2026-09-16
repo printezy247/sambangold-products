@@ -78,6 +78,55 @@ def test_the_risk_strip_and_the_brand_still_ride_the_page(client):
     assert "#d4af37" in html
 
 
+# A bare element or a shell class as the *first* compound of a selector. `main`
+# slipped past a startswith() check once, as `main {`, and trapped the gate
+# beneath the header inside a stacking context it had no business creating.
+# `body.gated` is fine — that class is the landing's own; bare `body` is not.
+SHELL_RE = re.compile(r"^(?:(?:header|nav|main|footer|body|html|a|h1|h2|h3|p|section)(?![\w.#-])"
+                      r"|\.(?:wrap|bar|glass|btn|chip|lux|card|stat|grid|panel|actions|chips|mono)(?![\w-]))")
+
+
+def test_landing_styles_never_touch_the_shell(client):
+    """The first version called the gold bar `.bar`. So is the header's row, and
+    the header inherited a 3D rotation and a 180px width. Every rule in the
+    landing block must hang off a landing-only hook."""
+    html = page(client)
+    block = html[html.index("#field { position: fixed"):html.index("</style>")]
+    for line in block.splitlines():
+        line = line.strip()
+        if not line or line.startswith(("/*", "*", "@keyframes", "}", "to ", "from ")) or "{" not in line:
+            continue
+        selector = line.split("{", 1)[0].strip()
+        if selector.startswith("@media"):
+            selector = line.split("{", 1)[1].split("{", 1)[0].strip()
+        for sel in selector.split(","):
+            sel = sel.strip()
+            if not sel or sel[0].isdigit() or sel.endswith("%"):
+                continue
+            assert not SHELL_RE.match(sel), "landing rule targets the shell: %r" % sel
+    # the header's own row is an ordinary flex row again, and the landing never wraps main
+    assert ".ingot {" in html and "\n  .bar {" not in block and "\n  main {" not in block
+
+
+def test_the_gate_carries_the_monogram_and_the_field_shows_through(client):
+    html = page(client)
+    gate = html[html.index('id="gate"'):html.index('id="lift"')]
+    assert 'class="glyph"' in gate                  # the SBG monogram, not just the wordmark
+    assert 'class="door dl"' in gate and 'class="door dr"' in gate
+    assert "#field { position: fixed" in html      # one canvas behind the whole descent
+    assert 'id="field"' in html.split('id="gate"')[0]
+
+
+def test_the_field_uses_the_whole_palette(client):
+    """"Colourful within the palette": candles green and red, ticks gold, lines
+    chrome, glyphs tinted by the floor. Never a colour from outside brand.py."""
+    from app.brand import TOKENS
+    html = page(client)
+    script = html[html.index("PAL = {"):]
+    for key in ("gold", "gold2", "chrome", "win", "loss"):
+        assert TOKENS[key] in script, key
+
+
 def test_reduced_motion_flattens_the_descent(client):
     """Someone who asked for no motion gets the same content, standing still —
     not a 240vh scroll of nothing happening."""
@@ -85,7 +134,7 @@ def test_reduced_motion_flattens_the_descent(client):
     block = html[html.index("prefers-reduced-motion"):]
     assert ".floor { height: auto; }" in block
     assert "position: static" in block
-    assert ".rise { opacity: 1; transform: none;" in block
+    assert ".rise, .split .c { opacity: 1; transform: none;" in block
 
 
 def test_nothing_is_loaded_from_a_third_party(client):
@@ -98,7 +147,7 @@ def test_nothing_is_loaded_from_a_third_party(client):
 def test_the_page_stays_light(client):
     """The whole experience is CSS, one canvas and no library. If this ever
     doubles, something heavy arrived."""
-    assert len(page(client)) < 120_000
+    assert len(page(client)) < 140_000
 
 
 # --- both languages ------------------------------------------------------------------ #

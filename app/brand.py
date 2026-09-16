@@ -392,6 +392,8 @@ STRINGS = {
         "vault.f5_b": "Hantar payout ke alamat yang diracun satu huruf.",
         "vault.f5_c": "Pelombong bergerak lawan emas dan anda terlepas.",
         "vault.f5_fix": "Julat premium 30 hari setiap syiling, semakan checksum wallet sebelum hantar, dan saringan pelombong berbanding bullion.",
+        "nav.register": "Daftar",
+        "vault.doors": "Pintu terbuka", "vault.marquee": "18 alat · percuma · Telegram + dashboard · BM dulu",
         # gate + ranks
         "gate.line": "{what} ialah ciri {rank}.",
         "gate.where": "Tier percuma alat ini kekal terbuka. Lihat semua pangkat di halaman Pangkat.",
@@ -1183,6 +1185,8 @@ STRINGS = {
         "vault.f5_b": "Sending a payout to an address poisoned by one character.",
         "vault.f5_c": "Miners moving against gold and you miss it.",
         "vault.f5_fix": "A 30-day premium band per coin, a wallet checksum before you send, and a screen of the miners against bullion.",
+        "nav.register": "Register",
+        "vault.doors": "Doors opening", "vault.marquee": "18 tools · free · Telegram + dashboard · BM first",
         # gate + ranks
         "gate.line": "{what} is a {rank} capability.",
         "gate.where": "This tool's free tier stays open. See every rank on the Ranks page.",
