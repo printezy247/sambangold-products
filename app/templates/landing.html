@@ -154,8 +154,7 @@
   .floor .tools a:hover { border-color: var(--accent); transform: translateY(-2px); background: color-mix(in oklab, var(--accent) 10%, transparent); }
 
   /* Letters rise one at a time; blocks rise out of the depth. */
-  .split .w { display: inline-block; white-space: nowrap; }        /* a word is unbreakable */
-  .split .w + .w { margin-left: .28em; }
+  .split .w { display: inline-block; white-space: nowrap; }        /* a word is unbreakable; the space between words is real */
   .split .c { display: inline-block; opacity: 0; transform: translateY(.55em) rotateX(-75deg); transform-origin: bottom;
               transition: opacity .55s cubic-bezier(.2,.7,.2,1), transform .55s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 26ms); }
   .in .split .c { opacity: 1; transform: none; }
@@ -579,6 +578,9 @@
   [].forEach.call(document.querySelectorAll(".split"), function (el) { var i = 0, words = el.textContent.trim().split(/\s+/); el.textContent = "";
     words.forEach(function (word) { var w = document.createElement("span"); w.className = "w";
       word.split("").forEach(function (ch) { var c = document.createElement("span"); c.className = "c"; c.textContent = ch; c.style.setProperty("--i", i++); w.appendChild(c); });
+      // A real space between words: two inline-blocks with nothing between them
+      // have no break opportunity, and "THE EVIDENCE ROOM" lost its M on a phone.
+      if (el.childNodes.length) el.appendChild(document.createTextNode(" "));
       el.appendChild(w); }); });
 
   /* ---- things rising out of the depth ---------------------------------------------- */
