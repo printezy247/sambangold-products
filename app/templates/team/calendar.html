@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ t('team.calendar_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <h1>{{ t('team.calendar_title') }}</h1>
+  {% include "team/_nav.html" %}
+
+  <div class="chips" style="margin-bottom:12px">
+    <a class="chip {{ 'gold' if view == 'week' }}" href="{{ url_for('team.calendar_page', view='week') }}">{{ t('team.view_week') }}</a>
+    <a class="chip {{ 'gold' if view == 'month' }}" href="{{ url_for('team.calendar_page', view='month') }}">{{ t('team.view_month') }}</a>
+  </div>
+  <div class="actions" style="margin-bottom:20px">
+    <a class="btn small" href="{{ url_for('team.calendar_page', view=view, offset=offset-1) }}">{{ t('team.prev') }}</a>
+    <a class="btn small" href="{{ url_for('team.calendar_page', view=view, offset=0) }}">{{ t('team.today') }}</a>
+    <a class="btn small" href="{{ url_for('team.calendar_page', view=view, offset=offset+1) }}">{{ t('team.next') }}</a>
+    {% if month_start %}<span class="text-muted" style="align-self:center">{{ month_start.strftime('%B %Y') }}</span>{% endif %}
+  </div>
+
+  {% for w in weeks %}
+  <div class="grid" style="grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:10px">
+    {% for d in w %}
+    <div class="lux{{ ' lux-gold' if d == today }}" style="padding:12px;min-height:{{ '140px' if view == 'week' else '90px' }};{{ 'opacity:.45' if month_start and d.month != month_start.month }}">
+      <div style="font-size:12px;color:var(--muted)">{{ d.strftime('%a') }}</div>
+      <div style="font-weight:650;font-family:var(--font-mono)">{{ d.day }}</div>
+      {% set due = by_day.get(d, []) %}
+      {% if due %}
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
+        {% for tk in due %}<span class="chip {{ 'win' if tk.status == 'done' else 'gold' }}" style="font-size:11px">{{ tk.title }}</span>{% endfor %}
+      </div>
+      {% elif view == 'week' %}
+      <p class="text-muted" style="font-size:12px;margin-top:8px">{{ t('team.no_due_tasks') }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

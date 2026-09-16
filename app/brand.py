@@ -854,6 +854,13 @@ STRINGS = {
         "team.no_people": "Belum ada ahli pasukan didaftarkan.",
         "team.added_task": "Tugasan ditambah.", "team.updated_task": "Tugasan dikemas kini.",
         "team.updated_roadmap": "Status roadmap dikemas kini.", "team.role_granted": "Peranan diberikan.",
+        "team.calendar_title": "Kalendar", "team.files_title": "Fail",
+        "team.view_week": "Minggu", "team.view_month": "Bulan",
+        "team.no_due_tasks": "Tiada tugasan pada hari ini.",
+        "team.category_doc": "Dokumen", "team.category_pic": "Gambar", "team.category_vid": "Video",
+        "team.add_link": "Tambah pautan", "team.url": "URL", "team.download": "Muat turun",
+        "team.open": "Buka", "team.no_files": "Tiada fail lagi.", "team.added_file": "Fail ditambah.",
+        "team.prev": "◀", "team.next": "▶", "team.today": "Hari ini",
     },
     "en": {
         "nav.products": "Tools", "nav.dashboard": "Dashboard", "nav.account": "Account",
@@ -1648,6 +1655,13 @@ STRINGS = {
         "team.no_people": "No team members registered yet.",
         "team.added_task": "Task added.", "team.updated_task": "Task updated.",
         "team.updated_roadmap": "Roadmap status updated.", "team.role_granted": "Role granted.",
+        "team.calendar_title": "Calendar", "team.files_title": "Files",
+        "team.view_week": "Week", "team.view_month": "Month",
+        "team.no_due_tasks": "No tasks due this day.",
+        "team.category_doc": "Docs", "team.category_pic": "Pics", "team.category_vid": "Vids",
+        "team.add_link": "Add link", "team.url": "URL", "team.download": "Download",
+        "team.open": "Open", "team.no_files": "No files yet.", "team.added_file": "File added.",
+        "team.prev": "◀", "team.next": "▶", "team.today": "Today",
     },
 }
 

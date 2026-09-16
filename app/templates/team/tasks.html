@@ -4,11 +4,7 @@
 <div class="wrap" style="padding-top:56px">
   <h1>{{ t('team.tasks_title') }}</h1>
 
-  <div class="actions" style="margin:18px 0 32px">
-    <a class="btn" href="{{ url_for('team.roadmap_page') }}">{{ t('team.roadmap_title') }}</a>
-    <a class="btn" href="{{ url_for('team.tasks_page') }}">{{ t('team.tasks_title') }}</a>
-    {% if user.team_role == 'ceo' %}<a class="btn" href="{{ url_for('team.people_page') }}">{{ t('team.people_title') }}</a>{% endif %}
-  </div>
+  {% include "team/_nav.html" %}
 
   <div class="chips" style="margin-bottom:20px">
     <a class="chip {{ 'gold' if not filter_status }}" href="{{ url_for('team.tasks_page') }}">{{ t('team.status') }}: *</a>

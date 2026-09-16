@@ -1326,3 +1326,59 @@ def notify_prefs_enabled(key):
     members = [m["owner"] for m in list_team_members()]
     off = {r["owner"] for r in db().execute("SELECT owner FROM notify_prefs WHERE %s = 0" % key)}
     return [m for m in members if m not in off]
+
+
+# --- file library (docs / pics / vids) --------------------------------------- #
+
+LIBRARY_SCHEMA = """
+CREATE TABLE IF NOT EXISTS file_items (
+    id         INTEGER PRIMARY KEY,
+    category   TEXT NOT NULL,       -- doc | pic | vid
+    title      TEXT NOT NULL,
+    source     TEXT NOT NULL,       -- repo_asset | drive
+    url        TEXT NOT NULL UNIQUE,
+    tags       TEXT,
+    added_by   TEXT,
+    created_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS file_items_category ON file_items(category);
+"""
+SCHEMA += LIBRARY_SCHEMA
+
+FILE_CATEGORIES = ("doc", "pic", "vid")
+
+
+def seed_file_items(items):
+    """Insert seed rows that do not exist yet, matched on url. Never
+    overwrites a title/tags a human has already edited."""
+    now = time.time()
+    for it in items:
+        db().execute(
+            "INSERT INTO file_items (category, title, source, url, tags, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+            " ON CONFLICT(url) DO NOTHING",
+            (it["category"], it["title"], it["source"], it["url"], it.get("tags", ""), now))
+    db().commit()
+
+
+def add_file_item(category, title, source, url, tags="", added_by=None):
+    if category not in FILE_CATEGORIES:
+        raise ValueError("unknown file category: %s" % category)
+    db().execute(
+        "INSERT INTO file_items (category, title, source, url, tags, added_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        " ON CONFLICT(url) DO UPDATE SET title = excluded.title, tags = excluded.tags",
+        (category, title.strip(), source, url.strip(), tags.strip(), str(added_by) if added_by else None, time.time()))
+    db().commit()
+
+
+def file_items(category=None):
+    sql = "SELECT * FROM file_items"
+    args = []
+    if category:
+        sql += " WHERE category = ?"
+        args.append(category)
+    return [dict(r) for r in db().execute(sql + " ORDER BY category, title", args)]
+
+
+def delete_file_item(item_id):
+    db().execute("DELETE FROM file_items WHERE id = ?", (int(item_id),))
+    db().commit()

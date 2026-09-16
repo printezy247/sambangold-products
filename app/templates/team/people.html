@@ -4,11 +4,7 @@
 <div class="wrap" style="padding-top:56px">
   <h1>{{ t('team.people_title') }}</h1>
 
-  <div class="actions" style="margin:18px 0 32px">
-    <a class="btn" href="{{ url_for('team.roadmap_page') }}">{{ t('team.roadmap_title') }}</a>
-    <a class="btn" href="{{ url_for('team.tasks_page') }}">{{ t('team.tasks_title') }}</a>
-    <a class="btn" href="{{ url_for('team.people_page') }}">{{ t('team.people_title') }}</a>
-  </div>
+  {% include "team/_nav.html" %}
 
   <div class="lux" style="padding:20px;margin-bottom:28px">
     <h3 style="margin-top:0">{{ t('team.add_person') }}</h3>

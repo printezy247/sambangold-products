@@ -80,17 +80,23 @@ def create_app(config_object=Config):
 
     @app.cli.command("team-seed")
     def team_seed_command():
-        """Seed the combined product roadmap and grant the first CEO role.
+        """Seed the combined product roadmap, the file library, and grant
+        the first CEO role.
 
-        Safe to re-run: seeding never overwrites a status a human already
-        set, and the CEO grant only fills in the role if nobody holds it yet.
-        Run once after deploy, and again any time a new product ships in
-        either repo (new rows insert; existing ones are untouched).
+        Safe to re-run: seeding never overwrites a status or title a human
+        already set, and the CEO grant only fills in the role if nobody
+        holds it yet. Run once after deploy, and again any time a new
+        product ships or a file is added to library/ (new rows insert;
+        existing ones are untouched).
         """
+        from . import library as library_mod
         from . import roadmap as roadmap_mod
 
         store.seed_roadmap(roadmap_mod.seed_data())
         click.echo("Roadmap seeded: %d items." % len(store.roadmap_items()))
+
+        store.seed_file_items(library_mod.seed_data())
+        click.echo("File library seeded: %d items." % len(store.file_items()))
 
         admin_id = app.config["ADMIN_TELEGRAM_ID"]
         if admin_id and not store.list_team_members():

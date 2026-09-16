@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ t('team.files_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <h1>{{ t('team.files_title') }}</h1>
+  {% include "team/_nav.html" %}
+
+  <div class="chips" style="margin-bottom:20px">
+    <a class="chip {{ 'gold' if not filter_category }}" href="{{ url_for('team.files_page') }}">*</a>
+    {% for c in categories %}
+    <a class="chip {{ 'gold' if filter_category == c }}" href="{{ url_for('team.files_page', category=c) }}">{{ t('team.category_' + c) }}</a>
+    {% endfor %}
+  </div>
+
+  {% if can_edit %}
+  <div class="lux" style="padding:20px;margin-bottom:28px">
+    <h3 style="margin-top:0">{{ t('team.add_link') }}</h3>
+    <form method="post" action="{{ url_for('team.files_page') }}">
+      <div class="fields">
+        <label>{{ t('team.title_label') }}<input name="title" required></label>
+        <label>{{ t('team.status') }}
+          <select name="category">
+            {% for c in categories %}<option value="{{ c }}">{{ t('team.category_' + c) }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>{{ t('team.url') }}<input name="url" type="url" required placeholder="https://..."></label>
+        <label>{{ t('team.notes') }}<input name="tags" placeholder="tags"></label>
+      </div>
+      <div class="actions"><button class="btn btn-gold" type="submit">{{ t('team.add_link') }}</button></div>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if not items %}
+  <p class="text-muted">{{ t('team.no_files') }}</p>
+  {% else %}
+  <div class="grid">
+    {% for it in items %}
+    <div class="lux card" style="padding:18px">
+      <div class="chips">
+        <span class="chip">{{ t('team.category_' + it.category) }}</span>
+        {% if it.tags %}<span class="chip">{{ it.tags }}</span>{% endif %}
+      </div>
+      <div class="name" style="margin-top:10px">{{ it.title }}</div>
+      <div class="actions" style="margin-top:12px">
+        <a class="btn small btn-gold" href="{{ it.href }}" {% if it.source == 'drive' %}target="_blank" rel="noopener"{% endif %}>
+          {{ t('team.download') if it.source == 'repo_asset' else t('team.open') }}
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
