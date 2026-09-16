@@ -124,12 +124,13 @@ def check_alerts(send):
     except feeds.FeedError:
         return {"checked": 0, "fired": 0, "pushed": 0, "error": "feed unavailable"}
     calendar = caltool.check_calendar(send, quote)
-    from . import autopilot, minerstool, tokengoldtool
+    from . import autopilot, brief, minerstool, tokengoldtool
     tokengoldtool.log_premium()
     minerstool.check_weekly(send)
     autopilot.run_daily(send)
+    briefed = brief.run_due(send)
     if not alerts:
-        return {"checked": 0, "fired": 0, "pushed": calendar["pushed"]}
+        return dict({"checked": 0, "fired": 0, "pushed": calendar["pushed"]}, **briefed)
     fired = 0
     for alert in alerts:
         if feeds.crossed(alert["direction"], alert["level"], quote):
@@ -138,7 +139,8 @@ def check_alerts(send):
             send(alert["owner"], t("watch.fire", lang, dir=t("watch." + alert["direction"], lang), level=fmt(alert["level"]),
                                    side="ask" if alert["direction"] == "above" else "bid", price=fmt(price), src=quote["source"]))
             fired += 1
-    return {"checked": len(alerts), "fired": fired, "source": quote["source"], "pushed": calendar["pushed"]}
+    return dict({"checked": len(alerts), "fired": fired, "source": quote["source"],
+                 "pushed": calendar["pushed"]}, **briefed)
 
 
 # --- dashboard -------------------------------------------------------------- #

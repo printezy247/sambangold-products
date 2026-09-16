@@ -11,6 +11,7 @@ from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make
 
 from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, howto, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
+from . import brief as morningbrief
 from . import setup as mysetup
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
@@ -64,8 +65,9 @@ def dashboard():
     wl = whitelabel.dashboard_extras(request, user)
     gr = groups.dashboard_groups(request, user)
     su = mysetup.filled(user["owner"])
+    br = morningbrief.dashboard_brief(request, user)
     if request.method == "POST":
-        return redirect(url_for("views.dashboard") + "#autopilot")
+        return redirect(url_for("views.dashboard") + ("#brief" if request.form.get("action") == "brief" else "#autopilot"))
     live, rest = _split()
     row = store.user_by_id(user["uid"])
     saved = session.get("saves", {})
@@ -75,7 +77,7 @@ def dashboard():
         "saved": sum(len(v) for v in saved.values()),
     }
     since = time.strftime("%Y-%m-%d", time.gmtime(row["created_at"])) if row else "—"
-    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, wl=wl, gr=gr, su=su, by_slug=BY_SLUG)
+    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, wl=wl, gr=gr, su=su, br=br, by_slug=BY_SLUG)
 
 
 @bp.route("/pricing", methods=["GET", "POST"])

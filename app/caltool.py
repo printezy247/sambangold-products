@@ -4,11 +4,14 @@ import datetime as dt
 
 from flask import current_app
 
-from . import goldcal, store
+from . import eventspread, goldcal, store
 from .brand import DEFAULT_LANG, t
 
 PUSH_MINUTES = 30
 PUSH_SLACK = 6   # the checker runs every five minutes; fire inside [24, 36] minutes before
+# The push only needs the half hour before. The *record* needs the hour after
+# too, because recovery is the half of the story that decides re-entry.
+LOG_MINUTES = 60
 
 
 def _now():
@@ -18,6 +21,18 @@ def _now():
 def summary_text(lang, owner=None, now=None):
     now = now or _now()
     lines = [t("cal.title", lang), ""]
+    # The verdict first. "Is it safe to trade today" is the question; the
+    # timetable underneath it is the evidence.
+    events = goldcal.red_events(now, days=2, back_hours=2)
+    verdict = eventspread.today(events, now)
+    lines.append(eventspread.today_line(verdict, goldcal.fmt_myt, lang))
+    if verdict["band"] == "avoid" and verdict["next"]:
+        crv = eventspread.curve(verdict["next"]["title"])
+        tick = eventspread.clock(crv, verdict["next"]["at"], now)
+        if tick:
+            lines.append(t("evs.clock_wait", lang, n=int(tick["left"])) if tick["left"]
+                         else t("evs.clock_ok", lang))
+    lines.append("")
     reds = [e for e in goldcal.red_events(now) if e["at"] > now][:3]
     lines.append("<b>%s</b>" % t("cal.next", lang))
     if reds:
@@ -44,6 +59,10 @@ def summary_text(lang, owner=None, now=None):
 # --- bot -------------------------------------------------------------------- #
 
 def bot_calendar(args, chat_id=None, lang=DEFAULT_LANG, **_):
+    if args and args[0].lower() in ("spread", "record", "rekod"):
+        # Free at every rank: a spread you did not see coming is a loss, and
+        # warning about a loss is never the thing we charge for.
+        return "\n".join(eventspread.lines(eventspread.records(), lang))
     return summary_text(lang, owner=chat_id)
 
 
@@ -72,8 +91,8 @@ def check_calendar(send, quote, now=None):
     subscriber once per event, ~30 minutes ahead.
     """
     now = now or _now()
-    reds = goldcal.red_events(now, days=2)
-    inside = next((e for e in reds if goldcal.in_window(e, now, PUSH_MINUTES)), None)
+    reds = goldcal.red_events(now, days=2, back_hours=2)
+    inside = next((e for e in reds if goldcal.in_window(e, now, LOG_MINUTES)), None)
     store.log_spread(quote, inside)
 
     pushed = 0
@@ -114,7 +133,7 @@ def dashboard_calendar(request, user=None):
             notice = "ok"
         else:
             notice = "gated"
-    events = goldcal.red_events(now, days=62)
+    events = goldcal.red_events(now, days=62, back_hours=2)
     prev = (dt.date(year, month, 1) - dt.timedelta(days=1))
     nxt = (dt.date(year, month, 28) + dt.timedelta(days=4)).replace(day=1)
     season = goldcal.seasonality()
@@ -130,6 +149,9 @@ def dashboard_calendar(request, user=None):
         "upgrade": "" if may_subscribe else upgrade_line("alerts", ui_lang()),
         "owner": owner, "notice": notice,
         "baseline": store.baseline_spread(), "history": store.event_spread_history(),
+        "records": eventspread.records(), "today": eventspread.today(events, now),
+        "today_line": eventspread.today_line(eventspread.today(events, now), goldcal.fmt_myt, ui_lang()),
+        "offset": eventspread.offset_label, "span": eventspread.SPAN,
         "fmt_myt": goldcal.fmt_myt, "fmt_utc": goldcal.fmt_utc,
         "quarter": (local.month - 1) // 3 + 1,
     }

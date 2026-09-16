@@ -125,7 +125,7 @@ def holiday_events(year):
     return out
 
 
-def red_events(now=None, days=14, events=None):
+def red_events(now=None, days=14, events=None, back_hours=1):
     """High-impact USD events ahead, feed first, FOMC schedule filling the gaps."""
     now = now or dt.datetime.now(UTC)
     feed = [e for e in (events if events is not None else fetch_events())
@@ -136,7 +136,7 @@ def red_events(now=None, days=14, events=None):
         if e["at"].date() not in feed_days:
             merged.append(e)
     horizon = now + dt.timedelta(days=days)
-    return sorted((e for e in merged if now - dt.timedelta(hours=1) <= e["at"] <= horizon), key=lambda e: e["at"])
+    return sorted((e for e in merged if now - dt.timedelta(hours=back_hours) <= e["at"] <= horizon), key=lambda e: e["at"])
 
 
 def next_holiday(now=None):

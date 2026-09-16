@@ -61,6 +61,32 @@
     <a class="btn btn-gold" href="{{ url_for('views.setup_page') }}">{{ t('set.open') }}</a>
   </div>
 
+  <div id="brief" class="lux{{ ' lux-gold' if br.hour is not none }}" style="padding:22px;margin-top:20px">
+    <h3 style="margin-top:0">☀️ {{ t('brief.title') }}
+      {% if not br.allowed %}<span class="chip">{{ rank_label('free') }}</span>
+      {% elif br.hour is not none %}<span class="chip win">{{ '%02d:00' % br.hour }} KL</span>{% endif %}</h3>
+    <p class="text-muted" style="margin:0 0 14px">{{ t('brief.sub') }}</p>
+    {% if not br.allowed %}
+    <p class="lede" style="margin:0 0 12px">{{ br.upgrade }}</p>
+    <a class="btn btn-gold" href="{{ url_for('views.pricing', want='alerts') }}">{{ t('price.title') }} →</a>
+    {% else %}
+    <form method="post" action="{{ url_for('views.dashboard') }}#brief" class="fields" style="align-items:flex-end">
+      <input type="hidden" name="action" value="brief">
+      <label>{{ t('brief.pick') }}
+        <select name="hour">
+          <option value="off">— {{ t('brief.stop') }} —</option>
+          {% for h in br.hours %}
+          <option value="{{ h }}" {{ 'selected' if br.hour == h else ('selected' if br.hour is none and h == br.default else '') }}>{{ '%02d:00' % h }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn btn-gold" type="submit">{{ t('brief.save') }}</button>
+    </form>
+    {% endif %}
+    <h4 style="margin:18px 0 6px">{{ t('brief.preview') }}</h4>
+    <div class="mono" style="white-space:pre-wrap;font-size:13px;line-height:1.55">{{ br.preview or t('brief.none_yet') }}</div>
+  </div>
+
   <div id="autopilot" class="lux{% if ap.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:48px">
     <h3 style="margin-top:0">🛰️ {{ t('ui.ap_h') }}
       {% if not ap.allowed %}<span class="chip">{{ rank_label('pro') }}</span>{% endif %}</h3>

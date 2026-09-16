@@ -41,6 +41,7 @@ A monthly volatility and event calendar with the spread-risk windows marked.
 | Command | Does |
 |:--|:--|
 | `/calendar` | next three red USD events (MYT), next FOMC statement, next CME holiday, this month's seasonality, and your alert state — with a one-tap on/off button |
+| `/calendar spread` | the event spread record — what the spread did at the last few releases of each event, and the minute it came home |
 | `/calendar_alert` | toggle a push 30 minutes before every red USD event and FOMC statement |
 
 ## Dashboard views
@@ -48,7 +49,9 @@ A monthly volatility and event calendar with the spread-risk windows marked.
 - Month grid (MYT) with red USD events, FOMC statement days, CME closures and thin sessions; today outlined in gold; prev/next month
 - PDF download of the current quarter — one page per month, events and seasonality, generated in-app
 - Seasonality strip — average return and range per calendar month from ten years of `GC=F`, static long-run table as fallback
-- Per-event history — the five-minute checker samples the spread and tags samples inside ±30 min of a red event; worst and mean per event vs the baseline median
+- Today's verdict — one word for whether it is safe to trade, from what is on the calendar today, with the safe re-entry clock while a release is still settling
+- Event spread record — a curve per event across its last few releases: calm before, the peak, and the minute the spread came home. Nothing is claimed under two releases, and a recovery never observed is never promised
+- Per-event history — the five-minute checker samples the spread and tags samples inside ±60 min of a red event; worst and mean per event vs the baseline median
 
 ## Monetization
 

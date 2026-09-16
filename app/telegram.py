@@ -97,11 +97,11 @@ COMMANDS = {
     "ms": [("start", "Menu utama"), ("tools", "Cuba alat percuma"), ("watch", "Harga emas & alert"),
            ("calendar", "Kalendar emas & alert"), ("propcalc", "EV cabaran prop firm"), ("ibcalc", "Anggaran hasil IB"),
            ("verify", "Sahkan harga signal"), ("scan", "Imbas pitch signal"), ("audit", "Semak bot Telegram"), ("copyaudit", "Semak broker copy-trade"),
-           ("influencer", "Audit influencer"), ("rebateaudit", "Audit rebate IB"), ("ibchurn", "Radar churn klien"), ("goldspread", "Banding kos broker emas"), ("funnel", "Funnel pautan IB"), ("sentinel", "Jaga garisan drawdown"), ("simulate", "Simulasi lulus challenge"), ("exposure", "Semak dedahan buku"), ("paxg", "Premium PAXG/XAUT"), ("walletcheck", "Semak wallet payout"), ("miners", "Saringan pelombong vs emas"), ("setup", "Tetapan Saya — isi sekali"), ("autopilot", "Autopilot harian (A-Team)"), ("broker", "Naik pangkat percuma — akaun HFM"), ("invite", "Jemput kawan, dapat pangkat"), ("seats", "Kerusi pasukan (Rambo)"), ("widget", "Widget jenama sendiri (Rambo)"), ("webhook", "Webhook keluar (Rambo)"), ("groups", "Kumpulan diawasi (A-Team)"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
+           ("influencer", "Audit influencer"), ("rebateaudit", "Audit rebate IB"), ("ibchurn", "Radar churn klien"), ("goldspread", "Banding kos broker emas"), ("funnel", "Funnel pautan IB"), ("sentinel", "Jaga garisan drawdown"), ("simulate", "Simulasi lulus challenge"), ("exposure", "Semak dedahan buku"), ("paxg", "Premium PAXG/XAUT"), ("walletcheck", "Semak wallet payout"), ("miners", "Saringan pelombong vs emas"), ("brief", "Ringkasan Pagi — satu mesej sehari"), ("setup", "Tetapan Saya — isi sekali"), ("autopilot", "Autopilot harian (A-Team)"), ("broker", "Naik pangkat percuma — akaun HFM"), ("invite", "Jemput kawan, dapat pangkat"), ("seats", "Kerusi pasukan (Rambo)"), ("widget", "Widget jenama sendiri (Rambo)"), ("webhook", "Webhook keluar (Rambo)"), ("groups", "Kumpulan diawasi (A-Team)"), ("dashboard", "Buka dashboard"), ("language", "Tukar bahasa"), ("help", "Semua arahan")],
     "en": [("start", "Main menu"), ("tools", "Try a free tool"), ("watch", "Gold price & alerts"),
            ("calendar", "Gold calendar & alerts"), ("propcalc", "Prop challenge EV"), ("ibcalc", "IB revenue estimate"),
            ("verify", "Verify a signal price"), ("scan", "Scan a signal pitch"), ("audit", "Check a Telegram bot"), ("copyaudit", "Check a copy-trade broker"),
-           ("influencer", "Audit an influencer"), ("rebateaudit", "IB rebate audit"), ("ibchurn", "Client churn radar"), ("goldspread", "Compare gold broker cost"), ("funnel", "IB link funnel"), ("sentinel", "Guard the drawdown lines"), ("simulate", "Simulate the challenge"), ("exposure", "Check book exposure"), ("paxg", "PAXG/XAUT premium"), ("walletcheck", "Check a payout wallet"), ("miners", "Miners vs gold screen"), ("setup", "My Setup — fill it once"), ("autopilot", "Daily autopilot (A-Team)"), ("broker", "Free rank — HFM account"), ("invite", "Invite a friend, earn rank"), ("seats", "Team seats (Rambo)"), ("widget", "White-label widget (Rambo)"), ("webhook", "Outbound webhook (Rambo)"), ("groups", "Watched groups (A-Team)"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
+           ("influencer", "Audit an influencer"), ("rebateaudit", "IB rebate audit"), ("ibchurn", "Client churn radar"), ("goldspread", "Compare gold broker cost"), ("funnel", "IB link funnel"), ("sentinel", "Guard the drawdown lines"), ("simulate", "Simulate the challenge"), ("exposure", "Check book exposure"), ("paxg", "PAXG/XAUT premium"), ("walletcheck", "Check a payout wallet"), ("miners", "Miners vs gold screen"), ("brief", "Morning Brief — one message a day"), ("setup", "My Setup — fill it once"), ("autopilot", "Daily autopilot (A-Team)"), ("broker", "Free rank — HFM account"), ("invite", "Invite a friend, earn rank"), ("seats", "Team seats (Rambo)"), ("widget", "White-label widget (Rambo)"), ("webhook", "Outbound webhook (Rambo)"), ("groups", "Watched groups (A-Team)"), ("dashboard", "Open dashboard"), ("language", "Switch language"), ("help", "All commands")],
 }
 
 
@@ -198,7 +198,8 @@ BY_PATH = {key: slugs for key, _, slugs in PATHS}
 def tools_keyboard(lang):
     """Pick who you are first. Four buttons beats eighteen."""
     rows = [[btn("%s %s" % (icon, t("bot.path_" + key, lang)), "path_%s" % key)] for key, icon, _ in PATHS]
-    rows.append([btn("🧰 " + t("set.title", lang), "run_setup")])   # fill it once, before the first form
+    rows.append([btn("☀️ " + t("brief.title", lang), "brief_now"),
+                 btn("🧰 " + t("set.title", lang), "run_setup")])   # fill it once, before the first form
     rows.append([btn(t("bot.btn_more", lang), "menu_queued")])
     rows.append([btn(t("bot.btn_menu", lang), "menu_main")])
     return kb(rows)
@@ -391,6 +392,9 @@ def _handle_message(chat_id, text, user):
         return [("send", chat_id, t("bot.dash", lang), kb([[btn(t("bot.btn_dash", lang), url=_base_url() + "/dashboard")]]))]
     if word == "help":
         return [("send", chat_id, help_text(lang), back_keyboard(lang))]
+    if word == "brief":
+        from . import brief                  # one message for many tools, not any one product's
+        return [("send", chat_id, brief.bot_brief(parts[1:], chat_id=chat_id, lang=lang), back_keyboard(lang))]
     if word == "setup":
         from . import setup as mysetup     # not a product: one answer sheet for many tools
         if len(parts) == 1 and not mysetup.read(str(chat_id)):
@@ -446,6 +450,9 @@ def _handle_callback(query):
         key = data[5:]
         actions.append(("edit", chat_id, message_id, t("bot.path_head", lang, who=t("bot.path_" + key, lang)),
                         path_keyboard(key, lang)))
+    elif data == "brief_now":
+        from . import brief
+        actions.append(("send", chat_id, brief.bot_brief([], chat_id=chat_id, lang=lang), back_keyboard(lang)))
     elif data == "menu_queued":
         actions.append(("edit", chat_id, message_id, queued_text(lang), back_keyboard(lang, "menu_tools")))
     elif data == "menu_faq":
