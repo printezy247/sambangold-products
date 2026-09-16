@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ t('team.people_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <h1>{{ t('team.people_title') }}</h1>
+
+  <div class="actions" style="margin:18px 0 32px">
+    <a class="btn" href="{{ url_for('team.roadmap_page') }}">{{ t('team.roadmap_title') }}</a>
+    <a class="btn" href="{{ url_for('team.tasks_page') }}">{{ t('team.tasks_title') }}</a>
+    <a class="btn" href="{{ url_for('team.people_page') }}">{{ t('team.people_title') }}</a>
+  </div>
+
+  <div class="lux" style="padding:20px;margin-bottom:28px">
+    <h3 style="margin-top:0">{{ t('team.add_person') }}</h3>
+    <form method="post" action="{{ url_for('team.people_page') }}">
+      <div class="fields">
+        <label>{{ t('team.telegram_id') }}<input name="telegram_id" required placeholder="123456789"></label>
+        <label>{{ t('team.title_label') }}<input name="display_name" placeholder="Name"></label>
+        <label>{{ t('team.role') }}
+          <select name="role">
+            {% for r in roles %}<option value="{{ r }}">{{ t('team.role_' + r) }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="actions"><button class="btn btn-gold" type="submit">{{ t('team.add_person') }}</button></div>
+    </form>
+  </div>
+
+  {% if not members %}
+  <p class="text-muted">{{ t('team.no_people') }}</p>
+  {% else %}
+  <table class="flags">
+    <tr><th>{{ t('team.title_label') }}</th><th>{{ t('team.telegram_id') }}</th><th>{{ t('team.role') }}</th></tr>
+    {% for m in members %}
+    <tr>
+      <td>{{ m.display_name or '—' }}</td>
+      <td class="mono">{{ m.owner }}</td>
+      <td><span class="chip gold">{{ t('team.role_' + m.role) }}</span></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

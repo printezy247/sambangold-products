@@ -30,11 +30,12 @@ def create_app(config_object=Config):
     app.config.from_object(config_object)
     app.config["MISSING"] = config_object.missing()
 
-    from . import auth, brand, store, telegram, tiers, views, watch
+    from . import auth, brand, store, teamviews, telegram, tiers, views, watch
     from markupsafe import Markup
     app.register_blueprint(views.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(telegram.bp)
+    app.register_blueprint(teamviews.bp)
     app.teardown_appcontext(store.close_db)
 
     @app.context_processor
@@ -76,5 +77,28 @@ def create_app(config_object=Config):
         click.echo(telegram.set_webhook(base, token).text)
         for r in telegram.set_commands(token):
             click.echo(r.text)
+
+    @app.cli.command("team-seed")
+    def team_seed_command():
+        """Seed the combined product roadmap and grant the first CEO role.
+
+        Safe to re-run: seeding never overwrites a status a human already
+        set, and the CEO grant only fills in the role if nobody holds it yet.
+        Run once after deploy, and again any time a new product ships in
+        either repo (new rows insert; existing ones are untouched).
+        """
+        from . import roadmap as roadmap_mod
+
+        store.seed_roadmap(roadmap_mod.seed_data())
+        click.echo("Roadmap seeded: %d items." % len(store.roadmap_items()))
+
+        admin_id = app.config["ADMIN_TELEGRAM_ID"]
+        if admin_id and not store.list_team_members():
+            store.set_team_role(admin_id, "ceo", display_name="Sam", added_by="system")
+            click.echo("Granted CEO to ADMIN_TELEGRAM_ID (%s)." % admin_id)
+        elif not admin_id:
+            click.echo("ADMIN_TELEGRAM_ID not set — grant the first CEO role manually via the DB or /team/people once one CEO exists.")
+        else:
+            click.echo("Team roles already exist — leaving them as-is.")
 
     return app

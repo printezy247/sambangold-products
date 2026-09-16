@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-# Deploy to Fly.io. Runs the real checks first — it does not claim
-# a check passed unless that check actually ran and passed.
+# Verify, then deploy to Railway if the CLI is linked. Runs the real checks
+# first — it does not claim a check passed unless that check actually ran
+# and passed.
+#
+# Railway normally deploys itself: once this repo is connected to a Railway
+# project, every push to `master` redeploys automatically from the
+# Dockerfile (see railway.json). This script exists for a manual/local
+# redeploy — e.g. to push a change without waiting on git, or to redeploy
+# after only an env var changed.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -21,16 +28,12 @@ else
   echo "No tests — skipping pytest."
 fi
 
-if [ ! -f fly.toml ]; then
-  echo "No fly.toml — nothing to deploy."
+if ! command -v railway > /dev/null 2>&1; then
+  echo "railway CLI not installed — skipping manual deploy. Railway's own" \
+       "GitHub integration will still redeploy master automatically."
   exit 0
 fi
 
-if ! command -v fly > /dev/null 2>&1; then
-  echo "fly CLI not installed — skipping deploy." >&2
-  exit 0
-fi
-
-echo "Deploying to Fly.io..."
-fly deploy --remote-only --yes
+echo "Deploying to Railway..."
+railway up --detach
 echo "Deploy complete."
