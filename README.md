@@ -650,7 +650,12 @@ hairline shutter that sweeps the room as you arrive, headings whose letters rise
 one at a time, and an accent colour that changes with the room and tints the
 field. A lift indicator tracks your depth, a two-pixel gold line at the top
 tracks the whole descent, and on fine pointers a gold dot and lagging ring
-replace the cursor. The commands roll past on a marquee between the door and the
+replace the cursor. On a phone the pinning and parallax step aside: every floor
+is one full screen that snaps into place, its tools a swipeable row, and the
+header folds into two rows and stops being sticky so the rooms get the whole
+screen. Nothing may widen the page — `html, body { overflow-x: clip }` — because
+a header that overflowed sideways once made Chrome zoom the phone view out to
+two thirds. The commands roll past on a marquee between the door and the
 first floor. In the hero the smith hammers a CSS 3D ingot whose specular
 highlight sweeps with your scroll.
 

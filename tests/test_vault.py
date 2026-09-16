@@ -156,3 +156,29 @@ def test_the_floors_speak_english_too(client):
     html = page(client, "en")
     assert "THE GOLD DESK" in html and "THE CRYPTO VAULT" in html
     assert "MEJA EMAS" not in html
+
+
+# --- a phone ---------------------------------------------------------------------- #
+
+def test_the_shell_can_never_widen_the_page(client):
+    """A header that overflowed sideways once made Chrome zoom the phone view out
+    to fit it, so the body sat at two thirds of the screen with black beside it."""
+    html = page(client)
+    assert "html, body { overflow-x: clip; }" in html
+
+
+def test_on_a_phone_every_floor_is_one_screen_that_snaps(client):
+    html = page(client)
+    start = html.index("@media (max-width: 940px)")
+    block = html[start:html.index("@media (prefers-reduced-motion", start)]   # base.html has its own, earlier
+    assert "min-height: 100svh; scroll-snap-align: start" in block
+    assert ".floor .slab { display: none; }" in block           # its list is on the chips
+    assert "--in: 1; --out: 0" in block                          # nothing arrives blurred and hidden
+    assert "html.vault { scroll-snap-type: y proximity; }" in html
+
+
+def test_register_and_ranks_are_navigation(client):
+    """They belong in the nav row, so the header has one thing to wrap on a phone."""
+    html = page(client)
+    nav = html[html.index("<nav>"):html.index("</nav>")]
+    assert "/register" in nav and "/pricing" in nav
