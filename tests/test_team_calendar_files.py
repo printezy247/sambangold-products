@@ -107,3 +107,32 @@ def test_library_file_requires_team_role(client, app):
         store.seed_file_items(library.seed_data())
         item = [it for it in store.file_items(category="pic") if it["source"] == "repo_asset"][0]
     assert client.get("/team/library/%s" % item["url"]).status_code == 302
+
+
+def test_scan_paid_files_is_empty_when_volume_absent(tmp_path):
+    assert library.scan_paid_files(str(tmp_path / "does-not-exist")) == []
+
+
+def test_paid_file_serves_from_the_volume_path_not_git(app, client, tmp_path, monkeypatch):
+    paid_docs = tmp_path / "docs"
+    paid_docs.mkdir()
+    (paid_docs / "Gold Recruit Manual.pdf").write_bytes(b"%PDF-1.4 fake paid content")
+    app.config["PAID_LIBRARY_PATH"] = str(tmp_path)
+
+    with app.app_context():
+        store.seed_file_items(library.scan_paid_files(str(tmp_path)))
+        item = [it for it in store.file_items() if it["source"] == "volume"][0]
+        assert item["title"] == "Gold Recruit Manual"
+
+    login(client, user_id="1", team_role="executive")
+    r = client.get("/team/library-paid/%s" % item["url"])
+    assert r.status_code == 200
+    assert b"fake paid content" in r.get_data()
+
+
+def test_paid_file_route_requires_team_role(app, client, tmp_path):
+    paid_docs = tmp_path / "docs"
+    paid_docs.mkdir()
+    (paid_docs / "Gold Recruit Manual.pdf").write_bytes(b"fake")
+    app.config["PAID_LIBRARY_PATH"] = str(tmp_path)
+    assert client.get("/team/library-paid/docs/Gold Recruit Manual.pdf").status_code == 302

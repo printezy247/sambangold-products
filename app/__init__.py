@@ -96,7 +96,10 @@ def create_app(config_object=Config):
         click.echo("Roadmap seeded: %d items." % len(store.roadmap_items()))
 
         store.seed_file_items(library_mod.seed_data())
-        click.echo("File library seeded: %d items." % len(store.file_items()))
+        paid = library_mod.scan_paid_files(app.config["PAID_LIBRARY_PATH"])
+        if paid:
+            store.seed_file_items(paid)
+        click.echo("File library seeded: %d items (%d paid-tier)." % (len(store.file_items()), len(paid)))
 
         admin_id = app.config["ADMIN_TELEGRAM_ID"]
         if admin_id and not store.list_team_members():

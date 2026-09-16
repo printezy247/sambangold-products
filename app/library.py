@@ -19,28 +19,40 @@ def _title_from_filename(name):
     return os.path.splitext(name)[0].replace("_", " ").strip()
 
 
-def scan_repo_files():
-    """Every file under library/{docs,pics,vids}/, walked recursively
-    (pics/logo included), as seed rows keyed by their path relative to
-    `library/` — that relative path is also what `/team/library/<path>`
-    serves."""
+def _scan(root, source):
+    """Every file under root/{docs,pics,vids}/, walked recursively, as seed
+    rows keyed by their path relative to `root`."""
     items = []
     for subdir, category in CATEGORY_DIRS.items():
-        base = os.path.join(ROOT, subdir)
+        base = os.path.join(root, subdir)
         if not os.path.isdir(base):
             continue
         for dirpath, _dirs, files in os.walk(base):
             for fname in sorted(files):
-                rel = os.path.relpath(os.path.join(dirpath, fname), ROOT).replace(os.sep, "/")
+                rel = os.path.relpath(os.path.join(dirpath, fname), root).replace(os.sep, "/")
                 sub = os.path.relpath(dirpath, base)
                 items.append({
                     "category": category,
                     "title": _title_from_filename(fname),
-                    "source": "repo_asset",
+                    "source": source,
                     "url": rel,
                     "tags": "" if sub == "." else sub.replace(os.sep, "/"),
                 })
     return items
+
+
+def scan_repo_files():
+    """Everything committed in this repo under library/ — free-tier lead
+    magnets, brand assets, the promo video. That relative path is also what
+    `/team/library/<path>` serves."""
+    return _scan(ROOT, "repo_asset")
+
+
+def scan_paid_files(paid_root):
+    """Paid-tier docs uploaded straight to the Railway volume, never git —
+    see Config.PAID_LIBRARY_PATH. Empty list when the path doesn't exist
+    (local dev, tests, or before the one-time upload)."""
+    return _scan(paid_root, "volume")
 
 
 # Links to content that lives outside this repo — not scanned, just recorded.

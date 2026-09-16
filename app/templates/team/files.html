@@ -44,7 +44,7 @@
       <div class="name" style="margin-top:10px">{{ it.title }}</div>
       <div class="actions" style="margin-top:12px">
         <a class="btn small btn-gold" href="{{ it.href }}" {% if it.source == 'drive' %}target="_blank" rel="noopener"{% endif %}>
-          {{ t('team.download') if it.source == 'repo_asset' else t('team.open') }}
+          {{ t('team.download') if it.source in ('repo_asset', 'volume') else t('team.open') }}
         </a>
       </div>
     </div>

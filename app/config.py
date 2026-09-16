@@ -9,6 +9,11 @@ class Config:
     PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:5000")
     ADMIN_TELEGRAM_ID = os.environ.get("ADMIN_TELEGRAM_ID", "")
     DATABASE_PATH = os.environ.get("DATABASE_PATH", "data/sambangold.db")
+    # Paid-tier docs (sold as ebooks on website_sam) never go in git — this repo
+    # is public. Uploaded once to the Railway volume, outside the deploy;
+    # served the same way as library/ but from here instead. Absent locally
+    # and in tests, which is fine — the library just has fewer items.
+    PAID_LIBRARY_PATH = os.environ.get("PAID_LIBRARY_PATH", "/data/library")
     # The bot's @username (no @). The Telegram Login Widget needs it.
     TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "")
     PUBLIC_CHANNEL_URL = os.environ.get("PUBLIC_CHANNEL_URL", "")

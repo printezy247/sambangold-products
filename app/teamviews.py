@@ -6,7 +6,7 @@ management for Sam's CEO/HODs/Executives. Separate from the customer-facing
 import datetime as dt
 import time
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, send_from_directory, url_for
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, send_from_directory, url_for
 
 from . import library, roadmap, store, teamcalendar
 from .auth import current_user, lang as ui_lang
@@ -116,6 +116,8 @@ def calendar_page():
 def _file_href(item):
     if item["source"] == "repo_asset":
         return url_for("team.library_file", relpath=item["url"])
+    if item["source"] == "volume":
+        return url_for("team.library_paid_file", relpath=item["url"])
     return item["url"]
 
 
@@ -123,6 +125,13 @@ def _file_href(item):
 @team_required
 def library_file(relpath):
     return send_from_directory(library.ROOT, relpath)
+
+
+@bp.route("/library-paid/<path:relpath>")
+@team_required
+def library_paid_file(relpath):
+    """Paid-tier docs uploaded to the Railway volume — never in git."""
+    return send_from_directory(current_app.config["PAID_LIBRARY_PATH"], relpath)
 
 
 @bp.route("/files", methods=["GET", "POST"])
