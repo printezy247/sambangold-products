@@ -619,6 +619,28 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 🔎 The public register — look someone up before you pay them
+
+Four of the scanners answer the same shape of question about a different kind of
+subject: a Telegram bot, a signal seller, an influencer, a copy-trade broker.
+Each answer is good, and each one evaporates. The person pitched by the same
+handle next week starts from nothing.
+
+`/register @handle`, or the page at **`/register`**, reads the scan archive back
+the other way round — **by subject, across everybody** — so a name that keeps
+coming back accumulates a record anyone can search. No login: someone about to
+be defrauded is exactly the person who has not signed up yet. After a scan, the
+tool page tells you straight away if this name has been flagged before.
+
+> [!IMPORTANT]
+> These are real businesses and real handles, so the page is a record of **what
+> our scanner found**, never a claim about a person. Only subjects the rule
+> engine flagged appear; nothing is listed under two flags on two different days,
+> so one afternoon of scanning a rival never becomes a listing; every row shows
+> its count, dates and score and links to the scans behind it. And a name with
+> no record is reported as *no record* — never as safe, because that is the one
+> way this page could get someone hurt.
+
 #### 📊 The premium band — is this the moment, or just Tuesday?
 
 "PAXG is 1.4% over spot" is useless on its own, because nobody knows whether
@@ -913,6 +935,7 @@ actually reads.
 - [x] **Morning Brief** — one daily message at your KL hour, across the calendar, the hours map and your own positions
 - [x] **#17 premium band** — each coin's own 30-day range, and the cheaper way into gold today
 - [x] **One language per page** — every surface rendered in both and checked that neither bleeds into the other
+- [x] **Public register** — a searchable record across the four scanners, with a bar for being named on it
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -1029,6 +1052,7 @@ sambangold-products/
 │   ├── eventspread.py                  #5 what the spread did at the release, and when it came home
 │   ├── brief.py                        the Morning Brief — one message a day, at your KL hour
 │   ├── premium.py                      #17 each coin's own premium band, and the cheaper route
+│   ├── register.py                     the public register — one lookup across four scanners
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

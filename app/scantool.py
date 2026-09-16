@@ -119,6 +119,7 @@ def _dashboard(slug):
         form = request.form if request.method == "POST" else {}
         ctx = {"slug": slug, "form": form, "spec": FORMS[slug], "report": None, "error": None, "scan_id": None,
                "owner": owner, "history": [], "watch": [], "public": [], "loss": None,
+               "record": None, "record_line": "",
                "flag_icon": FLAG_ICON, "verdict_icon": VERDICT_ICON, "verdict_text": verdict_text,
                "localise": scan.localise, "checklist": scan.checklist, "demands": scan.demands}
         if request.method == "POST" and request.form.get("action") == "loss":
@@ -135,6 +136,10 @@ def _dashboard(slug):
                 ctx["report"] = _run(slug, form)
                 ctx["scan_id"] = store.save_scan(ctx["report"], owner=owner)
                 ctx["public"] = store.public_scans(slug, ctx["report"]["subject"])
+                # The moment that matters: this name has been flagged before.
+                from . import register as reg
+                ctx["record"] = reg.lookup(ctx["report"]["subject"])
+                ctx["record_line"] = reg.line(ctx["record"], lang) if ctx["record"] else ""
         if owner:
             from .gate import allows, user_tier
             if allows(user_tier(user), "history"):    # keeping a run is what General buys

@@ -12,6 +12,7 @@ from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make
 from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, howto, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
 from . import brief as morningbrief
+from . import register as reg
 from . import setup as mysetup
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
@@ -109,6 +110,13 @@ def setup_page():
         flash(t("set." + ctx["notice"], ui_lang()), "ok")
         return redirect(url_for("views.setup_page"))
     return render_template("setup.html", **ctx)
+
+
+@bp.route("/register")
+def register():
+    """The public register — no login, on purpose: someone about to be defrauded
+    is exactly the person who has not signed up yet."""
+    return render_template("register.html", **reg.page(request))
 
 
 @bp.route("/account")

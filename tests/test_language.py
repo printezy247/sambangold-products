@@ -28,7 +28,7 @@ MARKERS = {
 }
 OTHER = {"ms": "en", "en": "ms"}
 
-PAGES = ["/", "/setup", "/dashboard", "/pricing", "/account", "/admin"] + ["/p/%s" % p.slug for p in PRODUCTS]
+PAGES = ["/", "/setup", "/dashboard", "/pricing", "/account", "/admin", "/register"] + ["/p/%s" % p.slug for p in PRODUCTS]
 
 
 def _copy(html):
@@ -62,7 +62,7 @@ def test_no_bot_reply_mixes_the_two_languages(app, product, lang):
 
 
 @pytest.mark.parametrize("lang", LANGS)
-@pytest.mark.parametrize("command", ["setup", "brief", "autopilot", "broker", "invite", "seats", "widget", "webhook", "groups"])
+@pytest.mark.parametrize("command", ["setup", "brief", "register", "autopilot", "broker", "invite", "seats", "widget", "webhook", "groups"])
 def test_no_platform_command_mixes_the_two_languages(app, command, lang):
     """The ladder's own commands are not products, so the surface-contract test
     never sees them. They still have to speak one language."""

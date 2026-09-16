@@ -46,6 +46,8 @@ Twelve shared rules — guarantees, accuracy claims, fee to withdraw, urgency, s
 
 ## Dashboard views
 
+- Public register cross-reference — after a scan, whether this subject has been flagged before, and a link to its record at `/register`
+
 - Scanner with the full pitch pasted in; findings table with flag, reason and snippet
 - Scan history per seller or channel, and a watchlist to re-scan (signed in)
 - Public share page per scan at `/p/red-flag-scanner/s/<id>`
