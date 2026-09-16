@@ -182,3 +182,23 @@ def test_register_and_ranks_are_navigation(client):
     html = page(client)
     nav = html[html.index("<nav>"):html.index("</nav>")]
     assert "/register" in nav and "/pricing" in nav
+
+
+# --- numbers and boxes ------------------------------------------------------------ #
+
+def test_every_step_card_carries_its_own_numeral(client):
+    """The numeral used to be a CSS counter on ::before — the same pseudo-element
+    .lux and .lux-gold already own, so 02 vanished and 01 and 03 sat outside the card."""
+    html = page(client)
+    for n in ("01", "02", "03"):
+        assert '<i class="n" aria-hidden="true">%s</i>' % n in html
+    assert "counter-increment: step" not in html
+    assert ".step::before" not in html
+
+
+def test_a_wide_table_scrolls_inside_its_own_box_on_a_phone(client):
+    """The page clips sideways, so a table wider than the screen lost its last
+    columns with no way to reach them."""
+    html = page(client)
+    assert "@media (max-width: 760px) { table.flags { display: block;" in html
+    assert "overflow-x: auto; } }" in html

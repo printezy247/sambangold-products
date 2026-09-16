@@ -124,6 +124,9 @@
   table.flags th, table.flags td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
   table.flags th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
   table.flags tr.positive b { color: var(--win); } table.flags tr.negative b { color: var(--loss); }
+  /* On a phone a wide table used to run off under the clipped page edge —
+     the far columns were unreachable. Now the table scrolls inside its own box. */
+  @media (max-width: 760px) { table.flags { display: block; width: max-content; max-width: 100%; overflow-x: auto; } }
   footer { border-top: 1px solid var(--border); margin-top: 96px; font-size: 13px; color: var(--muted); }
   footer .cols { display: grid; gap: 28px; grid-template-columns: 1fr; padding: 40px 0; }
   @media (min-width: 760px) { footer .cols { grid-template-columns: 1.2fr .8fr 1.4fr; } }

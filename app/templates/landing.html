@@ -192,12 +192,14 @@
   .tg .cmd { display: inline-block; font-family: var(--font-mono); font-size: 13px; background: color-mix(in oklab, var(--gold) 14%, transparent); color: var(--gold-2); border-radius: 12px 12px 2px 12px; padding: 8px 12px; margin-left: auto; float: right; }
   .tg .out { clear: both; margin-top: 12px; font-size: 14px; line-height: 1.5; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px 12px 12px 2px; padding: 12px 14px; }
   .tg .tag { position: absolute; top: -10px; right: 14px; }
-  .steps { display: grid; gap: 16px; margin-top: 22px; counter-reset: step; }
+  .steps { display: grid; gap: 16px; margin-top: 22px; }
   @media (min-width: 760px) { .steps { grid-template-columns: repeat(3, 1fr); } }
-  .step { padding: 22px; }
-  .step::before { counter-increment: step; content: counter(step, decimal-leading-zero); font-family: var(--font-display); font-size: 40px; line-height: 1; display: block; color: var(--gold); }
-  .step b { display: block; margin: 10px 0 6px; font-size: 17px; }
-  .step p { color: var(--muted); margin: 0; font-size: 14px; }
+  /* The numeral is a real element, not a pseudo-element: .lux and .lux-gold
+     already own ::before on these cards, and a counter there loses the fight. */
+  .step { padding: 22px; min-width: 0; }
+  .step .n { display: block; font-family: var(--font-display); font-size: clamp(30px, 4vw, 40px); line-height: 1; color: var(--gold); font-style: normal; letter-spacing: .01em; }
+  .step b { display: block; margin: 10px 0 6px; font-size: clamp(15px, 1.5vw, 17px); line-height: 1.3; overflow-wrap: break-word; }
+  .step p { color: var(--muted); margin: 0; font-size: 14px; overflow-wrap: break-word; }
   .ranks { display: grid; gap: 12px; margin-top: 22px; }
   @media (min-width: 760px) { .ranks { grid-template-columns: repeat(4, 1fr); } }
   .rank { padding: 18px; }
@@ -398,7 +400,7 @@
   <h2>{{ t('land.how_h') }}</h2>
   <p class="lede">{{ t('land.how_sub') }}</p>
   <div class="steps">
-    {% for i in (1, 2, 3) %}<div class="lux{% if i == 2 %} lux-gold{% endif %} step"><b>{{ t('land.h%d_h' % i) }}</b><p>{{ t('land.h%d_b' % i) }}</p></div>{% endfor %}
+    {% for i in (1, 2, 3) %}<div class="lux{% if i == 2 %} lux-gold{% endif %} step"><i class="n" aria-hidden="true">{{ '%02d'|format(i) }}</i><b>{{ t('land.h%d_h' % i) }}</b><p>{{ t('land.h%d_b' % i) }}</p></div>{% endfor %}
   </div>
 </section>
 
@@ -432,7 +434,7 @@
   <h2>{{ t('land.trust_h') }}</h2>
   <p class="lede">{{ t('land.trust_sub') }}</p>
   <div class="steps" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
-    {% for i in (1, 2, 3, 4) %}<div class="glass step" style="border-radius:var(--radius)"><b>{{ t('land.t%d_h' % i) }}</b><p>{{ t('land.t%d_b' % i, person=BRAND.person, group=BRAND.group) }}</p></div>{% endfor %}
+    {% for i in (1, 2, 3, 4) %}<div class="glass step" style="border-radius:var(--radius)"><i class="n" aria-hidden="true">{{ '%02d'|format(i) }}</i><b>{{ t('land.t%d_h' % i) }}</b><p>{{ t('land.t%d_b' % i, person=BRAND.person, group=BRAND.group) }}</p></div>{% endfor %}
   </div>
 </section>
 
