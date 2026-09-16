@@ -8,7 +8,7 @@ import time
 
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, send_from_directory, url_for
 
-from . import library, roadmap, store, teamcalendar
+from . import library, navchat, roadmap, store, teamcalendar
 from .auth import current_user, lang as ui_lang
 from .brand import t
 from .teamauth import ceo_required, is_team_admin, team_admin_required, team_required
@@ -153,6 +153,23 @@ def files_page():
     items = [dict(it, href=_file_href(it)) for it in store.file_items(category=category)]
     return render_template("team/files.html", items=items, categories=store.FILE_CATEGORIES,
                            filter_category=category, can_edit=is_team_admin())
+
+
+@bp.route("/chat", methods=["GET", "POST"])
+@team_required
+def chat_page():
+    query = ""
+    matches = []
+    answer = None
+    if request.method == "POST":
+        query = (request.form.get("query") or "").strip()
+        if query:
+            matches = navchat.search_files(query, store.file_items())
+            matches = [dict(it, href=_file_href(it)) for it in matches]
+            answer = navchat.ai_answer(query, matches, current_app.config, lang=ui_lang())
+
+    return render_template("team/chat.html", query=query, matches=matches, answer=answer,
+                           ai_on=navchat.configured(current_app.config))
 
 
 @bp.route("/people", methods=["GET", "POST"])

@@ -3,5 +3,6 @@
   <a class="btn" href="{{ url_for('team.tasks_page') }}">{{ t('team.tasks_title') }}</a>
   <a class="btn" href="{{ url_for('team.calendar_page') }}">{{ t('team.calendar_title') }}</a>
   <a class="btn" href="{{ url_for('team.files_page') }}">{{ t('team.files_title') }}</a>
+  <a class="btn" href="{{ url_for('team.chat_page') }}">{{ t('team.chat_title') }}</a>
   {% if user.team_role == 'ceo' %}<a class="btn" href="{{ url_for('team.people_page') }}">{{ t('team.people_title') }}</a>{% endif %}
 </div>

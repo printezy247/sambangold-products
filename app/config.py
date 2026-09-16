@@ -8,6 +8,19 @@ class Config:
     TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:5000")
     ADMIN_TELEGRAM_ID = os.environ.get("ADMIN_TELEGRAM_ID", "")
+    # The internal team bot — a separate token from TELEGRAM_BOT_TOKEN on
+    # purpose, so customer traffic and Sam's CEO/HOD/Executive traffic never
+    # share a bot. Unset means the team bot simply doesn't run yet.
+    TEAM_BOT_TOKEN = os.environ.get("TEAM_BOT_TOKEN", "")
+    TEAM_BOT_USERNAME = os.environ.get("TEAM_BOT_USERNAME", "")
+    # Sam's internal Telegram group, for /broadcast and the Phase 4 daily digest.
+    TEAM_GROUP_CHAT_ID = os.environ.get("TEAM_GROUP_CHAT_ID", "")
+    # Optional AI layer on top of /team/chat's local file search — an
+    # OpenAI-compatible chat-completions API. All three must be set or the
+    # chat falls back to local search only (which always works, key or not).
+    NARA_API_KEY = os.environ.get("NARA_API_KEY", "")
+    NARA_BASE_URL = os.environ.get("NARA_BASE_URL", "")
+    NARA_MODEL = os.environ.get("NARA_MODEL", "")
     DATABASE_PATH = os.environ.get("DATABASE_PATH", "data/sambangold.db")
     # Paid-tier docs (sold as ebooks on website_sam) never go in git — this repo
     # is public. Uploaded once to the Railway volume, outside the deploy;

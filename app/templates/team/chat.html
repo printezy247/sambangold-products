@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ t('team.chat_title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px;max-width:760px">
+  <h1>{{ t('team.chat_title') }}</h1>
+  {% include "team/_nav.html" %}
+
+  {% if not ai_on %}<p class="text-muted" style="font-size:13px">{{ t('team.chat_ai_off') }}</p>{% endif %}
+
+  <form method="post" action="{{ url_for('team.chat_page') }}" style="margin:18px 0 28px">
+    <div class="fields" style="grid-template-columns:1fr auto">
+      <label style="grid-column:1"><input name="query" value="{{ query }}" placeholder="{{ t('team.chat_placeholder') }}" autofocus></label>
+      <div class="actions" style="margin:0"><button class="btn btn-gold" type="submit">{{ t('team.chat_ask') }}</button></div>
+    </div>
+  </form>
+
+  {% if answer %}
+  <div class="lux lux-gold" style="padding:18px;margin-bottom:24px">{{ answer }}</div>
+  {% endif %}
+
+  {% if query %}
+  {% if not matches %}
+  <p class="text-muted">{{ t('team.chat_no_matches') }}</p>
+  {% else %}
+  <div class="grid">
+    {% for it in matches %}
+    <div class="lux card" style="padding:16px">
+      <div class="chips">
+        <span class="chip">{{ t('team.category_' + it.category) }}</span>
+        {% if it.tags %}<span class="chip">{{ it.tags }}</span>{% endif %}
+      </div>
+      <div class="name" style="margin-top:8px">{{ it.title }}</div>
+      <div class="actions" style="margin-top:10px">
+        <a class="btn small btn-gold" href="{{ it.href }}" {% if it.source == 'drive' %}target="_blank" rel="noopener"{% endif %}>
+          {{ t('team.download') if it.source in ('repo_asset', 'volume') else t('team.open') }}
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
