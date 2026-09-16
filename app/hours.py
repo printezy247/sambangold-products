@@ -48,7 +48,9 @@ def now_hour(now=None):
     return kl_hour(now if now is not None else time.time())
 
 
-def _median(values):
+def median(values):
+    """Shared with the calendar's event record — both read the same spread log,
+    and two copies of this would eventually disagree."""
     ordered = sorted(values)
     n = len(ordered)
     if not n:
@@ -72,18 +74,18 @@ def profile(days=30, samples=None):
     measured = [s for bucket in buckets for s in bucket]
     if not measured:
         return None
-    overall = _median(measured)
+    overall = median(measured)
     rows = []
     for hour in range(HOURS):
         bucket = buckets[hour]
-        median = _median(bucket)
+        mid = median(bucket)
         thin = len(bucket) < MIN_SAMPLES
         if thin or not overall:
             band, ratio = "thin", None
         else:
-            ratio = median / overall
+            ratio = mid / overall
             band = "best" if ratio <= CHEAP else ("worst" if ratio >= DEAR else "ok")
-        rows.append({"hour": hour, "n": len(bucket), "median": median, "ratio": ratio, "band": band})
+        rows.append({"hour": hour, "n": len(bucket), "median": mid, "ratio": ratio, "band": band})
     graded = [r for r in rows if r["band"] != "thin"]
     return {
         "rows": rows, "overall": overall, "days": days,

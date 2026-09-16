@@ -1,4 +1,14 @@
 {% set c = tool %}
+<div class="lux{{ ' lux-gold' if c.today.band != 'clear' }}" style="padding:16px 20px;margin-bottom:18px">
+  <p style="margin:0;font-size:17px">{{ c.today_line }}</p>
+  {% if c.today.band == 'avoid' and c.today['next'] %}
+    {% set crv = c.records | selectattr('title', 'equalto', c.today['next'].title) | first %}
+    {% if crv and crv.recovery is not none %}
+    <p class="text-muted" style="margin:6px 0 0">{{ t('evs.back', n=crv.recovery) }}</p>
+    {% endif %}
+  {% endif %}
+</div>
+
 <h2>{{ c.month_name }} {{ c.year }}</h2>
 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
   <div class="actions" style="margin:0">
@@ -67,6 +77,33 @@
   {% endfor %}
 </div>
 <p class="text-muted" style="font-size:12px">{{ t('ui.c_season_note', src=c.season.source) }}</p>
+
+<h3>{{ t('evs.title') }}</h3>
+<p class="lede">{{ t('evs.sub') }}</p>
+{% if c.records %}
+{% for r in c.records %}
+{% set peak = r.points | map(attribute='median') | max %}
+<div class="panel tool" style="margin-bottom:14px">
+  <p style="margin:0 0 4px">{{ t('evs.row', title=r.title, mult='%.1f' % (r.multiple or 1), calm='%.2f' % r.calm, peak='%.2f' % r.peak.median, n=r.occurrences)|safe }}</p>
+  <p class="text-muted" style="margin:0 0 10px">
+    {% if r.recovery is not none %}{{ t('evs.back', n=r.recovery) }}{% else %}{{ t('evs.never', n=c.span) }}{% endif %}
+  </p>
+  <div style="display:flex;align-items:flex-end;gap:3px;height:70px">
+    {% for pt in r.points %}
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%"
+         title="{{ c.offset(pt.minute) }} {{ t('evs.min') }} — ${{ '%.2f' % pt.median }} · {{ pt.n }}">
+      <div style="background:{{ 'var(--loss)' if pt.minute == r.peak.minute else ('var(--win)' if r.recovery is not none and pt.minute >= r.recovery else 'var(--chrome)') }};
+                  height:{{ (100 * pt.median / peak)|round|int if peak else 4 }}%;min-height:4px;border-radius:2px 2px 0 0"></div>
+    </div>
+    {% endfor %}
+  </div>
+  <div style="display:flex;gap:3px;font-size:10px" class="text-muted">
+    {% for pt in r.points %}<div style="flex:1;text-align:center">{{ c.offset(pt.minute) if pt.minute % 30 == 0 }}</div>{% endfor %}
+  </div>
+</div>
+{% endfor %}
+<p class="text-muted">{{ t('evs.foot') }}</p>
+{% else %}<p class="lede">{{ t('evs.none') }}</p>{% endif %}
 
 <h3>{{ t('ui.c_hist') }}</h3>
 {% if c.history %}

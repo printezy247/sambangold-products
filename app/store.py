@@ -433,6 +433,26 @@ def baseline_spread():
     return rows[len(rows) // 2]
 
 
+def event_samples(title, occurrences=6):
+    """Every logged spread around the most recent occurrences of one event."""
+    ats = [r[0] for r in db().execute(
+        "SELECT DISTINCT event_at FROM event_spreads WHERE title = ? ORDER BY event_at DESC LIMIT ?",
+        (title, occurrences))]
+    if not ats:
+        return []
+    marks = ",".join("?" * len(ats))
+    return [dict(r) for r in db().execute(
+        "SELECT event_at, ts, spread FROM event_spreads WHERE title = ? AND spread IS NOT NULL"
+        " AND event_at IN (%s) ORDER BY event_at, ts" % marks, [title] + ats)]
+
+
+def event_titles(limit=12):
+    """Event titles we have measured, most-measured first."""
+    return [r[0] for r in db().execute(
+        "SELECT title FROM event_spreads WHERE spread IS NOT NULL GROUP BY title"
+        " ORDER BY COUNT(DISTINCT event_at) DESC, MAX(event_at) DESC LIMIT ?", (limit,))]
+
+
 def event_spread_history(limit=12):
     """Per event title: how many past occurrences were measured and the worst spread seen."""
     return [dict(r) for r in db().execute(
