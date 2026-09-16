@@ -4,7 +4,7 @@
 <form method="post" enctype="multipart/form-data" class="panel tool">
   <input type="hidden" name="action" value="run">
   <div class="fields">
-    <label>{{ t('ui.n_rate') }} <input name="rate" value="{{ c.form.get('rate', 6) }}" placeholder="6"></label>
+    <label>{{ t('ui.n_rate') }} <input name="rate" value="{{ c.form.get('rate') or setup.rate or 6 }}" placeholder="6"></label>
     <label>{{ t('ui.n_asof') }} <input name="as_of" value="{{ c.form.get('as_of', '') }}" placeholder="2026-09-14"></label>
   </div>
   <label class="wide" style="display:block;margin-top:14px">{{ t('ui.n_log') }}

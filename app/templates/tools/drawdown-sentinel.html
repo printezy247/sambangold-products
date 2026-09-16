@@ -9,8 +9,8 @@
   <input type="hidden" name="action" value="link">
   <div class="fields">
     <label>{{ t('ui.d_name') }} <input name="name" value="{{ c.form.get('name', '') }}" placeholder="Cabaran1" required></label>
-    <label>{{ t('ui.d_firm') }}<select name="firm">{% for k, p in c.packs.items() %}<option value="{{ k }}">{{ p.name }}</option>{% endfor %}</select></label>
-    <label>{{ t('ui.d_balance') }} <input name="balance" value="{{ c.form.get('balance', '') }}" placeholder="100000" required></label>
+    <label>{{ t('ui.d_firm') }}<select name="firm">{% for k, p in c.packs.items() %}<option value="{{ k }}" {{ 'selected' if setup.firm == k }}>{{ p.name }}</option>{% endfor %}</select></label>
+    <label>{{ t('ui.d_balance') }} <input name="balance" value="{{ c.form.get('balance') or setup.size or '' }}" placeholder="100000" required></label>
   </div>
   <details style="margin-top:12px"><summary class="text-muted" style="cursor:pointer;font-size:13px">Custom</summary>
     <div class="fields" style="margin-top:10px">

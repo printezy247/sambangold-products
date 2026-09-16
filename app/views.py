@@ -11,6 +11,7 @@ from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make
 
 from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, howto, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
+from . import setup as mysetup
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
 from .calc import ib_checklist_text
@@ -62,6 +63,7 @@ def dashboard():
     st = seats.dashboard_seats(request, user)
     wl = whitelabel.dashboard_extras(request, user)
     gr = groups.dashboard_groups(request, user)
+    su = mysetup.filled(user["owner"])
     if request.method == "POST":
         return redirect(url_for("views.dashboard") + "#autopilot")
     live, rest = _split()
@@ -73,7 +75,7 @@ def dashboard():
         "saved": sum(len(v) for v in saved.values()),
     }
     since = time.strftime("%Y-%m-%d", time.gmtime(row["created_at"])) if row else "—"
-    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, wl=wl, gr=gr, by_slug=BY_SLUG)
+    return render_template("dashboard.html", live=live, rest=rest, counts=counts, since=since, ap=ap, st=st, wl=wl, gr=gr, su=su, by_slug=BY_SLUG)
 
 
 @bp.route("/pricing", methods=["GET", "POST"])
@@ -94,6 +96,17 @@ def pricing():
         referral_days=doors.REFERRAL_DAYS,
         mine=(user or {}).get("rank") or "public",
         want=request.args.get("want", ""))
+
+
+@bp.route("/setup", methods=["GET", "POST"])
+@login_required
+def setup_page():
+    """My Setup — answer the recurring questions once, for every tool at once."""
+    ctx = mysetup.dashboard_setup(request, current_user())
+    if request.method == "POST" and ctx["notice"]:
+        flash(t("set." + ctx["notice"], ui_lang()), "ok")
+        return redirect(url_for("views.setup_page"))
+    return render_template("setup.html", **ctx)
 
 
 @bp.route("/account")
@@ -152,11 +165,13 @@ def product(slug):
         abort(404)
     build = DASHBOARD.get(slug)
     user = current_user()
-    tool = build(request, user=user) if build else None
+    owner = (user or {}).get("owner")
+    tool = build(mysetup.merge(request, slug, owner), user=user) if build else None
     mine = (user or {}).get("rank") or "public"
     return render_template("product.html", p=item, tool=tool, money=money, pct=pct,
                            mine=mine, perks=perks.for_product(slug, mine, ui_lang()),
-                           howto=howto.for_product(slug, ui_lang()))
+                           howto=howto.for_product(slug, ui_lang()),
+                           setup=mysetup.read(owner), prefilled=mysetup.used_by(slug, owner))
 
 
 @bp.route("/p/gold-watch/history.csv")

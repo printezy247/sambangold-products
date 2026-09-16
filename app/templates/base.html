@@ -142,6 +142,7 @@
       <a href="{{ url_for('views.index') }}#tools">{{ t('nav.products') }}</a>
       {% if user %}
         <a href="{{ url_for('views.dashboard') }}">{{ t('nav.dashboard') }}</a>
+        <a href="{{ url_for('views.setup_page') }}">{{ t('nav.setup') }}</a>
         <a href="{{ url_for('views.account') }}">{{ t('nav.account') }}</a>
         {% if user.is_admin %}<a href="{{ url_for('views.admin') }}" class="text-gold">{{ t('nav.admin') }}</a>{% endif %}
       {% else %}

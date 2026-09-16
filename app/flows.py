@@ -47,7 +47,34 @@ def _gold_now():
             ("Mid $%.2f" % q["mid"], "%.2f" % q["mid"]))
 
 
+def _setup_brokers():
+    from .setup import BY_KEY, options_for
+    return options_for(BY_KEY["broker"])
+
+
+def _setup_firms():
+    from .setup import BY_KEY, options_for
+    return options_for(BY_KEY["firm"])
+
+
+def _setup_channels():
+    from .setup import BY_KEY, options_for
+    return options_for(BY_KEY["channel"])
+
+
 FLOWS = {
+    # Not a product: My Setup is the one flow that answers several tools at once.
+    # Every step is optional, so someone can fill in only what they know.
+    "setup": [
+        S("broker", "set.f_broker", optional=True, live=_setup_brokers, example="hfm"),
+        S("size", "set.f_size", number=True, optional=True,
+          options=(("$10k", "10000"), ("$25k", "25000"), ("$100k", "100000"), ("$200k", "200000"))),
+        S("firm", "set.f_firm", optional=True, live=_setup_firms, example="ftmo"),
+        S("lots", "set.f_lots", number=True, optional=True, options=(("10", "10"), ("40", "40"), ("100", "100"), ("500", "500"))),
+        S("rate", "set.f_rate", number=True, optional=True, options=(("$3", "3"), ("$5", "5"), ("$7", "7"), ("$10", "10"))),
+        S("clients", "set.f_clients", number=True, optional=True, options=(("1", "1"), ("10", "10"), ("25", "25"), ("50", "50"))),
+        S("channel", "set.f_channel", optional=True, live=_setup_channels, example="telegram"),
+    ],
     "gold-watch": [
         S("mode", "flow.watch_mode", text=False,
           options=(("flow.watch_price", "price"), ("flow.watch_above", "above"), ("flow.watch_below", "below"))),
@@ -233,6 +260,9 @@ def _advance(state, chat_id, lang, from_index):
     nxt = _next_index(steps, state["answers"], from_index)
     if nxt is None:
         store.tg_set_state(chat_id, None)
+        finish = PLATFORM.get(state["slug"])
+        if finish:
+            return finish(state["answers"], chat_id, lang)
         product = _product_by_slug(state["slug"])
         command = build(state["slug"], state["answers"])
         return [("send", chat_id, reply_for(command, _base_url(), chat_id=chat_id, lang=lang),
@@ -241,6 +271,19 @@ def _advance(state, chat_id, lang, from_index):
     store.tg_set_state(chat_id, state)
     step = steps[nxt]
     return [("send", chat_id, _prompt(step, lang), _keyboard(step, lang))]
+
+
+def _finish_setup(answers, chat_id, lang):
+    """My Setup has no command to build — it writes the answers and reads them back."""
+    from . import setup as mysetup
+    from .telegram import back_keyboard
+    pairs = ["%s=%s" % (key, value) for key, value in answers.items() if value]
+    return [("send", chat_id, mysetup.bot_setup(pairs, chat_id=chat_id, lang=lang), back_keyboard(lang))]
+
+
+# Flows that are not products, and so end in their own handler rather than in a
+# command sent through `reply_for`.
+PLATFORM = {"setup": _finish_setup}
 
 
 def on_text(text, chat_id, lang=DEFAULT_LANG):
