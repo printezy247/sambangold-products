@@ -46,6 +46,8 @@ Score a bot on private-key requests, unregulated broker pushes and missing audit
 
 ## Dashboard views
 
+- Public register cross-reference — after a scan, whether this subject has been flagged before, and a link to its record at `/register`
+
 - Paste form: username plus what the bot said; findings table with the flag, the reason and the matching snippet
 - Scan history with the score breakdown per signal (signed in)
 - Watchlist of bots to re-scan in one tap

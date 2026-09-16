@@ -619,6 +619,64 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 🏛️ The landing page is a vault you descend
+
+The front door is an entry gate: the SBG ring draws while the page loads, a
+counter runs, and one **ENTER** opens it. It shows once per session — a door you
+have already opened is a wall — and reduced motion, a hash link or a returning
+visitor all walk straight in.
+
+Below it the page is a descent through five floors, each with one job, and
+between them all 18 tools:
+
+| | Floor | Holds |
+|:--|:--|:--|
+| 🥇 | **The Gold Desk** | the price, the spread, the calendar |
+| 🛡️ | **The Evidence Room** | where a pitch is checked before money leaves |
+| 🏦 | **The Prop Room** | where a challenge is passed, or lost |
+| 🤝 | **The IB Floor** | where commission is counted and clients go quiet |
+| 🪙 | **The Crypto Vault** | where tokenised gold gets checked |
+
+Each floor is a pinned scene: three strata drift at different rates to read as
+distance, the content rises out of the depth as the floor takes hold, and the
+accent colour changes with the room. A lift indicator tracks your depth. In the
+hero the smith hammers a CSS 3D gold bar whose specular highlight sweeps with
+your scroll.
+
+**No 3D library.** `perspective` and `transform3d` do camera moves natively at
+60fps on any phone, and a WebGL bar would have cost 150KB, a main-thread compile
+stall and a second codepath whose fallback most of the audience would be the
+ones seeing. One experience that is fully good everywhere beat two.
+
+> [!IMPORTANT]
+> The immersion never becomes the page. The gate is inert markup until JS turns
+> it on, so a crawler and a JS-off visitor read the whole vault; every floor's
+> copy is in the HTML, not fetched later; reduced motion flattens the descent to
+> the same content standing still; and `test_vault.py` fails if a third-party
+> script ever appears or the page doubles in weight.
+
+#### 🔎 The public register — look someone up before you pay them
+
+Four of the scanners answer the same shape of question about a different kind of
+subject: a Telegram bot, a signal seller, an influencer, a copy-trade broker.
+Each answer is good, and each one evaporates. The person pitched by the same
+handle next week starts from nothing.
+
+`/register @handle`, or the page at **`/register`**, reads the scan archive back
+the other way round — **by subject, across everybody** — so a name that keeps
+coming back accumulates a record anyone can search. No login: someone about to
+be defrauded is exactly the person who has not signed up yet. After a scan, the
+tool page tells you straight away if this name has been flagged before.
+
+> [!IMPORTANT]
+> These are real businesses and real handles, so the page is a record of **what
+> our scanner found**, never a claim about a person. Only subjects the rule
+> engine flagged appear; nothing is listed under two flags on two different days,
+> so one afternoon of scanning a rival never becomes a listing; every row shows
+> its count, dates and score and links to the scans behind it. And a name with
+> no record is reported as *no record* — never as safe, because that is the one
+> way this page could get someone hurt.
+
 #### 📊 The premium band — is this the moment, or just Tuesday?
 
 "PAXG is 1.4% over spot" is useless on its own, because nobody knows whether
@@ -913,6 +971,8 @@ actually reads.
 - [x] **Morning Brief** — one daily message at your KL hour, across the calendar, the hours map and your own positions
 - [x] **#17 premium band** — each coin's own 30-day range, and the cheaper way into gold today
 - [x] **One language per page** — every surface rendered in both and checked that neither bleeds into the other
+- [x] **Public register** — a searchable record across the four scanners, with a bar for being named on it
+- [x] **The vault** — the landing page rebuilt as an entry gate and a five-floor descent, no 3D library
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -1029,6 +1089,7 @@ sambangold-products/
 │   ├── eventspread.py                  #5 what the spread did at the release, and when it came home
 │   ├── brief.py                        the Morning Brief — one message a day, at your KL hour
 │   ├── premium.py                      #17 each coin's own premium band, and the cheaper route
+│   ├── register.py                     the public register — one lookup across four scanners
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

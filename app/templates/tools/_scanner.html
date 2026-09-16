@@ -31,6 +31,13 @@
   <div class="stat glass {{ 'warn' if r.broker_links else '' }}"><span>{{ t('ui.s_ref') }}</span><b>{{ r.broker_links|length }}</b><small>{{ t('ui.s_ref_note') }}</small></div>
   {% endif %}
 </div>
+{% if c.record and c.record.listed %}
+<div class="lux lux-gold" style="padding:16px 20px;margin:16px 0">
+  <p style="margin:0 0 6px;font-size:17px">🔎 {{ c.record_line|safe }}</p>
+  <p class="text-muted" style="margin:0"><a class="text-gold" href="{{ url_for('views.register', q=c.record.subject) }}">{{ t('reg.open') }} →</a></p>
+</div>
+{% endif %}
+
 {% if c.scan_id %}
 <p class="lede">{{ t('ui.s_share') }}: <a class="mono" href="{{ url_for('views.scan_public', slug=c.slug, scan_id=c.scan_id) }}">{{ url_for('views.scan_public', slug=c.slug, scan_id=c.scan_id, _external=True) }}</a>
   {% if c.public|length > 1 %}· {{ t('ui.s_community', n=c.public|length) }}{% endif %}</p>

@@ -12,6 +12,7 @@ from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make
 from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, howto, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
 from . import brief as morningbrief
+from . import register as reg
 from . import setup as mysetup
 from .auth import admin_required, current_user, lang as ui_lang, login_required
 from .brand import t
@@ -31,6 +32,19 @@ LANDING_PATHS = (
     ("p2", "🏦", ("prop-calculator", "monte-carlo-sim", "drawdown-sentinel", "exposure-monitor")),
     ("p3", "🤝", ("ib-revenue-calculator", "rebate-auditor", "churn-radar", "broker-comparator", "link-attribution")),
 )
+# The vault's five floors. Each has one job, and between them they hold all 18
+# tools — four left the tokenised-gold pair homeless and made the first floor a
+# lumpy mix of price tools and scam tools.
+FLOORS = (
+    ("f1", "🥇", ("gold-watch", "gold-calendar")),
+    ("f2", "🛡️", ("signal-verifier", "bot-scam-detector", "red-flag-scanner",
+                   "influencer-audit", "copy-trade-audit")),
+    ("f3", "🏦", ("prop-calculator", "monte-carlo-sim", "drawdown-sentinel", "exposure-monitor")),
+    ("f4", "🤝", ("ib-revenue-calculator", "rebate-auditor", "churn-radar",
+                  "broker-comparator", "link-attribution")),
+    ("f5", "🪙", ("tokenized-gold", "miner-divergence")),
+)
+
 LANDING_ROWS = (
     ("r1", ("signal-verifier", "bot-scam-detector", "copy-trade-audit", "red-flag-scanner", "influencer-audit")),
     ("r2", ("prop-calculator", "monte-carlo-sim", "drawdown-sentinel", "exposure-monitor")),
@@ -53,7 +67,7 @@ def index():
         quote = feeds.gold_quote()
     except feeds.FeedError:
         quote = None
-    return render_template("landing.html", products=PRODUCTS, live=live, rest=rest, quote=quote, by_slug=BY_SLUG, paths=LANDING_PATHS, rows=LANDING_ROWS)
+    return render_template("landing.html", products=PRODUCTS, live=live, rest=rest, quote=quote, by_slug=BY_SLUG, paths=LANDING_PATHS, rows=LANDING_ROWS, floors=FLOORS)
 
 
 @bp.route("/dashboard", methods=["GET", "POST"])
@@ -109,6 +123,13 @@ def setup_page():
         flash(t("set." + ctx["notice"], ui_lang()), "ok")
         return redirect(url_for("views.setup_page"))
     return render_template("setup.html", **ctx)
+
+
+@bp.route("/register")
+def register():
+    """The public register — no login, on purpose: someone about to be defrauded
+    is exactly the person who has not signed up yet."""
+    return render_template("register.html", **reg.page(request))
 
 
 @bp.route("/account")

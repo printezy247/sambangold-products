@@ -526,6 +526,29 @@ def watchlist(owner, product):
         (str(owner), product))]
 
 
+def register_rows(products, subject=None, limit=60):
+    """Every subject these products have scanned, across all owners.
+
+    Grouped case-insensitively, because "@Gold_Guru" and "@gold_guru" are one
+    person. `days` counts distinct calendar days rather than raw scans: it is
+    what stops one person hammering the same name from looking like a crowd.
+    """
+    marks = ",".join("?" * len(products))
+    where = "product IN (%s)" % marks
+    args = list(products)
+    if subject:
+        where += " AND LOWER(subject) = ?"
+        args.append(subject.strip().lower())
+    args.append(int(limit))
+    return [dict(r) for r in db().execute(
+        "SELECT LOWER(subject) AS key, MIN(subject) AS subject, product,"
+        " COUNT(*) AS n, COUNT(DISTINCT CAST(created_at / 86400 AS INTEGER)) AS days,"
+        " MAX(score) AS worst, MIN(created_at) AS first_at, MAX(created_at) AS last_at,"
+        " SUM(CASE WHEN verdict != 'clear' THEN 1 ELSE 0 END) AS flagged"
+        " FROM scans WHERE %s AND subject != '' GROUP BY key"
+        " ORDER BY last_at DESC LIMIT ?" % where, args)]
+
+
 def public_scans(product, subject, limit=10):
     return [dict(r) for r in db().execute(
         "SELECT id, score, verdict, created_at FROM scans WHERE product = ? AND subject = ? ORDER BY created_at DESC LIMIT ?",

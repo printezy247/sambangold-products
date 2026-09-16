@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ t('reg.title') }}{% endblock %}
+{% block body %}
+<div class="wrap" style="padding-top:56px">
+  <h1>🔎 {{ t('reg.title') }}</h1>
+  <p class="lede">{{ t('reg.sub') }}</p>
+
+  <form method="get" class="lux lux-gold fields" style="padding:20px;align-items:flex-end;margin-top:18px">
+    <label style="flex:2 1 260px">{{ t('reg.search') }}
+      <input name="q" value="{{ q }}" placeholder="@gold_guru_my">
+    </label>
+    <label>{{ t('reg.all') }}
+      <select name="p">
+        <option value="">{{ t('reg.all') }}</option>
+        {% for slug in products %}
+        <option value="{{ slug }}" {{ 'selected' if product == slug }}>{{ by_slug[slug].view(lang).name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-gold" type="submit">{{ t('reg.go') }}</button>
+  </form>
+
+  {% if q and not rows %}
+  <div class="lux" style="padding:20px;margin-top:18px">
+    <p style="margin:0 0 6px;font-size:17px">{{ t('reg.none', subject=q)|safe }}</p>
+    <p class="text-muted" style="margin:0">{{ t('reg.none_note') }}</p>
+  </div>
+  {% elif not rows %}
+  <p class="lede" style="margin-top:18px">{{ t('reg.empty') }}</p>
+  {% else %}
+  <table class="flags" style="margin-top:18px">
+    <thead><tr><th>{{ t('reg.col_subject') }}</th><th>{{ t('reg.col_flagged') }}</th><th>{{ t('reg.col_worst') }}</th><th>{{ t('reg.col_last') }}</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td><b>{{ r.subject }}</b>
+          {% if not r.listed %}<span class="chip">{{ t('reg.thin', subject='', n=r.n)|striptags|trim }}</span>{% endif %}
+          {% if r.stale %}<span class="chip">{{ t('reg.stale') }}</span>{% endif %}
+        </td>
+        <td class="mono">{{ r.flagged }} / {{ r.n }}</td>
+        <td class="mono">{{ r.worst }}</td>
+        <td>{{ when(r.last_at) }}</td>
+        <td><a class="text-gold" href="{{ url_for('views.register', q=r.subject) }}">{{ t('reg.open') }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <p class="text-muted" style="margin-top:18px">{{ t('reg.bar', flagged=min_flagged, days=min_days) }}</p>
+  <p class="text-muted">{{ t('reg.disclaimer') }}</p>
+</div>
+{% endblock %}
