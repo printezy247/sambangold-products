@@ -619,6 +619,28 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### 🧰 My Setup — the answers a tool never asks twice
+
+Eighteen tools, and nearly every one of them opens by asking the same four
+things: which broker, how big the account, which prop firm, how many lots a
+month. Answer them once and every surface remembers.
+
+`/setup` on the bot walks you through it with buttons, or reads it back and
+takes `/setup size=100000` for a single change. `/setup` on the dashboard is the
+same seven answers as a form, and the nav carries it.
+
+| Saved once | Fills in |
+|:--|:--|
+| Broker · lots a month · rebate per lot · clients | 🤝 #8 IB Revenue · #10 Rebate Auditor · #11 Churn Radar · #12 Broker Comparator |
+| Account size · prop firm | 🏦 #3 Prop Calculator · #14 Drawdown Sentinel · #15 Monte Carlo |
+| Main channel | #13 Link Attribution |
+
+> [!NOTE]
+> Two rules make this safe. A saved value only ever fills a **GET**, and every
+> dashboard handler that writes gates on `POST` — so a prefilled field can never
+> create, delete or charge anything. And a value you typed always wins: the
+> setup can fill a gap, never overwrite an answer.
+
 #### 🛰️ Autopilot — what A-Team actually buys
 
 `/autopilot` on the bot, or the panel on your dashboard, turns five of the tools
@@ -796,6 +818,7 @@ actually reads.
 - [x] **Free doors** — the broker account and referral credit, both surfaces
 - [x] **Rambo seats** — ten team members on one rank, with the expiry that pays for them
 - [x] **Rambo extras** — the white-label widget and signed outbound webhooks
+- [x] **My Setup** — the recurring answers saved once, pre-filling forms on both surfaces
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -907,6 +930,7 @@ sambangold-products/
 │   ├── whitelabel.py                   the branded card and the signed webhook out
 │   ├── groups.py                       group auto-scan — the bot watches a room
 │   ├── howto.py                        three plain steps and an example, per tool
+│   ├── setup.py                        My Setup — the answers a tool never asks twice
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>

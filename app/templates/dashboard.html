@@ -53,6 +53,14 @@
     {% for p in rest %}{% set is_live = false %}{% include "_card.html" %}{% endfor %}
   </div>
 
+  <div class="lux lux-gold" style="padding:22px;margin-top:48px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
+    <div>
+      <h3 style="margin:0">🧰 {{ t('set.card_h') }} <span class="chip">{{ t('set.done', n=su[0], total=su[1]) }}</span></h3>
+      <p class="text-muted" style="margin:6px 0 0">{{ t('set.card_sub') }}</p>
+    </div>
+    <a class="btn btn-gold" href="{{ url_for('views.setup_page') }}">{{ t('set.open') }}</a>
+  </div>
+
   <div id="autopilot" class="lux{% if ap.allowed %} lux-gold{% endif %}" style="padding:22px;margin-top:48px">
     <h3 style="margin-top:0">🛰️ {{ t('ui.ap_h') }}
       {% if not ap.allowed %}<span class="chip">{{ rank_label('pro') }}</span>{% endif %}</h3>

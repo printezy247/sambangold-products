@@ -7,7 +7,7 @@
 <form method="post" class="panel tool">
   <input type="hidden" name="action" value="create">
   <div class="fields">
-    <label>{{ t('ui.k_channel') }} <input name="channel" value="{{ c.form.get('channel', '') }}" placeholder="telegram" required></label>
+    <label>{{ t('ui.k_channel') }} <input name="channel" value="{{ c.form.get('channel') or setup.channel or '' }}" placeholder="telegram" required></label>
     <label>{{ t('ui.k_url') }} <input name="url" value="{{ c.form.get('url', c.default_url) }}" placeholder="https://broker.example/?refid=12345"></label>
   </div>
   <div class="actions"><button type="submit">{{ t('ui.k_make') }}</button></div>

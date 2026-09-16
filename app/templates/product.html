@@ -36,6 +36,13 @@
     </div>
   </div>
 
+  {% if prefilled %}
+  <p class="lux" style="padding:12px 18px;margin:24px 0 0;font-size:14px">
+    🧰 {{ t('set.prefilled') }}
+    <a class="text-gold" href="{{ url_for('views.setup_page') }}">{{ t('set.open') }}</a>
+  </p>
+  {% endif %}
+
   {% if tool %}
   <div class="lux howto" style="padding:20px;margin:26px 0 8px">
     <h3 style="margin:0 0 12px">{{ t('how.title') }}</h3>

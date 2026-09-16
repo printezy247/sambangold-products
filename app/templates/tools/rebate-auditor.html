@@ -6,7 +6,7 @@
   <div class="fields">
     <label>{{ t('ui.r_broker') }} <input name="broker" value="{{ c.form.get('broker', '') }}" placeholder="{{ t('ui.optional') }}"></label>
     <label>{{ t('ui.r_period') }} <input name="period" value="{{ c.form.get('period', '') }}" placeholder="2026-08"></label>
-    <label>{{ t('ui.r_rate') }} <input name="rate" value="{{ c.form.get('rate', '') }}" placeholder="6" required></label>
+    <label>{{ t('ui.r_rate') }} <input name="rate" value="{{ c.form.get('rate') or setup.rate or '' }}" placeholder="6" required></label>
     <label>{{ t('ui.r_overrides') }} <input name="overrides" value="{{ c.form.get('overrides', '') }}" placeholder="{{ t('ui.r_overrides_ph') }}"></label>
     <label>{{ t('ui.r_tiers') }} <input name="tiers" value="{{ c.form.get('tiers', '') }}" placeholder="{{ t('ui.r_tiers_ph') }}"></label>
   </div>
