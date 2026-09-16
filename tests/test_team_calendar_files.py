@@ -67,6 +67,17 @@ def test_seed_file_items_is_idempotent(app):
         assert len(store.file_items()) == first
 
 
+def test_seed_data_links_the_5_paid_titles_to_drive_not_git():
+    """The paid-tier ebooks (sold on website_sam) must never be files
+    committed to this public repo — they're Drive links only."""
+    items = library.seed_data()
+    paid = [it for it in items if it["tags"] in ("standard", "premium")]
+    assert len(paid) == 10   # 5 titles x EN+BM
+    assert all(it["source"] == "drive" for it in paid)
+    assert all(it["url"].startswith("https://drive.google.com/") for it in paid)
+    assert {it["tags"] for it in paid} == {"standard", "premium"}
+
+
 def test_files_page_requires_team_role(client):
     assert client.get("/team/files").status_code == 302
     login(client, user_id="1")
