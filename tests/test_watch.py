@@ -68,7 +68,8 @@ def test_checker_fires_on_the_traded_side_and_records(app, fake_feed):
         store.add_alert(7, "XAUUSD", "above", 2400.6)   # not yet
         store.add_alert(9, "XAUUSD", "below", 2399.4)   # bid 2399.5 → not yet
         result = watch.check_alerts(lambda cid, text: sent.append((cid, text)))
-        assert result == {"checked": 3, "fired": 1, "source": "test feed", "pushed": 0}
+        assert result == {"checked": 3, "fired": 1, "source": "test feed", "pushed": 0,
+                          "brief_sent": 0, "brief_gated": 0}
         assert sent[0][0] == "7" and "2,400.50" in sent[0][1]
         assert [a["level"] for a in store.active_alerts()] == [2400.6, 2399.4]
         hist = store.triggers_for(7)
@@ -84,7 +85,8 @@ def test_task_endpoint_requires_token(client):
     assert client.post("/tasks/check-alerts").status_code == 403
     assert client.post("/tasks/check-alerts", headers={"X-Task-Token": "wrong"}).status_code == 403
     ok = client.post("/tasks/check-alerts", headers={"X-Task-Token": "test-task-token"})
-    assert ok.status_code == 200 and ok.get_json() == {"checked": 0, "fired": 0, "pushed": 0}
+    assert ok.status_code == 200 and ok.get_json() == {"checked": 0, "fired": 0, "pushed": 0,
+                                                      "brief_sent": 0, "brief_gated": 0}
 
 
 def test_cli_check_alerts(app):

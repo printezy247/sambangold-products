@@ -619,6 +619,34 @@ makes every grant idempotent. Your effective rank is the highest grant still
 active, which is why the broker door and a card subscription can coexist without
 either one clobbering the other.
 
+#### ☀️ The Morning Brief — one message instead of eighteen
+
+Eighteen tools is eighteen things to remember to check, and nobody checks
+eighteen. The autopilot solved half of that by making each tool speak for
+itself; five separate pushes is still five. This is the other half: **one
+message, once a day, at an hour you pick, covering everything that decides
+whether today is a day to trade.**
+
+| In it | From |
+|:--|:--|
+| Is today safe to trade at all | #5 the calendar's verdict |
+| Cheap hour or dear one, and the wait | #1 the hours map |
+| Has the tokenised-gold premium left its band | #17 |
+| What moved *yours* overnight | armed alerts that fired · accounts no longer safe against their rule pack |
+
+`/brief` reads it now, for anyone. `/brief 8` has it arrive every morning at 8
+**KL time** — someone choosing when to be woken is not going to convert time
+zones. `/brief off` stops it. The dashboard carries the same picker and a live
+preview.
+
+Reading it is free; being *sent* it is the rank, which puts it on `alerts`
+beside the calendar reminder — the same free door General already opens.
+
+> [!NOTE]
+> A quiet morning still marks the day done, so a silent 8am cannot pile up into
+> a second message at noon. And one dead feed never eats the brief — a section
+> that raises is simply left out, and the rest of the morning still arrives.
+
 #### 📋 The event record — what the spread actually did
 
 Every calendar tells you NFP is at 20:30. None of them tell you the thing that
@@ -865,6 +893,7 @@ actually reads.
 - [x] **My Setup** — the recurring answers saved once, pre-filling forms on both surfaces
 - [x] **#1 hours map** — best and worst hours to trade gold, from our own spread log
 - [x] **#5 event record** — what the spread did at the last releases, plus the safe re-entry clock
+- [x] **Morning Brief** — one daily message at your KL hour, across the calendar, the hours map and your own positions
 - [ ] One billing spine (Stripe + USDT) writing into the same entitlements table
 
 ```mermaid
@@ -979,6 +1008,7 @@ sambangold-products/
 │   ├── setup.py                        My Setup — the answers a tool never asks twice
 │   ├── hours.py                        #1 best and worst hours, read back from the spread log
 │   ├── eventspread.py                  #5 what the spread did at the release, and when it came home
+│   ├── brief.py                        the Morning Brief — one message a day, at your KL hour
 │   ├── auth.py                         Telegram Login Widget → web session
 │   ├── telegram.py                     webhook + command dispatch
 │   ├── views.py                        /, /pricing and /p/<slug>
