@@ -36,6 +36,28 @@ TOKENS = {
              "redemption": "from 430 oz (one bar) via Tether (KYC)", "fee": "0.25 % on purchase/redemption",
              "url": "https://gold.tether.to/"},
 }
+# The same rows in Bahasa Melayu. Kept beside the facts rather than in
+# `brand.py`, so a fact and its translation are dated and revised as one row —
+# a quarterly refresh that updates only one of the two would be worse than
+# either language alone.
+TOKENS_MS = {
+    "PAXG": {"attestation": "bulanan, akauntan bebas",
+             "redemption": "dari 1 oz melalui Paxos (KYC); jongkong fizikal dari 430 oz",
+             "fee": "yuran pindahan on-chain 0.02 % (min 0.000002 PAXG); yuran tebusan berperingkat"},
+    "XAUT": {"attestation": "laporan rizab suku tahunan",
+             "redemption": "dari 430 oz (satu jongkong) melalui Tether (KYC)",
+             "fee": "0.25 % semasa beli/tebus"},
+}
+
+
+def tokens(lang="ms"):
+    """The facts table in the reader's language. Issuer, chain and URL are
+    names, so they are never translated."""
+    if lang != "ms":
+        return TOKENS
+    return {k: dict(v, **TOKENS_MS.get(k, {})) for k, v in TOKENS.items()}
+
+
 FACTS_DATE = "2026-09"
 FEES = {   # typical USDT transfer cost, USD, as of 2026-09; verify with your wallet
     "TRC20 (Tron)": 1.0, "ERC20 (Ethereum)": 3.0, "BEP20 (BNB Chain)": 0.10, "Polygon": 0.02, "Arbitrum": 0.10, "Solana": 0.01,

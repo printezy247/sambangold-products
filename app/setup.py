@@ -259,7 +259,12 @@ def dashboard_setup(request, user=None):
     from .auth import lang as ui_lang
     lang = ui_lang()
     owner = user["owner"] if user else None
-    ctx = {"owner": owner, "fields": FIELDS, "options": options_for, "label": label, "hint": hint,
+    # Bound to the visitor's language, not left to default. A bare `label`
+    # here would fall back to Bahasa Melayu on an English page — which is
+    # exactly what it did, and why `test_language.py` now renders every page
+    # in both languages and refuses to let one bleed into the other.
+    ctx = {"owner": owner, "fields": FIELDS, "options": options_for,
+           "label": lambda key: label(key, lang), "hint": lambda key: hint(key, lang),
            "saved": read(owner), "errors": {}, "notice": None, "keys": KEYS}
     if request.method == "POST" and owner:
         if request.form.get("action") == "clear":

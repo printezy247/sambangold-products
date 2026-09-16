@@ -105,9 +105,16 @@ def _premium(owner, lang, now):
         a = tokengoldtool._analysed()
     except Exception:                       # noqa: BLE001 — same reason
         return None
-    if not a["flags"]:
-        return t("brief.premium_ok", lang)
-    return "\n".join([t("brief.premium_off", lang)] + tokengoldtool.readout_lines(a, lang)[:2])
+    from . import premium
+    measured = premium.bands(a)
+    out = [premium.line(measured[asset], lang) for asset in premium.ASSETS if measured[asset]]
+    best = premium.cheapest(a)
+    if best and out:
+        out.append(t("band.route", lang, asset=best["asset"].upper(), premium="%+.2f" % best["premium"],
+                     saving="%.2f" % best["saving"], other=best["other"].upper()))
+    if out:
+        return "\n".join(out)
+    return t("brief.premium_off", lang) if a["flags"] else t("brief.premium_ok", lang)
 
 
 def _yours(owner, lang, now):

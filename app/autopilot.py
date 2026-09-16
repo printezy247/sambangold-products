@@ -77,14 +77,20 @@ def _miners(owner, lang):
 
 
 def _tokengold(owner, lang):
-    from . import tokengold, tokengoldtool
+    from . import premium, tokengold, tokengoldtool
     try:
         a = tokengoldtool._analysed()
     except tokengold.FeedError:
         return None
-    if not a["flags"]:
-        return None            # a premium inside its band is not news
-    return "\n".join([t("ap.tokengold", lang)] + tokengoldtool.readout_lines(a, lang))
+    # Either the fixed warning fires, or the premium has left the range this
+    # coin actually keeps. A premium inside its own band is never news.
+    out_of_band = [b for b in premium.bands(a).values() if b and b["verdict"] != "normal"]
+    if not a["flags"] and not out_of_band:
+        return None
+    body = tokengoldtool.readout_lines(a, lang)
+    if out_of_band:
+        body += [""] + premium.lines(a, lang=lang)[1:]
+    return "\n".join([t("ap.tokengold", lang)] + body)
 
 
 def _sentinel(owner, lang):

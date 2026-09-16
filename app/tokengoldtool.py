@@ -2,7 +2,7 @@
 
 import time
 
-from . import store, tokengold
+from . import premium, store, tokengold
 from .brand import DEFAULT_LANG, t
 
 SLUG = "tokenized-gold"
@@ -36,9 +36,10 @@ def _analysed(max_age=tokengold.CACHE_SECONDS):
 def bot_paxg(args, chat_id=None, lang=DEFAULT_LANG, **_):
     try:
         a = _analysed()
-    except tokengold.FeedError as exc:
-        return t("tk.down", lang, err=str(exc)[:80])
-    return "\n".join(readout_lines(a, lang) + [t("scan.disclaimer", lang)])
+    except tokengold.FeedError:
+        return t("tk.down", lang)
+    # The number alone is not the answer. Where it sits in its own range is.
+    return "\n".join(readout_lines(a, lang) + [""] + premium.lines(a, lang=lang) + [t("scan.disclaimer", lang)])
 
 
 def wallet_lines(w, lang):
@@ -109,13 +110,18 @@ def dashboard_tokengold(request, user=None):
     from .auth import lang as ui_lang
     lang = ui_lang()
     form = request.values
-    ctx = {"form": form, "a": None, "error": None, "tokens": tokengold.TOKENS, "facts_date": tokengold.FACTS_DATE,
+    ctx = {"form": form, "a": None, "error": None, "tokens": tokengold.tokens(lang), "facts_date": tokengold.FACTS_DATE,
            "fees": tokengold.FEES, "wallet": None, "lines": readout_lines, "wallet_lines": wallet_lines, "pct": _pct, "fmt": _fmt,
            "history": store.premium_history(days=7), "svg": None}
     try:
         ctx["a"] = _analysed()
-    except tokengold.FeedError as exc:
-        ctx["error"] = t("tk.down", lang, err=str(exc)[:120])
+    except tokengold.FeedError:
+        ctx["error"] = t("tk.down", lang)
+    # The band needs the live premium to say where *now* sits, so it comes after.
+    ctx["bands"] = premium.bands(ctx["a"] or {})
+    ctx["cheapest"] = premium.cheapest(ctx["a"]) if ctx["a"] else None
+    ctx["band_days"] = premium.DAYS
+    ctx["band_line"] = lambda b: premium.line(b, lang)     # bound, never defaulting to MS
     if form.get("address"):
         ctx["wallet"] = tokengold.check_wallet(form["address"], form.get("expected") or None)
     ctx["svg"] = svg_history(ctx["history"])

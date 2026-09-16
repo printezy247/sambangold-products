@@ -60,6 +60,17 @@ def _migrate(conn):
     conn.commit()
 
 
+def ready():
+    """True where there is a database to read.
+
+    The surface-contract test calls the bot's text functions with no app
+    context: every product's base answer must come back without a read. The
+    history we layer on top is the part that steps aside, not the answer.
+    """
+    from flask import has_app_context
+    return has_app_context()
+
+
 def close_db(_exc=None):
     conn = g.pop("db", None)
     if conn is not None:
@@ -872,6 +883,16 @@ SCHEMA += PREMIUM_SCHEMA
 def log_premium(paxg, xaut, spot, usdt):
     db().execute("INSERT INTO premium_log (at, paxg, xaut, spot, usdt) VALUES (?, ?, ?, ?, ?)", (time.time(), paxg, xaut, spot, usdt))
     db().commit()
+
+
+def premium_series(days=30, limit=4000):
+    """The premium samples for the band — newest first under the cap, then put
+    back in order. `premium_history` takes the oldest, which is right for a
+    chart and wrong for a range that is meant to describe now."""
+    rows = [dict(r) for r in db().execute(
+        "SELECT at, paxg, xaut, spot, usdt FROM premium_log WHERE at > ? ORDER BY at DESC LIMIT ?",
+        (time.time() - days * 86400, limit))]
+    return list(reversed(rows))
 
 
 def premium_history(days=7, limit=2500):
