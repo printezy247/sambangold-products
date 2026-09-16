@@ -87,7 +87,7 @@ half, on one Telegram account, with the same free tier on each.
 ---
 
 <div align="center">
-<sub>Status: <b>PROPOSED</b> &nbsp;·&nbsp; <a href="../README.md">← back to all 18 products</a></sub>
+<sub>Status: <b>SHIPPED</b> &nbsp;·&nbsp; <a href="../README.md">← back to all 18 products</a></sub>
 
 <sub>Educational research only. Not financial advice.</sub>
 </div>
