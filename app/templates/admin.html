@@ -6,6 +6,22 @@
     <div><h1>{{ t('admin.title') }}</h1><p class="lede">{{ t('admin.subtitle') }}</p></div>
     <a class="btn btn-gold" href="{{ url_for('views.admin_users_csv') }}" download>⬇ {{ t('admin.export') }}</a>
   </div>
+  <div class="panel" style="margin-top:24px;overflow-x:auto">
+    <h2 style="margin:0 0 4px;font-size:18px">{{ t('hl.title') }}</h2>
+    <p class="text-muted" style="margin:0">{{ t('hl.sub') }}</p>
+    <table class="flags">
+      <tbody>
+      {% for row in health %}
+        <tr class="{% if row.state == 'ok' %}positive{% elif row.state == 'bad' %}negative{% endif %}">
+          <td><b>{{ t('hl.' ~ row.key) }}</b><br><span class="text-muted">{{ t('hl.' ~ row.key ~ '_note') }}</span></td>
+          <td class="mono">{{ row.detail }}</td>
+          <td class="mono">{% if row.state == 'ok' %}✅{% elif row.state == 'warn' %}⚠️{% elif row.state == 'bad' %}❌{% else %}—{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
   <form method="post" class="panel" style="margin-top:20px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between">
     <p class="text-muted" style="margin:0;max-width:52ch">{{ t('admin.hook_note') }}</p>
     <button class="btn btn-gold" name="hook" value="1" type="submit">{{ t('admin.hook') }}</button>

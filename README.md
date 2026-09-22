@@ -1072,6 +1072,13 @@ CI runs on every push and pull request against `master` — the README/asset che
    `flask --app wsgi set-webhook`. Press it again whenever a new command ships — the list lives in
    the code, and Telegram only learns it when it is told.
 
+4. Check **Deploy health** at the top of `/admin`. Five rows, each one a failure that is
+   otherwise silent: the public address Telegram sign-in is signed against, whether the
+   database is on the volume or in the container that the next deploy replaces, how long ago
+   the 5-minute alert checker last reached us, where Telegram currently sends the bot's
+   messages, and whether the task token is set. Green on all five means the deployment is
+   actually wired, not merely running.
+
 Every push to `master` that passes CI redeploys automatically — no deploy step to run by hand.
 
 </details>

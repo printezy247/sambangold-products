@@ -105,6 +105,16 @@ COMMANDS = {
 }
 
 
+def webhook_info(token):
+    """What Telegram thinks our webhook is, or None when we cannot ask."""
+    try:
+        r = requests.get(API % (token, "getWebhookInfo"), timeout=TIMEOUT)
+        body = r.json()
+    except Exception:
+        return None
+    return body.get("result") if isinstance(body, dict) and body.get("ok") else None
+
+
 def set_commands(token):
     """Register the command list (default = Bahasa Melayu, plus English) and the Menu button."""
     results = []

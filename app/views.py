@@ -9,7 +9,7 @@ import time
 from flask import (Blueprint, Response, abort, current_app, flash, jsonify, make_response, redirect,
                    render_template, request, send_from_directory, session, url_for)
 
-from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, howto, linktool, mctool, perks, rebatetool, scan, scantool,
+from . import (autopilot, brokertool, caltool, doors, feeds, gate, groups, health, howto, linktool, mctool, perks, rebatetool, scan, scantool,
                seats, sentineltool, store, telegram, verifytool, watch, whitelabel)
 from . import brief as morningbrief
 from . import register as reg
@@ -174,7 +174,8 @@ def admin():
             flash(t("adm.grant_bad", ui_lang()), "err")
         return redirect(url_for("views.admin"))
     return render_template("admin.html", users=store.list_users(), counts=store.user_counts(),
-                           grants=store.all_entitlements(), tiers=TIERS, claims=store.broker_claims())
+                           grants=store.all_entitlements(), tiers=TIERS, claims=store.broker_claims(),
+                           health=health.report())
 
 
 @bp.route("/admin/users.csv")
@@ -222,7 +223,11 @@ def check_alerts_task():
     given = request.headers.get("X-Task-Token", "")
     if not expected or not hmac.compare_digest(expected, given):
         abort(403)
-    return jsonify(watch.check_alerts(telegram.send_message))
+    result = watch.check_alerts(telegram.send_message)
+    # The heartbeat is what /admin reads: a checker that stopped reaching us
+    # is otherwise perfectly silent — no alert fires and nothing complains.
+    store.note(health.CHECKER_KEY, "%d/%d" % (result.get("fired", 0), result.get("checked", 0)))
+    return jsonify(result)
 
 
 @bp.route("/p/gold-calendar/quarter.pdf")
