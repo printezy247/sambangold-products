@@ -1067,7 +1067,10 @@ CI runs on every push and pull request against `master` — the README/asset che
 
 1. Add a **Volume** mounted at `/data` (Settings → Volumes) so SQLite survives restarts and redeploys.
 2. Set the secrets below as service variables (`TELEGRAM_BOT_TOKEN`, `FLASK_SECRET_KEY`, `PUBLIC_BASE_URL` = the Railway-issued domain, `ADMIN_TELEGRAM_ID`, `TASK_TOKEN`, plus SMTP/Stripe if used). `DATABASE_PATH` defaults to `data/sambangold.db`; set it to `/data/sambangold.db` to use the volume.
-3. Run `flask --app wsgi set-webhook` once (Railway shell, or locally with `PUBLIC_BASE_URL`/`TELEGRAM_BOT_TOKEN` set) so Telegram knows where to send updates.
+3. Register the bot: press **Register bot commands** on `/admin`, which sends the webhook and the
+   command list to Telegram in one action. The same job runs from a shell as
+   `flask --app wsgi set-webhook`. Press it again whenever a new command ships — the list lives in
+   the code, and Telegram only learns it when it is told.
 
 Every push to `master` that passes CI redeploys automatically — no deploy step to run by hand.
 

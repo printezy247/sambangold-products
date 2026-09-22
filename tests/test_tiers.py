@@ -270,3 +270,32 @@ def test_the_exposure_warning_is_free_too(app):
     with app.app_context():
         assert "ex.warn" not in str(exposuretool.bot_exposure(["warn"], chat_id="77", lang="ms"))
         assert store.get_setting("exposure-monitor", "77", "warn") == "on"
+
+
+def test_admin_can_register_the_bot_commands_from_the_page(client, app, monkeypatch):
+    """The command list lives in the code; Telegram only learns it when told.
+    One button does it, so a newly shipped command is one press from the menu."""
+    from app import telegram, views
+
+    sent = {}
+    monkeypatch.setattr(views.telegram, "set_webhook", lambda base, token: sent.setdefault("hook", (base, token)))
+    monkeypatch.setattr(views.telegram, "set_commands", lambda token: sent.setdefault("cmds", token))
+    login(client, user_id="99", admin=True)
+    app.config["ADMIN_TELEGRAM_ID"] = "99"
+    app.config["TELEGRAM_BOT_TOKEN"] = "t0ken"
+    app.config["PUBLIC_BASE_URL"] = "https://example.test"
+
+    r = client.post("/admin", data={"hook": "1"}, follow_redirects=True)
+    assert r.status_code == 200
+    assert sent["hook"] == ("https://example.test", "t0ken") and sent["cmds"] == "t0ken"
+    # The commands the bot ships today are the ones Telegram is handed.
+    names = [c for c, _ in telegram.COMMANDS["ms"]]
+    assert {"setup", "brief", "register"} <= set(names)
+
+
+def test_registering_without_a_token_says_so_instead_of_failing(client, app):
+    login(client, user_id="99", admin=True)
+    app.config["ADMIN_TELEGRAM_ID"] = "99"
+    app.config["TELEGRAM_BOT_TOKEN"] = ""
+    r = client.post("/admin", data={"hook": "1"}, follow_redirects=True)
+    assert r.status_code == 200

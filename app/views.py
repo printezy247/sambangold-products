@@ -145,7 +145,17 @@ def admin():
     if request.method == "POST":
         owner = (request.form.get("owner") or "").strip()
         tier = (request.form.get("tier") or "").strip()
-        if request.form.get("approve"):
+        if request.form.get("hook"):
+            # The command list ships in the code; Telegram only learns it when
+            # someone tells it. One button, so a new command is one press away.
+            token = current_app.config["TELEGRAM_BOT_TOKEN"]
+            if not token:
+                flash(t("adm.hook_bad", ui_lang()), "err")
+            else:
+                telegram.set_webhook(current_app.config["PUBLIC_BASE_URL"], token)
+                telegram.set_commands(token)
+                flash(t("adm.hook_ok", ui_lang()), "ok")
+        elif request.form.get("approve"):
             tier, err = doors.approve(request.form["approve"], request.form.get("deposit") or None)
             flash(t("adm.br_ok", ui_lang()) if not err else t(err, ui_lang()), "err" if err else "ok")
         elif request.form.get("reject"):
