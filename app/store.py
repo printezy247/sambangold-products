@@ -35,6 +35,11 @@ CREATE TABLE IF NOT EXISTS triggers (
 );
 CREATE INDEX IF NOT EXISTS alerts_owner ON alerts(owner, active);
 CREATE INDEX IF NOT EXISTS triggers_owner ON triggers(owner, fired_at);
+CREATE TABLE IF NOT EXISTS meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    at    REAL NOT NULL
+);
 """
 
 
@@ -75,6 +80,22 @@ def close_db(_exc=None):
     conn = g.pop("db", None)
     if conn is not None:
         conn.close()
+
+
+# --- meta ----------------------------------------------------------------- #
+
+def note(key, value=""):
+    """Record that something happened, with the time it happened."""
+    db().execute("INSERT INTO meta (key, value, at) VALUES (?, ?, ?) "
+                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value, at = excluded.at",
+                 (key, str(value), time.time()))
+    db().commit()
+
+
+def noted(key):
+    """The last note under this key as {value, at}, or None if never noted."""
+    row = db().execute("SELECT value, at FROM meta WHERE key = ?", (key,)).fetchone()
+    return {"value": row["value"], "at": row["at"]} if row else None
 
 
 # --- alerts --------------------------------------------------------------- #
