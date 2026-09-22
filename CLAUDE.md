@@ -140,8 +140,9 @@ assets/          self-hosted animated SVGs (hero, dividers, icons, nav chips, ch
 products/        product-01..18.md — one spec per product
 scripts/         check-readme.sh, auto-commit.sh, auto-deploy.sh
 wsgi.py          gunicorn entry point
-Dockerfile       Fly.io build; fly.toml — app name, port 8080, /data volume for SQLite
-.github/         CI/CD workflow
+Dockerfile       Railway build; railway.json — builder, health check, restart policy
+                 (port from $PORT, /data volume mounted for the SQLite file)
+.github/         CI (checks only — Railway deploys master itself) + the 5-minute alert checker
 ```
 
 ## Product conventions
